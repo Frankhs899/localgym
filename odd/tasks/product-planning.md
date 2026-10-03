@@ -10,16 +10,14 @@ Phase 1 issues ready for implementation.
 
 ## Status
 
-In progress — GitHub Project setup pending token scope grant.
+Complete — planning flow delivered and reviewed.
 
 ## Tasks
 
 - [x] 1. Draft product brief (vision, users/roles, MVP scope, phases, no-goals, open decisions)
 - [x] 2. Iterate brief with the product owner; lock open decisions
 - [x] 3. Create GitHub repo (remote) and first commit: brief, license, README
-- [ ] 4. Set up GitHub Project with phases (project + milestones) — milestones Fase
-  0/1/2 and labels done; the Project itself is blocked: token needs the `project`
-  scope (user runs `gh auth refresh -s project,read:project`)
+- [x] 4. Set up GitHub Project with phases (project + milestones)
 - [x] 5. Open Phase 1 (MVP) issues with acceptance criteria
 
 ## Evidence
@@ -31,6 +29,8 @@ Commits are recorded here as tasks close.
 - Task 5: issues #1-#3 (Fase 0) and #4-#9 (Fase 1 MVP) created with labels
   fase-0/fase-1 and milestones Fase 0 #1 / Fase 1 #2 / Fase 2 #3;
   https://github.com/Frankhs899/localgym/issues/1 through /issues/9
+- Task 4: GitHub Project "LocalGym Roadmap" (number 1) created;
+  https://github.com/users/Frankhs899/projects/1 — all 9 issues added as items.
 
 ## Notes
 
