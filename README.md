@@ -9,15 +9,79 @@ la UI está en español y es responsive (PC, tablets y teléfonos).
 
 ## Estado
 
-🚧 En planificación: el [product brief](docs/product-brief.md) define la visión, el
-alcance del MVP y las fases del proyecto.
+🚧 **Fase 0 en curso**: estructura del monorepo lista (backend Django + frontend
+React). Pendiente: CI básico (issue #2) y guía de instalación completa. El
+[product brief](docs/product-brief.md) define la visión, el alcance del MVP y las
+fases del proyecto.
 
-## Stack previsto
+## Stack
 
 - **Backend**: Django 5.2 (LTS) + Django REST Framework
-- **Base de datos**: SQLite
-- **Frontend**: React (JavaScript) + Tailwind CSS + Vite
-- **Paquetes**: pnpm · **Entorno**: venv obligatorio para el backend
+- **Base de datos**: SQLite en una carpeta de datos persistente, fuera del
+  directorio de la aplicación
+- **Frontend**: React 19 (JavaScript) + Tailwind CSS + Vite
+- **Paquetes**: pnpm (versión fijada con `packageManager`) · **Entorno**: venv
+  obligatorio para el backend
+- **Linting**: ESLint en el frontend
+
+## Estructura del monorepo
+
+```text
+LocalGym/
+├── backend/              # API: Django 5.2 + DRF
+│   ├── config/           # Proyecto Django (settings, urls, wsgi/asgi)
+│   ├── manage.py
+│   └── requirements.txt  # Dependencias Python, versiones fijadas
+├── frontend/             # SPA: React + Vite + Tailwind (pnpm)
+│   ├── src/
+│   ├── index.html
+│   └── package.json      # pnpm fijado vía "packageManager"
+├── docs/                 # Documentación del producto (brief)
+├── data/                 # DB SQLite y respaldos (persistente, fuera de git)
+├── odd/                  # Tracking del flujo de trabajo (desarrollo)
+├── README.md
+└── LICENSE
+```
+
+`backend/.venv/`, `frontend/node_modules/` y `data/` viven fuera de git: la base
+de datos y los respaldos deben sobrevivir a actualizaciones de la aplicación.
+
+## Estrategia de ramas
+
+| Rama | Rol |
+|---|---|
+| `main` | Estable / releasable. Solo recibe cambios vía PR, y solo cuando el dueño lo pide. Protegida: PR obligatorio. |
+| `dev` | Integración. Las ramas de issue se crean desde acá. |
+| `issue/N-slug` | Una rama por issue, creada desde `dev` (ej: `issue/1-monorepo-structure`). |
+
+- El CI corre en pushes y PRs a `dev` y a `main` (se configura en la issue #2).
+- Los status checks requeridos en `main` se agregan cuando el CI exista.
+- Sin flujo formal de hotfixes por ahora (MVP): los fixes salen de `dev`.
+
+## Puesta en marcha (desarrollo)
+
+**Backend** — desde la raíz del repo:
+
+```bash
+python -m venv backend/.venv
+# Windows:
+backend/.venv/Scripts/pip install -r backend/requirements.txt
+backend/.venv/Scripts/python backend/manage.py migrate
+backend/.venv/Scripts/python backend/manage.py runserver
+# Linux/macOS: usar backend/.venv/bin/ en lugar de Scripts/
+```
+
+La base de datos vive en `data/db.sqlite3`: carpeta de datos persistente fuera
+del directorio de la aplicación. En instalaciones de producción se sobreescribe
+con la variable de entorno `LOCALGYM_DATA_DIR`.
+
+**Frontend**:
+
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
 
 ## Fases
 
