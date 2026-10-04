@@ -55,6 +55,18 @@ Commits are recorded here as tasks close (branch issue/1-monorepo-structure).
   6) SQLite configured at data/db.sqlite3 via DATA_DIR/LOCALGYM_DATA_DIR.
 - Remaining outside this feature: pushing the branch, PR/merge to dev (owner
   decision), required status checks on main (issue #2, once CI exists).
+- Native review (RDD) 2026-10-04: START with baseRef dev, committedOnly true →
+  lineage review-43e79cac22be1891, state reviewing, tier high (risk reason:
+  process_boundary / shell_process in backend/manage.py), lenses review-risk,
+  review-resilience, review-readability, review-reliability (orders 0-3),
+  correction budget 200, changed_files 26, changed_lines 2779. Group forecast
+  received (4 reviewer model runs via pi_host_relay, no mutation) but NOT
+  authorized — session ended at the owner's request before the runs.
+  Resume: fresh gentle_review STATUS with lineageId review-43e79cac22be1891
+  (workspace root E:/Proyectos/LocalGym), take the fresh collect bindings from
+  that STATUS (never reuse tonight's), group forecast → reviewerRunAcknowledged
+  true → follow the returned transitions until terminal approved, then
+  acknowledge-approved. Delivery (push/PR/merge) remains the owner's decision.
 
 ## Notes
 
