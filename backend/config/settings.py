@@ -23,10 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 # Las instalaciones de producción deben leer la SECRET_KEY desde el entorno (.env),
 # no desde este archivo.
-SECRET_KEY = 'django-insecure-d=fbqfwfuru7bpp6d66fycltpyinnb64ipt-6$@$y-#a+g$0l$'
+SECRET_KEY = os.environ.get('LOCALGYM_SECRET_KEY', 'django-insecure-solo-para-desarrollo-local')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('LOCALGYM_DEBUG', 'True').lower() in ('1', 'true', 'yes')
 
 ALLOWED_HOSTS = []
 
