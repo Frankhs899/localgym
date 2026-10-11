@@ -14,10 +14,11 @@ A functional monorepo skeleton matching the six acceptance criteria of issue #1.
 
 Complete — all six acceptance criteria of issue #1 verified.
 
-Native review (RDD) pending on this branch: lineage `review-a20d46b92a431fef`
-is `escalated` after the targeted validator rejected the first R1-001
-correction (commit `6dcffa4`); a replacement fix built on django-environ is
-being prepared and must still be reviewed.
+Native review (RDD): APPROVED and acknowledged on 2026-10-11 — lineage
+`review-0878aebe9c0e1924`, approved candidate tree `864ff336` (commit
+`af33e1b`), authority burned. An earlier lineage (`review-a20d46b92a431fef`)
+stayed `escalated` because the tool's recover and abandon paths rejected it;
+it holds no authority over this candidate and is parked.
 
 ## Specs — R1-001 correction (native review)
 
@@ -53,7 +54,16 @@ being prepared and must still be reviewed.
       LOCALGYM_SECRET_KEY environment variable") and 0 with it; `migrate`
       exits 0; DEBUG resolves False by default and True with
       LOCALGYM_DEBUG=True; Django 5.2.17 + django-environ 0.14.0 pinned.
-      Native review of this candidate: pending.
+      Native review: superseded — the review of this branch ended up
+      approving the corrected tree `864ff336` (see task 6).
+- [x] 6. Correct the two CRITICAL findings of the native review
+      (`R3-HOSTS`/`R4-ALLOWED-HOSTS`): with DEBUG now off by default, an empty
+      `ALLOWED_HOSTS` made the documented runserver quickstart reject every
+      request with DisallowedHost (HTTP 400). Evidence: commit `af33e1b` —
+      one line, `ALLOWED_HOSTS = env.list('LOCALGYM_ALLOWED_HOSTS',
+      default=['localhost', '127.0.0.1'])`, matching the declared 2-line
+      correction plan; `check`/`migrate` exit 0; the directed validator
+      approved it.
 
 ## Evidence
 
@@ -83,8 +93,20 @@ Commits are recorded here as tasks close (branch issue/1-monorepo-structure).
   6) SQLite configured at data/db.sqlite3 via DATA_DIR/LOCALGYM_DATA_DIR.
 - Remaining outside this feature: pushing the branch, PR/merge to dev (owner
   decision), required status checks on main (issue #2, once CI exists).
-- Native review (RDD): pending — the owner will start it from scratch in a
-  future session; no earlier review state carries over.
+- Native review (RDD): CLOSED on 2026-10-11. Lineage
+  `review-0878aebe9c0e1924` (tier high, lenses risk/resilience/readability/
+  reliability, 27 files / 2876 changed lines, correction budget 200): 4/4
+  reviewer results admitted, one provider refuter corroborated the two
+  CRITICAL findings (`R3-HOSTS`, `R4-ALLOWED-HOSTS`), one bounded correction
+  (task 6) was validated, the review resolved `approved`, and
+  `acknowledge-approved` burned the authority
+  (`gentle-ai.review-acknowledged/v1`, store revision sha256:2f7f8674…). The
+  approved candidate tree is `864ff336` (commit `af33e1b`).
+- Parked, with no authority over this candidate: lineage
+  `review-a20d46b92a431fef` remains `escalated` (its first correction was
+  rejected by a targeted validator). The tool's `recover` path failed
+  natively ("recovery base-ref does not match predecessor base") and `abandon`
+  answered `native-abandon-ineligible`, so it was left untouched.
 
 ## Notes
 
@@ -102,6 +124,29 @@ Commits are recorded here as tasks close (branch issue/1-monorepo-structure).
   (pnpm create vite --template react) was deleted at their request. Discovered: the
   current Vite react template ships oxlint (Rust linter), NOT ESLint — the D2
   criterion explicitly requires ESLint, so the manual install must include it.
+
+## Follow-ups (advisory findings of the approved review)
+
+The provider marked all of these non-blocking: none opened a correction, none
+reopens the approved review. They are separate later work.
+
+- `R2-1` (readability, WARNING) — frontend/README.md is the unedited Vite
+  template: it talks about "this template", lists plugins the project does not
+  use, and recommends TypeScript.
+- `R2-2` (readability, WARNING) — `.counter` is styled twice with conflicting
+  declarations (frontend/src/index.css vs frontend/src/App.css).
+- `R2-3` (readability, SUGGESTION) — this file contradicted itself about the
+  state of the review; fixed by this update.
+- `R2-4` (readability, SUGGESTION) — the Tailwind import shares a banner with
+  the demo styles in frontend/src/index.css.
+- `R3-DATADIR` / `R4-DATA-DIR` (reliability + resilience, WARNING) — `DATA_DIR`
+  uses raw `os.environ.get` and is never resolved: a relative or empty value
+  resolves against the process CWD instead of the persistent data folder.
+- `R3-TESTS` (reliability, SUGGESTION) — no committed test pins the
+  fail-closed SECRET_KEY, the DEBUG default, or the DATA_DIR fallback.
+- `LOCALGYM_ALLOWED_HOSTS`, added by task 6, is not yet documented in
+  `.env.example`/README: the bounded correction could only touch
+  backend/config/settings.py. Fits issue #3 (install guide).
 
 ## Log
 
@@ -124,4 +169,11 @@ Commits are recorded here as tasks close (branch issue/1-monorepo-structure).
   Independent verification was UNAVAILABLE: the gentle-ai-verify subagent
   timed out (stalled 4 min after a bash call) and was not retried, so the
   remaining checks ran inline and are not independent.
+- L7 (verbatim, recorded through the decision prompt): "Default: localhost +
+  127.0.0.1" — the owner's choice for the ALLOWED_HOSTS correction.
+- L8 (verbatim, recorded through the decision prompt): "Commitear el doc
+  ahora", "Preparo push + PR y vos aprobás", "Me ocupo yo".
+- Evidence 2026-10-11: commit `af33e1b` (task 6). The directed validation
+  approved the corrected candidate and `acknowledge-approved` burned the
+  authority for candidate tree `864ff336`.
 
