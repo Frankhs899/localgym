@@ -14,6 +14,26 @@ A functional monorepo skeleton matching the six acceptance criteria of issue #1.
 
 Complete — all six acceptance criteria of issue #1 verified.
 
+Native review (RDD) pending on this branch: lineage `review-a20d46b92a431fef`
+is `escalated` after the targeted validator rejected the first R1-001
+correction (commit `6dcffa4`); a replacement fix built on django-environ is
+being prepared and must still be reviewed.
+
+## Specs — R1-001 correction (native review)
+
+- S1 — the corrected candidate must remove the harm the frozen finding names.
+  Native validator verdict (verbatim): "the SECRET_KEY assignment at
+  backend/config/settings.py:26-29 still commits a fixed, publicly known
+  signing key as its fallback ... The hardcoded key R1-001 flagged remains in
+  the file and is what any deployment that does not explicitly set
+  LOCALGYM_SECRET_KEY will sign with." and "DEBUG still defaults to on ...".
+  So: no publicly known SECRET_KEY fallback, and DEBUG off by default.
+- S2 — owner decision (2026-10-11): "Fix con django-environ y seguir la
+  review". Adopt django-environ now: `env('LOCALGYM_SECRET_KEY')` required and
+  `DEBUG=(bool, False)`.
+- S3 — two-tier install constraint (D3): a committed `.env.example` documents
+  the variables; the real `.env` stays out of git.
+
 ## Tasks
 
 - [x] 1. Scaffold backend: Django 5.2 + DRF project (venv documented, SQLite at
@@ -26,6 +46,14 @@ Complete — all six acceptance criteria of issue #1 verified.
       branches); .gitignore: add data/
 - [x] 4. Verify all six acceptance criteria (manage.py check + migrate, vite
       build, eslint, README readback)
+- [x] 5. Correct R1-001 with django-environ: SECRET_KEY required from the
+      environment, DEBUG default False, committed .env.example (+ .gitignore
+      exception and README setup step). Evidence: commit `2ec7a77` —
+      `manage.py check` exits 1 without LOCALGYM_SECRET_KEY ("Set the
+      LOCALGYM_SECRET_KEY environment variable") and 0 with it; `migrate`
+      exits 0; DEBUG resolves False by default and True with
+      LOCALGYM_DEBUG=True; Django 5.2.17 + django-environ 0.14.0 pinned.
+      Native review of this candidate: pending.
 
 ## Evidence
 
@@ -74,3 +102,26 @@ Commits are recorded here as tasks close (branch issue/1-monorepo-structure).
   (pnpm create vite --template react) was deleted at their request. Discovered: the
   current Vite react template ships oxlint (Rust linter), NOT ESLint — the D2
   criterion explicitly requires ESLint, so the manual install must include it.
+
+## Log
+
+- L1 (verbatim): "Hola, qué está pendiente?"
+- L2 (verbatim, answer to the managed-assets question): "Sí, corré el sync"
+- L3 (verbatim, recorded through the decision prompt): "Commit y seguí hasta
+  capturar la corrección"
+- L4 (verbatim, recorded through the decision prompt): "Fix con django-environ
+  y seguir la review"
+- L5 (verbatim): "Algun problema?"
+- Evidence 2026-10-11: commit `6dcffa4` (os.environ.get fix, 4 lines) REJECTED
+  by the native targeted validator — closure `escalated`,
+  `targeted_validator_rejected`, store_revision sha256:cfa65055…,
+  `correction_attempts` 1, `cumulative_correction_lines` 4 of 200,
+  `correction_regression` passed, `original_criteria` failed.
+- L6 (verbatim, recorded through the decision prompt): "Creala por bash" —
+  backend/.env.example is created through a shell heredoc because the harness
+  safety policy blocks write access to that sensitive path (.env*).
+- Evidence 2026-10-11: commit `2ec7a77` replaces the rejected correction.
+  Independent verification was UNAVAILABLE: the gentle-ai-verify subagent
+  timed out (stalled 4 min after a bash call) and was not retried, so the
+  remaining checks ran inline and are not independent.
+
