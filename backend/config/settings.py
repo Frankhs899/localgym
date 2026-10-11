@@ -39,7 +39,7 @@ SECRET_KEY = env('LOCALGYM_SECRET_KEY')
 # Apagado por defecto: con DEBUG=True Django expone páginas de error detalladas.
 DEBUG = env('LOCALGYM_DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('LOCALGYM_ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 
 # Application definition
