@@ -30,6 +30,7 @@ fases del proyecto.
 LocalGym/
 ├── backend/              # API: Django 5.2 + DRF
 │   ├── config/           # Proyecto Django (settings, urls, wsgi/asgi)
+│   ├── .env.example      # Plantilla de variables (el .env real va fuera de git)
 │   ├── manage.py
 │   └── requirements.txt  # Dependencias Python, versiones fijadas
 ├── frontend/             # SPA: React + Vite + Tailwind (pnpm)
@@ -66,10 +67,24 @@ de datos y los respaldos deben sobrevivir a actualizaciones de la aplicación.
 python -m venv backend/.venv
 # Windows:
 backend/.venv/Scripts/pip install -r backend/requirements.txt
+# Variables de entorno: copiar la plantilla y generar una SECRET_KEY propia
+cp backend/.env.example backend/.env
+backend/.venv/Scripts/python -c "from django.core.management.utils import get_random_secret_key as k; print(k())"
+# Pegar el valor en backend/.env (LOCALGYM_SECRET_KEY)
 backend/.venv/Scripts/python backend/manage.py migrate
 backend/.venv/Scripts/python backend/manage.py runserver
 # Linux/macOS: usar backend/.venv/bin/ en lugar de Scripts/
 ```
+
+El backend **no arranca sin `LOCALGYM_SECRET_KEY`**: no hay clave por defecto a
+propósito, porque una clave conocida públicamente permitiría falsificar sesiones
+y firmas. Las variables se leen de `backend/.env` o del entorno:
+
+| Variable | Obligatoria | Por defecto | Para qué |
+|---|---|---|---|
+| `LOCALGYM_SECRET_KEY` | Sí | — (falla al arrancar) | Firma de sesiones y tokens |
+| `LOCALGYM_DEBUG` | No | `False` | `True` solo en desarrollo: muestra páginas de error detalladas |
+| `LOCALGYM_DATA_DIR` | No | `<raíz del repo>/data` | Carpeta persistente de datos y respaldos |
 
 La base de datos vive en `data/db.sqlite3`: carpeta de datos persistente fuera
 del directorio de la aplicación. En instalaciones de producción se sobreescribe

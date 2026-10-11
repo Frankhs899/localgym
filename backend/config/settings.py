@@ -13,8 +13,17 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+import environ
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# D3: la configuración por máquina vive en backend/.env, fuera de git;
+# backend/.env.example (commiteado) documenta las variables.
+env = environ.Env(
+    LOCALGYM_DEBUG=(bool, False),
+)
+environ.Env.read_env(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -22,11 +31,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # Las instalaciones de producción deben leer la SECRET_KEY desde el entorno (.env),
-# no desde este archivo.
-SECRET_KEY = os.environ.get('LOCALGYM_SECRET_KEY', 'django-insecure-solo-para-desarrollo-local')
+# no desde este archivo. No hay valor por defecto a propósito: una clave conocida
+# permitiría falsificar sesiones y firmas.
+SECRET_KEY = env('LOCALGYM_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('LOCALGYM_DEBUG', 'True').lower() in ('1', 'true', 'yes')
+# Apagado por defecto: con DEBUG=True Django expone páginas de error detalladas.
+DEBUG = env('LOCALGYM_DEBUG')
 
 ALLOWED_HOSTS = []
 
