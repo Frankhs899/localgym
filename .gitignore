@@ -5,6 +5,9 @@ __pycache__/
 venv/
 *.sqlite3
 
+# Persistent data folder (D3: data lives outside the app directory)
+data/
+
 # Node / frontend
 node_modules/
 dist/
@@ -13,6 +16,7 @@ dist/
 # Environment
 .env
 .env.*
+!.env.example
 
 # OS
 .DS_Store
