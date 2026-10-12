@@ -10,9 +10,9 @@ la UI está en español y es responsive (PC, tablets y teléfonos).
 ## Estado
 
 🚧 **Fase 0 en curso**: estructura del monorepo lista (backend Django + frontend
-React). Pendiente: CI básico (issue #2) y guía de instalación completa. El
-[product brief](docs/product-brief.md) define la visión, el alcance del MVP y las
-fases del proyecto.
+React) y CI básico en camino (issue #2). Pendiente: guía de instalación
+completa (issue #3). El [product brief](docs/product-brief.md) define la
+visión, el alcance del MVP y las fases del proyecto.
 
 ## Stack
 
@@ -55,8 +55,11 @@ de datos y los respaldos deben sobrevivir a actualizaciones de la aplicación.
 | `dev` | Integración. Las ramas de issue se crean desde acá. |
 | `issue/N-slug` | Una rama por issue, creada desde `dev` (ej: `issue/1-monorepo-structure`). |
 
-- El CI corre en pushes y PRs a `dev` y a `main` (se configura en la issue #2).
-- Los status checks requeridos en `main` se agregan cuando el CI exista.
+- El CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) corre en pushes y
+  PRs a `dev` y a `main`: tests del backend (Python 3.14.8) y build + lint del
+  frontend (Node 24.21.0, pnpm).
+- `main` exige los status checks del CI (`backend` y `frontend`) como requisito
+  de merge.
 - Sin flujo formal de hotfixes por ahora (MVP): los fixes salen de `dev`.
 
 ## Puesta en marcha (desarrollo)
@@ -72,6 +75,7 @@ cp backend/.env.example backend/.env
 backend/.venv/Scripts/python -c "from django.core.management.utils import get_random_secret_key as k; print(k())"
 # Pegar el valor en backend/.env (LOCALGYM_SECRET_KEY)
 backend/.venv/Scripts/python backend/manage.py migrate
+backend/.venv/Scripts/python backend/manage.py test
 backend/.venv/Scripts/python backend/manage.py runserver
 # Linux/macOS: usar backend/.venv/bin/ en lugar de Scripts/
 ```
