@@ -12,7 +12,11 @@ A functional monorepo skeleton matching the six acceptance criteria of issue #1.
 
 ## Status
 
-Complete — all six acceptance criteria of issue #1 verified.
+Complete — all six acceptance criteria of issue #1 verified. Delivered: the
+branch was pushed and PR #10 was merged into `dev` on 2026-10-12 (merge commit
+`2fd07b6`), and issue #1 was closed as completed. The `dev` → `main` step and
+required status checks on `main` (issue #2, once CI exists) remain owner
+decisions.
 
 Native review (RDD): APPROVED and acknowledged on 2026-10-11 — lineage
 `review-0878aebe9c0e1924`, approved candidate tree `864ff336` (commit
@@ -91,8 +95,13 @@ Commits are recorded here as tasks close (branch issue/1-monorepo-structure).
   4) frontend functional: build + lint clean, packageManager pinned;
   5) ESLint flat config in frontend/eslint.config.js, lint script green;
   6) SQLite configured at data/db.sqlite3 via DATA_DIR/LOCALGYM_DATA_DIR.
-- Remaining outside this feature: pushing the branch, PR/merge to dev (owner
-  decision), required status checks on main (issue #2, once CI exists).
+- Delivery (2026-10-12, owner decision): the branch was pushed and **PR #10 was
+  merged into `dev`** with a merge commit (`2fd07b6`) so the eleven commits and
+  their hashes stay intact, including the review evidence `af33e1b` and
+  `cb03a45`. GitHub did NOT auto-close issue #1: the `Closes #1` directive only
+  applies when the PR is merged into the default branch (`main`), so the owner
+  closed it explicitly as completed. Still outside this feature: the `dev` →
+  `main` step and required status checks on `main` (issue #2, once CI exists).
 - Native review (RDD): CLOSED on 2026-10-11. Lineage
   `review-0878aebe9c0e1924` (tier high, lenses risk/resilience/readability/
   reliability, 27 files / 2876 changed lines, correction budget 200): 4/4
@@ -176,4 +185,15 @@ reopens the approved review. They are separate later work.
 - Evidence 2026-10-11: commit `af33e1b` (task 6). The directed validation
   approved the corrected candidate and `acknowledge-approved` burned the
   authority for candidate tree `864ff336`.
+- L9 (verbatim): "mergeá el PR #10 a dev por favor" — the owner picked the merge
+  method among three offered options: "Merge commit (preserva los 11 commits)".
+- Evidence 2026-10-12: PR #10 merged into `dev`, merge commit `2fd07b6`
+  (`mergedAt` 2026-10-12T05:46:44Z, `mergeStateStatus` CLEAN, "no checks
+  reported": CI does not exist yet — issue #2). `origin/dev` at `2fd07b6`,
+  `main` untouched, and the branch `issue/1-monorepo-structure` was kept
+  (`delete_branch_on_merge` is false).
+- L10 (verbatim): "cierra la issue #1 y actualiza el doc".
+- Evidence 2026-10-12: issue #1 closed as completed (`stateReason` COMPLETED)
+  with a comment recording that delivery went to `dev` via PR #10, and this
+  record updated with the delivery outcome.
 
