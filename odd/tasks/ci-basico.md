@@ -13,12 +13,14 @@ owner decisions recorded on 2026-10-12.
 
 ## Status
 
-Implementation complete, delivered to the review-pending state:
-PR #12 (`issue/2-ci-basico` → `dev`) is open with the first real CI run
-green, and `main` is protected by the `backend`/`frontend` checks.
-Pending (deferred to the next session at the owner's request):
-independent verification and the native review (RDD), plus the owner's
-merge decision.
+Implementation, independent verification, and native review complete.
+PR #12 (`issue/2-ci-basico` → `dev`) is open with CI green, and `main`
+is protected by the `backend`/`frontend` checks. Verification
+(2026-10-13): all specs S1-S8 MET, no candidate-caused blockers. Native
+review (RDD, 2026-10-13): lineage `review-1bd4e10cec2e2ce5`, tier high,
+lenses risk+reliability, outcome **APPROVED** with 7 advisory
+(non-blocking) findings; authority burned by exact acknowledgement.
+Remaining owner decisions: merge PR #12 to `dev`, close issue #2.
 
 ## Specs
 
@@ -77,8 +79,9 @@ merge decision.
 - [x] 5. Protect `main` (S5): required status checks with the exact
       check-run names reported by the green run (a mismatch leaves `main`
       stuck on "Expected — Waiting for status to be reported").
-- [ ] 6. Independent verification + native review assess (risk item 5:
-      CI/delivery).
+- [x] 6. Independent verification + native review assess (risk item 5:
+      CI/delivery). Verified 2026-10-13: S1-S8 all MET; native review
+      APPROVED (advisory findings only).
 - [x] 7. Record evidence here, commit the doc, report. Merge and closing
       issue #2 stay owner decisions.
 
@@ -122,6 +125,32 @@ merge decision.
 - Ruff issue (outside this feature, owner-authorized this session):
   published as **issue #13** ("Linting del backend: adoptar ruff", label
   fase-0) with the approved plan; readback confirmed on the target host.
+- Task 6 (independent verification, 2026-10-13): `gentle-ai-verify` ran
+  every spec S1-S8 → all MET. Isolated probes in a fresh scratch copy of
+  `3ec6ce9` (`git archive | tar`, temp dir outside the repo): fresh venv +
+  `pip install -r requirements.txt` + dummy `LOCALGYM_SECRET_KEY` →
+  "Ran 3 tests ... OK" on Python 3.14.8; `pnpm install --frozen-lockfile`
+  + `pnpm run build` + `pnpm run lint` all green on Node 24.21.0 +
+  pnpm 10.33.2. Live GitHub: PR #12 green, check names exactly
+  `backend`/`frontend`; `main` protection readback matches S5 field by
+  field. One environmental CANNOT-VERIFY: no push-ref CI run exists
+  pre-merge (the trigger targets `dev`/`main` by design) — it resolves
+  automatically at merge. Parent spot check: `manage.py test` → 3 tests,
+  OK, working tree clean.
+- Task 6 (native review, 2026-10-13): assess over
+  `1dae7d1..3ec6ce9` → risk HIGH (`shell_source` in ci.yml,
+  `process_boundary` in manage.py), reviewDue=true. Lifecycle:
+  inspect (fresh target) → START with lenses `review-risk` +
+  `review-reliability` → group capture (2 model runs, forecast relayed
+  and acknowledged) → **APPROVED**. Seven advisory findings, all
+  informational, none opening correction: R1-allowed-hosts-undocumented,
+  R1-ci-action-pinning, R1-datadir-unvalidated-env,
+  R1-target-blank-without-rel, R3-DATADIR-UNRESOLVED,
+  R3-DEFAULTS-UNPINNED, R3-HOSTS-UNDOCUMENTED (lineage
+  `review-1bd4e10cec2e2ce5`, target `sha256:0e4f5a36...`, store revision
+  `sha256:d9a80d3b...`). Authority burned by the exact
+  `acknowledge-approved` (`gentle-ai.review-acknowledged/v1`); delivery
+  follows ordinary repository policy.
 
 ## Notes
 
@@ -156,3 +185,7 @@ merge decision.
   delivery. Deferred to the next session by this instruction:
   independent verification, the native review (RDD), the merge of
   PR #12, and closing issue #2 (owner decision).
+- L3 (verbatim): "Arranca con la verificación" — resumes the deferred
+  work on 2026-10-13. Outcome: verification S1-S8 all MET and the
+  native review APPROVED (advisory findings only, authority burned).
+  The merge of PR #12 and closing issue #2 remain owner decisions.
