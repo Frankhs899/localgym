@@ -13,7 +13,12 @@ owner decisions recorded on 2026-10-12.
 
 ## Status
 
-In progress.
+Implementation complete, delivered to the review-pending state:
+PR #12 (`issue/2-ci-basico` → `dev`) is open with the first real CI run
+green, and `main` is protected by the `backend`/`frontend` checks.
+Pending (deferred to the next session at the owner's request):
+independent verification and the native review (RDD), plus the owner's
+merge decision.
 
 ## Specs
 
@@ -67,14 +72,14 @@ In progress.
       that defer to this issue. Commit.
 - [x] 3. Local verification: `manage.py test` (3 tests), `pnpm run build`,
       `pnpm run lint` — the exact commands the CI jobs run.
-- [ ] 4. Push `issue/2-ci-basico`, open the PR to `dev`, watch the CI run
+- [x] 4. Push `issue/2-ci-basico`, open the PR to `dev`, watch the CI run
       go green on GitHub (push/PR authorized by the owner first).
-- [ ] 5. Protect `main` (S5): required status checks with the exact
+- [x] 5. Protect `main` (S5): required status checks with the exact
       check-run names reported by the green run (a mismatch leaves `main`
       stuck on "Expected — Waiting for status to be reported").
 - [ ] 6. Independent verification + native review assess (risk item 5:
       CI/delivery).
-- [ ] 7. Record evidence here, commit the doc, report. Merge and closing
+- [x] 7. Record evidence here, commit the doc, report. Merge and closing
       issue #2 stay owner decisions.
 
 ## Evidence
@@ -100,6 +105,23 @@ In progress.
   `pnpm run build`: "✓ built in 601ms" (20 modules, dist emitted);
   `pnpm run lint`: clean, exit 0. Local: Node 24.21.0, pnpm 10.33.2,
   Python 3.14.8.
+- Task 4: branch pushed (`a8ee87c`, `8ac28fa`, `9b2cdbd`) and **PR #12**
+  opened to `dev` ("Closes #2"; push/PR owner-authorized this session).
+  First real CI run GREEN: run `38324473168` — `backend` pass in 19s,
+  `frontend` pass in 13s. Check-run names confirmed against the live
+  run: exactly `backend` and `frontend`, matching the job ids.
+- Task 5: `main` protection applied with the **full** branch-protection
+  PUT. Finding: the dedicated `PUT .../protection/required_status_checks`
+  answers 404 ("Required status checks not enabled") while the component
+  does not exist — it cannot create it from nothing; the full PUT can and
+  preserves every other setting. Readback: required_status_checks
+  contexts `["backend", "frontend"]`, strict false (app_id 15368 =
+  GitHub Actions), PR reviews with dismiss-stale true, required
+  conversation resolution true, enforce_admins false, no force pushes,
+  no deletions.
+- Ruff issue (outside this feature, owner-authorized this session):
+  published as **issue #13** ("Linting del backend: adoptar ruff", label
+  fase-0) with the approved plan; readback confirmed on the target host.
 
 ## Notes
 
@@ -129,3 +151,8 @@ In progress.
   seven decisions recorded on 2026-10-12 (quoted in S1-S8). Creating the
   ruff issue on GitHub was left unanswered by the owner and stays outside
   this feature until they say so.
+- L2 (verbatim): "Cuando termines esta tarea te detienes y continuamos
+  en la proxima sesión" — the owner ends the session after the CI
+  delivery. Deferred to the next session by this instruction:
+  independent verification, the native review (RDD), the merge of
+  PR #12, and closing issue #2 (owner decision).
