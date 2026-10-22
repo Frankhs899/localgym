@@ -24,3 +24,5 @@ Thumbs.db
 
 # Local harness state
 .atl/
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
