@@ -9,14 +9,15 @@ la UI está en español y es responsive (PC, tablets y teléfonos).
 
 ## Estado
 
-🚧 **Fase 0 en curso**: estructura del monorepo lista (backend Django + frontend
-React) y CI básico en camino (issue #2). Pendiente: guía de instalación
-completa (issue #3). El [product brief](docs/product-brief.md) define la
-visión, el alcance del MVP y las fases del proyecto.
+🚧 **Fase 0 completa**: monorepo (backend Django + frontend React), CI, ruff
+en el backend y guía de instalación (issues #1, #2, #13, #15 y #3). Siguiente:
+**Fase 1 (MVP)**, issues #4–#9. El [product brief](docs/product-brief.md)
+define la visión, el alcance del MVP y las fases del proyecto.
 
 ## Stack
 
-- **Backend**: Django 5.2 (LTS) + Django REST Framework
+- **Backend**: Django 5.2 (LTS) + Django REST Framework · waitress (servidor
+  WSGI) + WhiteNoise (estáticos y SPA compilada)
 - **Base de datos**: SQLite en una carpeta de datos persistente, fuera del
   directorio de la aplicación
 - **Frontend**: React 19 (JavaScript) + Tailwind CSS + Vite
@@ -37,7 +38,8 @@ LocalGym/
 │   ├── src/
 │   ├── index.html
 │   └── package.json      # pnpm fijado vía "packageManager"
-├── docs/                 # Documentación del producto (brief)
+├── docs/                 # Documentación: product brief e instalación
+├── scripts/              # start_server.bat: arranque en la PC del gimnasio
 ├── data/                 # DB SQLite y respaldos (persistente, fuera de git)
 ├── odd/                  # Tracking del flujo de trabajo (desarrollo)
 ├── README.md
@@ -61,6 +63,17 @@ de datos y los respaldos deben sobrevivir a actualizaciones de la aplicación.
 - `main` exige los status checks del CI (`backend` y `frontend`) como requisito
   de merge.
 - Sin flujo formal de hotfixes por ahora (MVP): los fixes salen de `dev`.
+
+## Instalación en la PC del gimnasio
+
+La instalación completa — Python, venv, migraciones, build del frontend,
+autoarranque del servidor con la PC y carpeta de datos persistente fuera de
+la app — está paso a paso en la [guía de instalación](docs/installation.md).
+
+Versión corta: `python -m venv backend\.venv` → completar `backend\.env` →
+`manage.py migrate` → `pnpm run build` en `frontend` →
+`scripts\start_server.bat`, que sirve la SPA compilada y la API en un solo
+proceso (waitress, puerto 8000).
 
 ## Puesta en marcha (desarrollo)
 
@@ -88,7 +101,8 @@ y firmas. Las variables se leen de `backend/.env` o del entorno:
 |---|---|---|---|
 | `LOCALGYM_SECRET_KEY` | Sí | — (falla al arrancar) | Firma de sesiones y tokens |
 | `LOCALGYM_DEBUG` | No | `False` | `True` solo en desarrollo: muestra páginas de error detalladas |
-| `LOCALGYM_DATA_DIR` | No | `<raíz del repo>/data` | Carpeta persistente de datos y respaldos |
+| `LOCALGYM_ALLOWED_HOSTS` | No | `localhost,127.0.0.1` | Hosts desde los que se puede entrar; en la PC del gimnasio incluye su IP de la LAN |
+| `LOCALGYM_DATA_DIR` | No | `<raíz del repo>/data` | Carpeta persistente de datos y respaldos (en producción, fuera del directorio de la app) |
 
 La base de datos vive en `data/db.sqlite3`: carpeta de datos persistente fuera
 del directorio de la aplicación. En instalaciones de producción se sobreescribe
