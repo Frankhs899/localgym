@@ -1,4 +1,4 @@
-# LocalGym backend tooling config (issue #13).
+# LocalGym backend tooling config (issues #13 and #15).
 # Only linter configuration lives here: runtime dependencies stay in
 # requirements.txt and ruff itself is pinned in requirements-dev.txt.
 
@@ -10,3 +10,12 @@ line-length = 100
 # Explicit rule set owned by the project. Deliberately not ["ALL"]: rules that
 # arrive with future ruff releases would turn CI red without any change of ours.
 select = ["E", "F", "I", "DJ", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# Django autogenerates the files under migrations/ and their style is not
+# ours to edit: makemigrations can emit lines beyond line-length (E501), and
+# the generated fields mirror whatever the model defined, including
+# null=True on text fields (DJ001). Editing frozen migrations to satisfy
+# the linter would fight Django's frozen history, so silence only these two
+# rules there and keep the rest of the lint active (issue #15).
+"**/migrations/*.py" = ["E501", "DJ001"]
