@@ -1,0 +1,12 @@
+# LocalGym backend tooling config (issue #13).
+# Only linter configuration lives here: runtime dependencies stay in
+# requirements.txt and ruff itself is pinned in requirements-dev.txt.
+
+[tool.ruff]
+target-version = "py314"
+line-length = 100
+
+[tool.ruff.lint]
+# Explicit rule set owned by the project. Deliberately not ["ALL"]: rules that
+# arrive with future ruff releases would turn CI red without any change of ours.
+select = ["E", "F", "I", "DJ", "UP"]
