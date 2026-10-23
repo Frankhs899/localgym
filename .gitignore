@@ -8,6 +8,9 @@ venv/
 # Persistent data folder (D3: data lives outside the app directory)
 data/
 
+# collectstatic output (rebuilt on every install/update; never committed)
+backend/staticfiles/
+
 # Node / frontend
 node_modules/
 dist/
