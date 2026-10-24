@@ -58,8 +58,12 @@ datos persistente, fuera del directorio de la aplicación".
   LOCALGYM_DATA_DIR; README gains the install section, the ALLOWED_HOSTS
   row and refreshed status. Note: the runtime denies AI edits to `.env*`
   files, so backend/.env.example was written via shell with disclosure.
-- [ ] T4 — Verification + delivery: suite 6 OK, ruff OK, frontend lint OK,
-  build OK, E2E probe OK. Remaining: push, PR, CI, merge (owner decides).
+- [ ] T4 — Verification + delivery: suite 11 OK, ruff OK, frontend lint OK,
+  build OK, E2E probe OK, independent verifier PASS S1–S4 (no blockers).
+  PR #17 open (base dev): CI green both jobs, MERGEABLE. Remaining: native
+  review consent (user will answer next session; envelope relayed, NO option
+  selected, no invocation run, no authority created) and merge (owner
+  decides).
 
 ## Log
 
@@ -80,3 +84,25 @@ datos persistente, fuera del directorio de la aplicación".
   inside the start script, so gym-PC installs never hit the WhiteNoise
   "No directory at staticfiles" warning seen in bare test runs (CI shows it
   once, harmlessly).
+- L4 — (2026-10-23) Independent verifier (scratch copy, fresh venv): PASS
+  S1–S4, zero blockers, three advisories (corepack may need admin rights +
+  pnpm pin only applies inside the repo; createsuperuser exits 0 without a
+  TTY; bare-test WhiteNoise warnings). Its regression tests landed in
+  `c6b62f4` after fixing one probe: DATABASES['default']['NAME'] cannot be
+  asserted in tests (runner swaps it for the in-memory DB); the test pins
+  DATA_DIR-outside-BASE_DIR instead. Suite: 11 OK.
+- L5 — (2026-10-23) RDD: assess HIGH (executable_change + escalation item 5,
+  524 lines / 11 paths, review_due). Preflight STATUS + START executed with
+  lineage `review-d49f8b827ec2a6e0`, lenses review-risk, review-resilience,
+  review-readability, review-reliability. Consent envelope relayed; user:
+  "Paremos por hoy, hacemos la revisión en la proxima sesión" — no option
+  selected, NO invocation run, nothing burned. Next session: re-run the
+  preflight STATUS, relay consent, follow the native transitions. Do NOT
+  auto-select consent.
+- L6 — (2026-10-23) Delivery state at session stop: branch
+  `issue/3-installation-guide` pushed (commits ff707a2, 5a503da, d2b87d4,
+  c6b62f4 + this doc update); PR #17 OPEN against dev, CI green (backend 14s,
+  frontend 15s), MERGEABLE. Merge remains the owner's decision; issue #3
+  closes manually after merge (GitHub only auto-closes on the default
+  branch). Note: the runtime denies AI edit/write on `.env*` files, so
+  backend/.env.example was written via shell with full disclosure.
