@@ -50,12 +50,18 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    # runserver_nostatic makes the dev server defer static serving to the
+    # WhiteNoise middleware, so dev behaves like production (issue #3).
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'rest_framework',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # WhiteNoise serves static files (admin) and the built SPA assets,
+    # right after SecurityMiddleware as its docs require (issue #3).
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -136,6 +142,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# D3 (issue #3): Django serves the compiled SPA plus the API from a single
+# process and port (waitress). WhiteNoise serves the SPA files that Vite
+# builds into frontend/dist at the site root (matching Vite's default base
+# '/'), while Django's own static files (e.g. the admin) are collected into
+# STATIC_ROOT by `manage.py collectstatic` and served under /static/.
+# WHITENOISE_INDEX_FILE stays False (default), so the site root and client
+# side routes fall through to the SPA view (config.views.spa) — the same
+# behavior with or without a frontend build.
+FRONTEND_DIST = BASE_DIR.parent / 'frontend' / 'dist'
+WHITENOISE_ROOT = FRONTEND_DIST
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
