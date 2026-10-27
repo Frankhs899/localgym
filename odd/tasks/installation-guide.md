@@ -58,12 +58,12 @@ datos persistente, fuera del directorio de la aplicación".
   LOCALGYM_DATA_DIR; README gains the install section, the ALLOWED_HOSTS
   row and refreshed status. Note: the runtime denies AI edits to `.env*`
   files, so backend/.env.example was written via shell with disclosure.
-- [ ] T4 — Verification + delivery: suite 11 OK, ruff OK, frontend lint OK,
+- [x] T4 — Verification + delivery: suite 11 OK, ruff OK, frontend lint OK,
   build OK, E2E probe OK, independent verifier PASS S1–S4 (no blockers).
-  PR #17 open (base dev): CI green both jobs, MERGEABLE. Remaining: native
-  review consent (user will answer next session; envelope relayed, NO option
-  selected, no invocation run, no authority created) and merge (owner
-  decides).
+  PR #17 (base dev) CI green both jobs; native review APPROVED over 4 lenses
+  with 14 non-blocking advisories and 0 corrections, and its authority was
+  burned. Merged to `dev` in `27f9183` (merge commit, branch kept on remote);
+  issue #3 closed manually with the delivery comment.
 
 ## Log
 
@@ -106,3 +106,13 @@ datos persistente, fuera del directorio de la aplicación".
   closes manually after merge (GitHub only auto-closes on the default
   branch). Note: the runtime denies AI edit/write on `.env*` files, so
   backend/.env.example was written via shell with full disclosure.
+- L7 — (2026-10-27) Delivery, owner-authorized ("Si"): the native review of PR
+  #17 closed APPROVED on the pi_host_relay lane (lineage
+  review-9ef00d76f48b4811, 14 non-blocking advisories, 0 corrections) and its
+  authority was burned (`gentle-ai.review-acknowledged/v1`). PR #17 merged to
+  `dev` with merge commit `27f9183`; branch `issue/3-installation-guide` kept
+  on remote. `gh pr merge` returned a GitHub GraphQL internal error twice, and
+  the authorized merge went through the REST endpoint once — no retry loop and
+  no duplicate merge. Issue #3 closed manually with the delivery comment
+  (GitHub only auto-closes on the default branch). The 14 advisories stay as
+  post-Phase-0 backlog. Phase 0 is complete; Phase 1 starts with issue #4.
