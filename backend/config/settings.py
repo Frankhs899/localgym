@@ -165,3 +165,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Issue #4 (S4/S5): CSRF failures answer 403 as JSON, the only 403 in the
+# API contract, so the SPA can tell them apart from the 404 contract.
+CSRF_FAILURE_VIEW = 'apps.accounts.views.csrf_failure'
