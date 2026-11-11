@@ -1,5 +1,7 @@
 """Staff management from Django admin (issue #4: S7, S16, S17 and S22)."""
 
+import re
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -10,6 +12,19 @@ ADD_URL = 'admin:accounts_user_add'
 CHANGE_URL = 'admin:accounts_user_change'
 CHANGELIST_URL = 'admin:accounts_user_changelist'
 OWNER_PASSWORD = 'owner-password-2026'
+
+
+def rendered_fields(page):
+    """What a real browser would POST, read from the rendered page itself."""
+    html = page.content.decode()
+    tags = re.findall(r'<(?:input|select|textarea)[^>]*>', html)
+    names = (m.group(1) for tag in tags if (m := re.search(r'name="([^"]+)"', tag)))
+    # The CSRF token and the admin's own buttons (_save...) are not alta data.
+    fields = [n for n in dict.fromkeys(names)
+              if n != 'csrfmiddlewaretoken' and not n.startswith('_')]
+    # A radio submits its checked option; Django renders checked after value.
+    checked = dict(re.findall(r'name="([^"]+)" value="([^"]+)"[^>]*\bchecked', html))
+    return fields, checked
 
 
 class StaffAdminTests(TestCase):
@@ -30,14 +45,24 @@ class StaffAdminTests(TestCase):
         self.client.force_login(self.owner)
 
     def post_add(self, **overrides):
-        data = {
-            **staff_data(username='nuevo-staff'),
-            'usable_password': 'true',
+        """POST the alta carrying exactly what the rendered page submits."""
+        page = self.client.get(reverse(ADD_URL))
+        fields, checked = rendered_fields(page)
+        payload = staff_data(username='nuevo-staff') | checked | {
             'password1': STAFF_PASSWORD,
             'password2': STAFF_PASSWORD,
         }
+        self.assertEqual(set(fields), set(payload))
+        data = {name: payload[name] for name in fields}
         data.update(overrides)
         return self.client.post(reverse(ADD_URL), data)
+
+    def test_the_add_page_renders_every_declared_field(self):
+        """A browser submits what the page renders; no form field is off-page."""
+        response = self.client.get(reverse(ADD_URL))
+        fields, _ = rendered_fields(response)
+        self.assertEqual(set(fields), set(response.context['adminform'].form.fields))
+        self.assertLess(fields.index('usable_password'), fields.index('password1'))
 
     def test_the_owner_creates_a_staff_user_with_its_role(self):
         response = self.post_add()
