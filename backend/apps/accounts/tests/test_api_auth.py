@@ -12,44 +12,12 @@ Contract under test:
 
 import json
 
-from django.test import Client, TestCase
+from django.test import TestCase
 from django.urls import reverse
 
-from apps.accounts.tests.support import STAFF_PASSWORD, make_staff_user
+from apps.accounts.tests.support import STAFF_PASSWORD, SpaClient, make_staff_user
 
 NEW_PASSWORD = 'clave-nueva-segura-99'
-
-
-class SpaClient(Client):
-    """A client that speaks like the SPA: JSON plus the X-CSRFToken header.
-
-    Django's test client skips CSRF checks by default, but the real browser
-    does not (S5/S20): this client enforces them and sends the header from
-    the csrftoken cookie, re-reading it after each response because login
-    and logout rotate the token.
-    """
-
-    def __init__(self, **kwargs):
-        super().__init__(enforce_csrf_checks=True, **kwargs)
-
-    def fetch_csrf_cookie(self):
-        response = self.get(reverse('accounts:auth-csrf'))
-        if response.status_code != 204:
-            raise AssertionError(
-                f'expected 204 from the csrf endpoint, got {response.status_code}'
-            )
-        return self.cookies['csrftoken'].value
-
-    def write(self, method, path, payload=None):
-        if 'csrftoken' not in self.cookies:
-            self.fetch_csrf_cookie()
-        data = '' if payload is None else json.dumps(payload)
-        return method(
-            path,
-            data=data,
-            content_type='application/json',
-            HTTP_X_CSRFTOKEN=self.cookies['csrftoken'].value,
-        )
 
 
 class AuthApiTestCase(TestCase):
