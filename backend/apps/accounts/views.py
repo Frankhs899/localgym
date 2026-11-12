@@ -3,7 +3,7 @@
 These are session endpoints, not resource APIs: they are plain Django views
 so the status contract is exact — 404 for missing sessions on business
 reads, 403 reserved for CSRF failures (enforced by CsrfViewMiddleware and
-rendered as JSON by csrf_failure). The role permission layer for business
+rendered as JSON by csrf_failure for /api/ routes). The role permission layer for business
 resources lives in the DRF machinery (see permissions, issue #4 T3).
 """
 
@@ -22,6 +22,7 @@ from django.contrib.auth import (
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse, JsonResponse
+from django.views.csrf import csrf_failure as django_csrf_failure
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
@@ -121,5 +122,15 @@ def change_password(request):
 
 
 def csrf_failure(request, reason='', template_name=None):
-    """S4/S5: CSRF failures answer 403 — the only 403 in the contract."""
+    """S4/S5: CSRF failures answer 403 — the only 403 in the contract.
+
+    The JSON body is scoped to /api/ routes: CSRF_FAILURE_VIEW is global,
+    so every other path (e.g. the Django admin) falls through to Django's
+    own HTML 403 diagnostic, unchanged from the baseline behavior.
+    """
+    if not request.path.startswith('/api/'):
+        kwargs = {'reason': reason}
+        if template_name is not None:
+            kwargs['template_name'] = template_name
+        return django_csrf_failure(request, **kwargs)
     return JsonResponse({'detail': 'Fallo de verificación CSRF.'}, status=403)

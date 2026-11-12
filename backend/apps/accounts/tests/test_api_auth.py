@@ -12,7 +12,7 @@ Contract under test:
 
 import json
 
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from apps.accounts.tests.support import STAFF_PASSWORD, SpaClient, make_staff_user
@@ -37,6 +37,28 @@ class AuthApiTestCase(TestCase):
             self.client.post, reverse('accounts:auth-login'), data
         )
 
+
+class NonApiCsrfFailureTests(TestCase):
+    """R3-001: only /api/ failures use the JSON view; other paths (the
+    admin) keep Django's HTML 403 diagnostic and the API keeps S5/S19."""
+
+    def test_a_non_api_csrf_failure_keeps_djangos_html_diagnostic(self):
+        response = Client(enforce_csrf_checks=True).post(reverse('admin:login'))
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(response['Content-Type'].startswith('text/html'))
+        self.assertNotIn('Fallo de verificación CSRF'.encode(), response.content)
+        self.assertIn('Verificación CSRF fallida'.encode(), response.content)
+
+    def test_an_api_write_without_the_token_still_answers_the_json_403(self):
+        client = SpaClient()
+        client.fetch_csrf_cookie()
+        response = client.post(
+            reverse('accounts:auth-login'),
+            data='{}',
+            content_type='application/json',
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.json(), {'detail': 'Fallo de verificación CSRF.'})
 
 class CsrfCookieTests(TestCase):
     """S20: the SPA reads csrftoken from JS, so the cookie is not HttpOnly."""
