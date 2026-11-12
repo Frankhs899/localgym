@@ -55,7 +55,13 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'rest_framework',
+    # Issue #4: staff accounts with roles (Fase 1 apps live in apps/).
+    'apps.accounts',
 ]
+
+# Issue #4 (S1/S15): the project user is accounts.User. This must stay set
+# before the app's first own migration so the custom-user swap starts clean.
+AUTH_USER_MODEL = 'accounts.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
