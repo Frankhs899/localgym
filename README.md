@@ -9,15 +9,112 @@ la UI está en español y es responsive (PC, tablets y teléfonos).
 
 ## Estado
 
-🚧 En planificación: el [product brief](docs/product-brief.md) define la visión, el
-alcance del MVP y las fases del proyecto.
+🚧 **Fase 0 completa**: monorepo (backend Django + frontend React), CI, ruff
+en el backend y guía de instalación (issues #1, #2, #13, #15 y #3). Siguiente:
+**Fase 1 (MVP)**, issues #4–#9. El [product brief](docs/product-brief.md)
+define la visión, el alcance del MVP y las fases del proyecto.
 
-## Stack previsto
+## Stack
 
-- **Backend**: Django 5.2 (LTS) + Django REST Framework
-- **Base de datos**: SQLite
-- **Frontend**: React (JavaScript) + Tailwind CSS + Vite
-- **Paquetes**: pnpm · **Entorno**: venv obligatorio para el backend
+- **Backend**: Django 5.2 (LTS) + Django REST Framework · waitress (servidor
+  WSGI) + WhiteNoise (estáticos y SPA compilada)
+- **Base de datos**: SQLite en una carpeta de datos persistente, fuera del
+  directorio de la aplicación
+- **Frontend**: React 19 (JavaScript) + Tailwind CSS + Vite
+- **Paquetes**: pnpm (versión fijada con `packageManager`) · **Entorno**: venv
+  obligatorio para el backend
+- **Linting**: ESLint en el frontend
+
+## Estructura del monorepo
+
+```text
+LocalGym/
+├── backend/              # API: Django 5.2 + DRF
+│   ├── config/           # Proyecto Django (settings, urls, wsgi/asgi)
+│   ├── .env.example      # Plantilla de variables (el .env real va fuera de git)
+│   ├── manage.py
+│   └── requirements.txt  # Dependencias Python, versiones fijadas
+├── frontend/             # SPA: React + Vite + Tailwind (pnpm)
+│   ├── src/
+│   ├── index.html
+│   └── package.json      # pnpm fijado vía "packageManager"
+├── docs/                 # Documentación: product brief e instalación
+├── scripts/              # start_server.bat: arranque en la PC del gimnasio
+├── data/                 # DB SQLite y respaldos (persistente, fuera de git)
+├── odd/                  # Tracking del flujo de trabajo (desarrollo)
+├── README.md
+└── LICENSE
+```
+
+`backend/.venv/`, `frontend/node_modules/` y `data/` viven fuera de git: la base
+de datos y los respaldos deben sobrevivir a actualizaciones de la aplicación.
+
+## Estrategia de ramas
+
+| Rama | Rol |
+|---|---|
+| `main` | Estable / releasable. Solo recibe cambios vía PR, y solo cuando el dueño lo pide. Protegida: PR obligatorio. |
+| `dev` | Integración. Las ramas de issue se crean desde acá. |
+| `issue/N-slug` | Una rama por issue, creada desde `dev` (ej: `issue/1-monorepo-structure`). |
+
+- El CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) corre en pushes y
+  PRs a `dev` y a `main`: tests del backend (Python 3.14.8) y build + lint del
+  frontend (Node 24.21.0, pnpm).
+- `main` exige los status checks del CI (`backend` y `frontend`) como requisito
+  de merge.
+- Sin flujo formal de hotfixes por ahora (MVP): los fixes salen de `dev`.
+
+## Instalación en la PC del gimnasio
+
+La instalación completa — Python, venv, migraciones, build del frontend,
+autoarranque del servidor con la PC y carpeta de datos persistente fuera de
+la app — está paso a paso en la [guía de instalación](docs/installation.md).
+
+Versión corta: `python -m venv backend\.venv` → completar `backend\.env` →
+`manage.py migrate` → `pnpm run build` en `frontend` →
+`scripts\start_server.bat`, que sirve la SPA compilada y la API en un solo
+proceso (waitress, puerto 8000).
+
+## Puesta en marcha (desarrollo)
+
+**Backend** — desde la raíz del repo:
+
+```bash
+python -m venv backend/.venv
+# Windows:
+backend/.venv/Scripts/pip install -r backend/requirements.txt
+# Variables de entorno: copiar la plantilla y generar una SECRET_KEY propia
+cp backend/.env.example backend/.env
+backend/.venv/Scripts/python -c "from django.core.management.utils import get_random_secret_key as k; print(k())"
+# Pegar el valor en backend/.env (LOCALGYM_SECRET_KEY)
+backend/.venv/Scripts/python backend/manage.py migrate
+backend/.venv/Scripts/python backend/manage.py test
+backend/.venv/Scripts/python backend/manage.py runserver
+# Linux/macOS: usar backend/.venv/bin/ en lugar de Scripts/
+```
+
+El backend **no arranca sin `LOCALGYM_SECRET_KEY`**: no hay clave por defecto a
+propósito, porque una clave conocida públicamente permitiría falsificar sesiones
+y firmas. Las variables se leen de `backend/.env` o del entorno:
+
+| Variable | Obligatoria | Por defecto | Para qué |
+|---|---|---|---|
+| `LOCALGYM_SECRET_KEY` | Sí | — (falla al arrancar) | Firma de sesiones y tokens |
+| `LOCALGYM_DEBUG` | No | `False` | `True` solo en desarrollo: muestra páginas de error detalladas |
+| `LOCALGYM_ALLOWED_HOSTS` | No | `localhost,127.0.0.1` | Hosts desde los que se puede entrar; en la PC del gimnasio incluye su IP de la LAN |
+| `LOCALGYM_DATA_DIR` | No | `<raíz del repo>/data` | Carpeta persistente de datos y respaldos (en producción, fuera del directorio de la app) |
+
+La base de datos vive en `data/db.sqlite3`: carpeta de datos persistente fuera
+del directorio de la aplicación. En instalaciones de producción se sobreescribe
+con la variable de entorno `LOCALGYM_DATA_DIR`.
+
+**Frontend**:
+
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
 
 ## Fases
 

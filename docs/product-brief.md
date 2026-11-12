@@ -78,7 +78,7 @@ planificación.
 | # | Decisión | Estado | Resolución |
 |---|---|---|---|
 | D1 | Licencia libre | ✅ Cerrada | **MIT** |
-| D2 | Stack técnico | ✅ Cerrada | **Backend: Django 5.2 (LTS) + Django REST Framework · Base de datos: SQLite · Frontend: React (JavaScript) + Tailwind CSS + Vite · Paquetes: pnpm (fijado con `packageManager`) · Entorno: venv obligatorio para el backend · Linting: ESLint en el frontend** |
+| D2 | Stack técnico | ✅ Cerrada | **Backend: Django 5.2 (LTS) + Django REST Framework · Base de datos: SQLite · Frontend: React (JavaScript) + Tailwind CSS + Vite · Paquetes: pnpm (fijado con `packageManager`) · Entorno: venv obligatorio para el backend · Linting: ESLint en el frontend · ruff en el backend (tooling de desarrollo, fuera de producción)** |
 | D3 | Instalación del servidor | ✅ Cerrada | **Instalación en dos niveles**: (1) camino principal — instalación documentada con Python + venv + guía paso a paso + autoarranque del servidor con la PC; Django sirve la SPA compilada + la API en un solo proceso y puerto en la LAN; (2) meta posterior — empaquetado PyInstaller en modo *onedir* para instalar "copiar y doble clic". Restricción transversal: la base de datos SQLite y los backups viven en una carpeta de datos persistente, fuera del directorio de la aplicación |
 | D4 | Recordatorios offline vs online | ✅ Cerrada | **Lista offline diaria**: el sistema muestra quiénes vencen pronto o vencieron; recepción llama o escribe. Sin internet |
 

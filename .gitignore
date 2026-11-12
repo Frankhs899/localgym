@@ -5,6 +5,12 @@ __pycache__/
 venv/
 *.sqlite3
 
+# Persistent data folder (D3: data lives outside the app directory)
+data/
+
+# collectstatic output (rebuilt on every install/update; never committed)
+backend/staticfiles/
+
 # Node / frontend
 node_modules/
 dist/
@@ -13,6 +19,7 @@ dist/
 # Environment
 .env
 .env.*
+!.env.example
 
 # OS
 .DS_Store
@@ -20,3 +27,5 @@ Thumbs.db
 
 # Local harness state
 .atl/
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
