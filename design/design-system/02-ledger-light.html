@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dirección 2 · Ledger, light and typographic — Sistema de diseño LocalGym</title>
+<style>
+  :root{
+    --paper:#faf8f4;
+    --paper-2:#f1eee7;
+    --ink:#212429;
+    --muted:#5d6570;
+    --rule:#dcd7cd;
+    --rule-strong:#b9b2a4;
+    --focus:#a8430e;
+    --ok-text:#1e6b3a;
+    --off-text:#5d6570;
+    --sel:#f4efe4;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--paper)}
+  body{
+    margin:0;color:var(--ink);background:var(--paper);
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;
+  }
+  .tnum{font-variant-numeric:tabular-nums lining-nums}
+  .serif{font-family:Georgia,"Times New Roman",Times,serif}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  button:disabled{cursor:not-allowed}
+  .btn{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:7px 16px;font-size:13px;font-weight:600;
+    border:1px solid var(--ink);border-radius:2px;white-space:nowrap;
+    transition:background .12s ease,color .12s ease;
+  }
+  .btn-primary{background:var(--ink);color:var(--paper)}
+  .btn-primary:hover:not(:disabled){background:#3a3f47}
+  .btn-quiet{border-color:var(--rule-strong);color:var(--ink)}
+  .btn-quiet:hover:not(:disabled){background:var(--paper-2)}
+  .btn-sm{padding:2px 10px;font-size:12px;font-weight:500}
+  button:disabled{opacity:.4}
+  .chip{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:12px;font-weight:600;letter-spacing:.02em;white-space:nowrap;
+  }
+  .chip .dot{width:8px;height:8px;border-radius:50%;flex:none}
+  .chip.on{color:var(--ok-text)}
+  .chip.on .dot{background:var(--ok-text)}
+  .chip.off{
+    color:var(--off-text);border:1px solid var(--rule-strong);
+    border-radius:999px;padding:1px 9px;
+  }
+  .chip.off svg{flex:none}
+
+  /* Demo strip (artboard meta, not product UI) */
+  .demo-strip{
+    display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;
+    padding:10px 20px;border-bottom:1px solid var(--rule-strong);
+    background:#efece5;font-size:12.5px;color:var(--muted);
+  }
+  .demo-strip strong{color:var(--ink);font-weight:600}
+  .demo-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .demo-group .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+  .demo-btn{
+    padding:3px 10px;border:1px solid var(--rule-strong);border-radius:999px;
+    color:var(--ink);font-size:12px;transition:background .12s ease;
+  }
+  .demo-btn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+
+  /* Shell */
+  .shell{display:flex;min-height:calc(100vh - 42px)}
+  .sidebar{
+    width:225px;flex:none;background:var(--paper);
+    border-right:1px solid var(--rule);
+    display:flex;flex-direction:column;justify-content:space-between;
+    padding:20px 14px;
+  }
+  .brand{font-family:Georgia,"Times New Roman",Times,serif;font-size:19px;font-weight:700;padding:0 10px;margin-bottom:26px;letter-spacing:-.01em}
+  .brand small{display:block;font-family:"Segoe UI",system-ui,sans-serif;font-size:10.5px;font-weight:400;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+  .nav ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+  .nav a{
+    display:block;padding:8px 10px;border-bottom:1px solid var(--rule);
+    color:var(--muted);text-decoration:none;font-size:13.5px;
+    transition:background .12s ease,color .12s ease;
+  }
+  .nav a:hover{background:var(--paper-2);color:var(--ink)}
+  .nav a[aria-current="page"]{color:var(--ink);font-weight:600;box-shadow:inset 3px 0 0 var(--ink)}
+  .sidebar .foot{padding:12px 10px 0;border-top:1px solid var(--rule);font-size:12px;color:var(--muted)}
+  .sidebar .foot p{margin:0 0 8px;line-height:1.5}
+  .sidebar .foot a{color:var(--muted);text-decoration:underline}
+  .sidebar .foot a:hover{color:var(--ink)}
+
+  .content{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;gap:12px;
+    padding:9px 24px;background:var(--paper);border-bottom:1px solid var(--rule);
+  }
+  .topbar .who{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:13px}
+  .who .avatar{
+    width:30px;height:30px;border-radius:2px;flex:none;
+    border:1px solid var(--rule-strong);color:var(--ink);
+    display:grid;place-items:center;font-size:12px;font-weight:700;
+  }
+  .who b{font-weight:600}
+  .who .role{color:var(--muted);font-size:12px}
+  .logout{padding:5px 12px;border:1px solid var(--rule-strong);border-radius:2px;font-size:12.5px;color:var(--muted)}
+  .logout:hover{color:var(--ink);background:var(--paper-2)}
+  .menu-btn{display:none;padding:6px 12px;border:1px solid var(--rule-strong);border-radius:2px;font-size:13px}
+
+  .main{flex:1;min-width:0}
+  .pagehead{
+    padding:26px 24px 14px;border-bottom:3px double var(--rule-strong);
+    display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+  }
+  .pagehead h1{margin:0;font-family:Georgia,"Times New Roman",Times,serif;font-size:32px;font-weight:600;letter-spacing:-.01em;line-height:1.1}
+  .pagehead .count{font-size:13px;color:var(--muted)}
+
+  .filters{
+    position:sticky;top:47px;z-index:10;
+    display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;
+    padding:12px 24px;border-bottom:1px solid var(--rule);
+    background:var(--paper);
+  }
+  .search{flex:1 1 360px;min-width:250px}
+  .search label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
+  .search input{
+    width:100%;padding:9px 12px;font:inherit;font-size:14px;
+    background:#fff;border:1px solid var(--rule-strong);border-radius:2px;color:var(--ink);
+  }
+  .search .hint{margin-top:5px;font-size:11.5px;color:var(--muted);border-left:2px solid var(--rule-strong);padding-left:8px}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field > span{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+  select{padding:9px 10px;font:inherit;font-size:13px;color:var(--ink);background:#fff;border:1px solid var(--rule-strong);border-radius:2px}
+  .actions{display:flex;gap:8px;align-items:center}
+
+  .states{padding:30px 24px}
+  .state-box{text-align:center;color:var(--muted);max-width:60ch;margin-inline:auto}
+  .state-box h2{margin:0 0 8px;font-family:Georgia,"Times New Roman",Times,serif;font-size:21px;font-weight:600;color:var(--ink)}
+  .state-box h2 b{font-style:italic}
+  .state-box p{margin:0 0 6px;font-size:13.5px}
+  .state-box .esc{margin:16px 0 0}
+
+  .tablewrap{padding:0 24px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  caption{text-align:left}
+  thead th{
+    text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--muted);font-weight:600;
+    padding:12px 10px 10px;border-bottom:1px solid var(--rule-strong);white-space:nowrap;
+  }
+  th.right,td.right{text-align:right}
+  tbody td{padding:10px;border-bottom:1px solid var(--rule);vertical-align:top}
+  tbody tr:hover{background:var(--sel)}
+  td .cellname{font-weight:600}
+  .tipo{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;color:var(--muted);margin-right:6px}
+  .rowactions{display:flex;gap:6px;justify-content:flex-end}
+
+  .pagenav{
+    display:flex;flex-wrap:wrap;align-items:center;gap:12px;
+    padding:16px 24px 30px;font-size:12.5px;color:var(--muted);
+    border-bottom:1px solid var(--rule);
+  }
+  .pagenav .rule{font-weight:600;color:var(--ink)}
+  .pagenav .pages{display:flex;gap:5px;margin-left:auto}
+  .pg{
+    min-width:32px;padding:4px 8px;border:1px solid var(--rule-strong);border-radius:2px;
+    color:var(--ink);font-size:12.5px;font-variant-numeric:tabular-nums;
+  }
+  .pg[aria-current="page"]{background:var(--ink);border-color:var(--ink);color:var(--paper);font-weight:700}
+  .pg:disabled{opacity:.35}
+  .pg:hover:not(:disabled):not([aria-current="page"]){background:var(--paper-2)}
+
+  .rolenote{
+    margin:16px 24px;padding:10px 14px;border-left:3px solid var(--ink);
+    background:var(--paper-2);font-size:12.5px;color:var(--muted);
+  }
+  .rolenote b{color:var(--ink)}
+  [hidden]{display:none !important}
+
+  /* --- Responsive --- */
+  @media (max-width: 900px){
+    .sidebar{
+      position:fixed;inset:47px auto 0 0;width:262px;z-index:40;
+      transform:translateX(-105%);transition:transform .18s ease;
+      border-right:1px solid var(--rule-strong);background:var(--paper);
+    }
+    body.nav-open .sidebar{transform:none;box-shadow:10px 0 26px rgba(33,36,41,.18)}
+    .menu-btn{display:inline-block}
+    .scrim{position:fixed;inset:47px 0 0;background:rgba(33,36,41,.35);z-index:35}
+  }
+  @media (max-width: 700px){
+    .topbar{padding:8px 12px}
+    .filters{position:static;padding:12px}
+    .search{flex-basis:100%}
+    .pagehead{padding:20px 12px 12px}
+    .pagehead h1{font-size:26px}
+    .states{padding:20px 12px}
+    .tablewrap{padding:0 12px}
+    .pagenav{padding:14px 12px 22px}
+    thead{display:none}
+    table,tbody,tr,td{display:block;width:100%}
+    tbody tr{border-bottom:1px solid var(--rule);margin-bottom:0;padding:6px 0}
+    tbody td{
+      display:flex;justify-content:space-between;align-items:center;gap:14px;
+      border-bottom:0;padding:5px 10px;
+    }
+    tbody td::before{
+      content:attr(data-label);
+      color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;
+      flex:none;
+    }
+    .pagenav .pages{margin-left:0}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;animation:none !important}
+  }
+</style>
+</head>
+<body>
+
+<!-- Artboard meta / demo controls — not part of the product UI -->
+<div class="demo-strip">
+  <span><strong>Dirección 2 · Ledger</strong> — tipografía y reglas finas, sin tarjetas</span>
+  <div class="demo-group" role="group" aria-label="Ver la pantalla como un rol">
+    <span class="lbl">Ver como</span>
+    <button type="button" class="demo-btn" data-role="recepcion" aria-pressed="true">Recepción</button>
+    <button type="button" class="demo-btn" data-role="profesor" aria-pressed="false">Profesor</button>
+    <button type="button" class="demo-btn" data-role="admin" aria-pressed="false">Admin</button>
+  </div>
+  <div class="demo-group" role="group" aria-label="Estados del listado">
+    <span class="lbl">Estados</span>
+    <button type="button" class="demo-btn" data-scen="results">1 · Resultados («ar»)</button>
+    <button type="button" class="demo-btn" data-scen="empty">2 · Búsqueda vacía</button>
+    <button type="button" class="demo-btn" data-scen="none">3 · Sin coincidencias</button>
+  </div>
+</div>
+
+<div class="shell">
+
+  <aside class="sidebar" id="sidebar">
+    <div>
+      <p class="brand serif">LocalGym<small>POS administrativo</small></p>
+      <nav class="nav" aria-label="Secciones">
+        <ul id="navlist"></ul>
+      </nav>
+    </div>
+    <div class="foot">
+      <p id="foot-admin"><a href="#">Admin Django</a></p>
+      <p>Sistema POS offline-first · los datos se respaldan localmente al cerrar el día.</p>
+    </div>
+  </aside>
+
+  <div class="content">
+    <header class="topbar">
+      <button type="button" class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="sidebar">Menú</button>
+      <span class="who">
+        <span class="avatar" id="uav" aria-hidden="true">CS</span>
+        <span><b id="uname">Carolina Suárez Ortiz</b><br><span class="role" id="urole">Recepción</span></span>
+      </span>
+      <button type="button" class="logout">Cerrar sesión</button>
+    </header>
+
+    <main class="main">
+      <div class="pagehead">
+        <h1>Socios</h1>
+        <span class="count" id="countline" aria-hidden="true"></span>
+      </div>
+
+      <div class="filters">
+        <div class="search">
+          <label for="q">Buscar socios</label>
+          <input type="search" id="q" placeholder="Nombre, apellidos o documento (p. ej. «ce 452»)"
+                 autocomplete="off" inputmode="search">
+          <p class="hint">Ignora acentos y mayúsculas · la búsqueda vacía no devuelve resultados · 15 socios por página</p>
+        </div>
+        <div class="field">
+          <span id="lbl-estado">Estado</span>
+          <select id="estado" aria-labelledby="lbl-estado">
+            <option value="todos">Todos</option>
+            <option value="activo">Activos</option>
+            <option value="inactivo">Inactivos</option>
+          </select>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-quiet" id="btn-export">Exportar CSV</button>
+          <button type="button" class="btn btn-primary" id="btn-new" title="Alta de socio">Nuevo socio</button>
+        </div>
+      </div>
+
+      <div class="rolenote" id="rolenote" hidden>
+        <b>Rol profesor: solo lectura.</b> Puedes consultar el listado y el detalle de cada socio; las acciones de escritura (alta, edición y baja) están deshabilitadas para este rol.
+      </div>
+
+      <p class="sr-only" role="status" aria-live="polite" id="live"></p>
+
+      <!-- Estado 2: búsqueda vacía -->
+      <div class="states" id="st-empty">
+        <div class="state-box serif">
+          <h2>El buscador está vacío</h2>
+          <p>La búsqueda vacía no devuelve resultados. Escribe al menos una letra de un nombre, apellidos o documento.</p>
+        </div>
+      </div>
+
+      <!-- Estado 3: sin coincidencias -->
+      <div class="states" id="st-none" hidden>
+        <div class="state-box serif">
+          <h2>No hay socios que coincidan con <b id="none-q"></b></h2>
+          <p>Revisa si hay tildes omitidas o prueba con el apellido en vez del nombre. La búsqueda ignora acentos y mayúsculas.</p>
+          <div class="esc">
+            <button type="button" class="btn btn-quiet" id="btn-clear">Limpiar búsqueda y filtros</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado 1: resultados -->
+      <div id="st-results" hidden>
+        <div class="tablewrap">
+          <table>
+            <caption class="sr-only">Listado de socios: nombre, apellidos, documento, teléfono, correo, fecha de nacimiento y estado; 15 resultados por página.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Apellidos</th>
+                <th scope="col">Documento</th>
+                <th scope="col">Teléfono</th>
+                <th scope="col">Email</th>
+                <th scope="col">F. nacimiento</th>
+                <th scope="col">Estado</th>
+                <th scope="col" class="right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <div class="pagenav">
+          <span><span class="rule" id="pg-info"></span> · 15 socios por página</span>
+          <div class="pages" id="pg-pages"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var SOC=[
+    {n:'María Fernanda',a:'Rincón Peña',t:'CC',d:'1023456789',tel:'3104526781',e:'mafernanda.rincon@gmail.com',fn:'12/04/1988',es:'activo',ecN:'Martha Lucía',ecA:'Peña Gutiérrez',ecT:'3140963225',ecP:'madre'},
+    {n:'Jhon Jairo',a:'Valencia Ospina',t:'CC',d:'79123456',tel:'3152893402',e:'jjvalencia79@gmail.com',fn:'30/09/1975',es:'activo',ecN:'Édgar Enrique',ecA:'Valencia Cárdenas',ecT:'3174829056',ecP:'padre'},
+    {n:'Luz Adriana',a:'Cárdenas Mendoza',t:'CC',d:'52109874',tel:'3126745908',e:'luzadriana.cardenas@hotmail.com',fn:'22/01/1982',es:'inactivo',ecN:'Bernardo',ecA:'Mendoza Salas',ecT:'3198476521',ecP:'esposo'},
+    {n:'Andrés Camilo',a:'Gómez Torres',t:'CC',d:'1098765432',tel:'3209184756',e:'acgomez.torres@gmail.com',fn:'08/07/1996',es:'activo',ecN:'Dora Lucía',ecA:'Torres Vélez',ecT:'3109284673',ecP:'madre'},
+    {n:'Yuliana Patricia',a:'Mosquera Angulo',t:'CC',d:'1088234176',tel:'3015739284',e:'yulimosquera@gmail.com',fn:'15/11/1993',es:'activo',ecN:'Mario',ecA:'Angulo Perea',ecT:'3185670942',ecP:'padre'},
+    {n:'Gustavo Adolfo',a:'Pardo Leal',t:'CE',d:'452318',tel:'3162384701',e:'gapardo.leal@yahoo.com',fn:'27/03/1968',es:'activo',ecN:'Cecilia',ecA:'Leal De la Ossa',ecT:'3127450896',ecP:'esposa'},
+    {n:'Diana Carolina',a:'Restrepo Zapata',t:'CC',d:'1039274615',tel:'3134890275',e:'diacarore@gmail.com',fn:'19/05/1990',es:'inactivo',ecN:'Natalia',ecA:'Zapata Restrepo',ecT:'3219085637',ecP:'hermana'},
+    {n:'Óscar Iván',a:'Buitrago Salamanca',t:'CC',d:'8012345678',tel:'3187602945',e:'oscar.buitrago80@gmail.com',fn:'03/12/1985',es:'activo',ecN:'Pilar',ecA:'Salamanca Buitrago',ecT:'3150928476',ecP:'esposa'},
+    {n:'Paola Andrea',a:'Quintero Ríos',t:'CC',d:'1017543289',tel:'3109385672',e:'paolaquintero.rios@gmail.com',fn:'14/02/1994',es:'activo',ecN:'Jorge Enrique',ecA:'Ríos Ocampo',ecT:'3194762385',ecP:'padre'},
+    {n:'Héctor William',a:'Lozano Pineda',t:'CC',d:'74561928',tel:'3150472839',e:'hwlozano@hotmail.com',fn:'21/08/1971',es:'inactivo',ecN:'Esperanza',ecA:'Pineda Uscátegui',ecT:'3120489573',ecP:'esposa'},
+    {n:'Sara Sofía',a:'Vargas Caicedo',t:'CC',d:'1055623187',tel:'3216394087',e:'sarasofiavc@gmail.com',fn:'09/10/2001',es:'activo',ecN:'Piedad',ecA:'Caicedo Vargas',ecT:'3102847596',ecP:'madre'},
+    {n:'Julián David',a:'Ortiz Peñaranda',t:'CC',d:'1020193847',tel:'3172840596',e:'jdortizp@gmail.com',fn:'30/06/1997',es:'activo',ecN:'Carlos',ecA:'Ortiz Ramírez',ecT:'3182937465',ecP:'padre'},
+    {n:'Nubia Esperanza',a:'Salas Barbosa',t:'CC',d:'42983716',tel:'3124087591',e:'nubia.salas.barbosa@hotmail.com',fn:'02/04/1963',es:'activo',ecN:'Aníbal',ecA:'Barbosa Quintero',ecT:'3156720894',ecP:'esposo'},
+    {n:'Camilo Esteban',a:'Duarte Contreras',t:'CC',d:'1094762358',tel:'3147590328',e:'camiloeduarte@gmail.com',fn:'17/01/1999',es:'activo',ecN:'María Isabel',ecA:'Contreras Duarte',ecT:'3176049285',ecP:'madre'},
+    {n:'Viviana Lorena',a:'Ospina Cuesta',t:'CC',d:'1048392017',tel:'3130967482',e:'viviana.ospina.c@gmail.com',fn:'25/09/1992',es:'inactivo',ecN:'Óscar',ecA:'Cuesta Mejía',ecT:'3109637428',ecP:'padre'},
+    {n:'Álvaro José',a:'Betancur Marmolejo',t:'CC',d:'68327415',tel:'3182940375',e:'ajbetancur@yahoo.com',fn:'28/11/1966',es:'activo',ecN:'Fanny',ecA:'Marmolejo Betancur',ecT:'3149280756',ecP:'esposa'},
+    {n:'Leidy Johanna',a:'Zapata Bermúdez',t:'CC',d:'1067342985',tel:'3195476023',e:'leidyzapatab@gmail.com',fn:'11/07/1995',es:'activo',ecN:'Sandra',ecA:'Bermúdez Ospina',ecT:'3139085624',ecP:'madre'},
+    {n:'Farid Antonio',a:'Nassar De la Hoz',t:'CE',d:'731956',tel:'3169037485',e:'fnassar.delahoz@gmail.com',fn:'05/02/1987',es:'activo',ecN:'Julia',ecA:'De la Hoz Nassar',ecT:'3182547963',ecP:'madre'},
+    {n:'Kelly Tatiana',a:'Cuartas Montoya',t:'CC',d:'1028475619',tel:'3204871596',e:'kellytcuartas@gmail.com',fn:'20/12/1998',es:'activo',ecN:'Hernán',ecA:'Montoya Cano',ecT:'3127804965',ecP:'padre'},
+    {n:'Édgar Mauricio',a:'Serna Botero',t:'CC',d:'83917546',tel:'3117596034',e:'edgar.serna.botero@hotmail.com',fn:'08/05/1979',es:'inactivo',ecN:'Amparo',ecA:'Botero Serna',ecT:'3194067285',ecP:'esposa'},
+    {n:'Angélica María',a:'Tobón Giraldo',t:'CC',d:'1059328476',tel:'3140296857',e:'angelicamtobon@gmail.com',fn:'14/03/1991',es:'activo',ecN:'Julián',ecA:'Tobón Portilla',ecT:'3172398506',ecP:'hermano'},
+    {n:'Diego Fernando',a:'Salazar Ochoa',t:'CC',d:'1013847592',tel:'3174902836',e:'dfsalazar.ochoa@gmail.com',fn:'30/10/1983',es:'activo',ecN:'Rosa',ecA:'Ochoa Cifuentes',ecT:'3107485296',ecP:'madre'},
+    {n:'Marleny Yohanna',a:'Villalba Cuesta',t:'CC',d:'99827364',tel:'3158903467',e:'marlenyvillalba@hotmail.com',fn:'09/01/1980',es:'activo',ecN:'Yolanda',ecA:'Cuesta Villalba',ecT:'3150937268',ecP:'madre'},
+    {n:'Brayan Steven',a:'Muñoz Ararat',t:'CC',d:'1104839562',tel:'3219084567',e:'brayansmunoz@gmail.com',fn:'23/06/2002',es:'activo',ecN:'Diana',ecA:'Ararat Muñoz',ecT:'3186049237',ecP:'madre'},
+    {n:'Gloria Cecilia',a:'Hoyos Naranjo',t:'CC',d:'41762938',tel:'3125960738',e:'gloria.hoyos.naranjo@gmail.com',fn:'16/08/1961',es:'inactivo',ecN:'Mauricio',ecA:'Naranjo Hincapié',ecT:'3145780962',ecP:'hijo'},
+    {n:'Felipe Andrés',a:'Mejía Callejas',t:'CC',d:'1078234905',tel:'3184759260',e:'felipemejia.callejas@gmail.com',fn:'07/12/1993',es:'activo',ecN:'Sandra Milena',ecA:'Callejas Mejía',ecT:'3129408576',ecP:'madre'},
+    {n:'Karen Liseth',a:'Arboleda Bonilla',t:'CC',d:'1046729318',tel:'3138470596',e:'karen.arboleda.b@gmail.com',fn:'19/04/2000',es:'activo',ecN:'Fernando',ecA:'Bonilla Arboleda',ecT:'3192740586',ecP:'padre'},
+    {n:'Ricardo Antonio',a:'Gaviria Londoño',t:'CC',d:'70293846',tel:'3162094837',e:'ragaviria.l@yahoo.com',fn:'24/07/1973',es:'activo',ecN:'Martha',ecA:'Londoño Gaviria',ecT:'3170592846',ecP:'esposa'},
+    {n:'Paula Andrea',a:'Giraldo Álvarez',t:'CC',d:'1034985672',tel:'3149285067',e:'paulagiraldo.alvarez@gmail.com',fn:'28/02/1996',es:'inactivo',ecN:'Ana María',ecA:'Álvarez Giraldo',ecT:'3105962847',ecP:'madre'},
+    {n:'Óscar Darío',a:'Carvajalino Rojas',t:'CC',d:'1092938475',tel:'3170629485',e:'oscar.carvajalino@gmail.com',fn:'13/09/1989',es:'activo',ecN:'Édgar',ecA:'Carvajalino Ospina',ecT:'3158276049',ecP:'padre'},
+    {n:'Marcela',a:'Arango Saldarriaga',t:'CC',d:'1019283746',tel:'3108492375',e:'marcela.arango.s@gmail.com',fn:'21/05/1986',es:'activo',ecN:'Luis Alberto',ecA:'Saldarriaga Arango',ecT:'3182964705',ecP:'esposo'},
+    {n:'Édgar Alexander',a:'Rueda Cifuentes',t:'CC',d:'1053928460',tel:'3198470526',e:'ealexrueda@gmail.com',fn:'03/08/1994',es:'activo',ecN:'Nidia',ecA:'Cifuentes Rueda',ecT:'3125097468',ecP:'madre'},
+    {n:'Consuelo Emilia',a:'Peñaloza Ávila',t:'CC',d:'36918472',tel:'3127509384',e:'consuelo.penaloza.avila@hotmail.com',fn:'05/11/1959',es:'activo',ecN:'Óscar',ecA:'Ávila Peñaloza',ecT:'3160947285',ecP:'hijo'},
+    {n:'Óscar Mauricio',a:'Bonilla Reales',t:'CE',d:'562841',tel:'3180593472',e:'mauriciobonilla.reales@gmail.com',fn:'18/02/1978',es:'inactivo',ecN:'Yulima',ecA:'Reales Bonilla',ecT:'3192740856',ecP:'esposa'},
+    {n:'Stephania',a:'Zapata Marulanda',t:'CC',d:'1062938471',tel:'3201398475',e:'stephania.zm@gmail.com',fn:'26/10/1997',es:'activo',ecN:'Claudia',ecA:'Marulanda Zapata',ecT:'3174058296',ecP:'madre'},
+    {n:'Luis Hernando',a:'Botero Arango',t:'CC',d:'79283451',tel:'3156702893',e:'luisbotero.arango@yahoo.com',fn:'11/06/1969',es:'activo',ecN:'Ofelia',ecA:'Arango Botero',ecT:'3150937468',ecP:'esposa'},
+    {n:'Yesica Paola',a:'Ocampo Restrepo',t:'CC',d:'1049382765',tel:'3140962837',e:'yesica.ocampo.r@gmail.com',fn:'31/03/1992',es:'activo',ecN:'Dora',ecA:'Restrepo Ocampo',ecT:'3129064587',ecP:'madre'},
+    {n:'Diego Alejandro',a:'Trujillo Pabón',t:'CC',d:'1083746291',tel:'3189204756',e:'diego.trujillo.pabon@gmail.com',fn:'15/12/1990',es:'activo',ecN:'Gladys',ecA:'Pabón Trujillo',ecT:'3179052684',ecP:'madre'},
+    {n:'Mónica Liliana',a:'Cano Betancur',t:'CC',d:'1027936485',tel:'3119485673',e:'monicaliliana.cano@gmail.com',fn:'27/04/1984',es:'inactivo',ecN:'Arturo',ecA:'Betancur Cano',ecT:'3195824067',ecP:'esposo'},
+    {n:'Fredy Alberto',a:'Alzate Londoño',t:'CC',d:'74182956',tel:'3167482095',e:'freddy.alzate.l@hotmail.com',fn:'04/09/1976',es:'activo',ecN:'Elcy',ecA:'Londoño Alzate',ecT:'3148609275',ecP:'esposa'},
+    {n:'Natalia Andrea',a:'Betancourt Polanía',t:'CC',d:'1057483920',tel:'3214087596',e:'natalia.betancourt.p@gmail.com',fn:'19/07/1998',es:'activo',ecN:'Fredy',ecA:'Polanía Betancourt',ecT:'3107285964',ecP:'padre'},
+    {n:'Harold Esteban',a:'Quiceno Giraldo',t:'CC',d:'1093847265',tel:'3175902846',e:'haroldquiceno.g@gmail.com',fn:'02/11/1995',es:'activo',ecN:'Marta',ecA:'Giraldo Quiceno',ecT:'3189460523',ecP:'madre'}
+  ];
+
+  var NAV=[
+    {p:'/',l:'Inicio',r:['admin','recepcion','profesor']},
+    {p:'/socios',l:'Socios',r:['admin','recepcion','profesor']},
+    {p:'/membresias',l:'Membresías',r:['admin','recepcion']},
+    {p:'/pagos',l:'Pagos',r:['admin','recepcion']},
+    {p:'/dashboard',l:'Dashboard',r:['admin','recepcion']},
+    {p:'/respaldos',l:'Respaldos',r:['admin']},
+    {p:'/perfil',l:'Mi perfil',r:['admin','recepcion','profesor']}
+  ];
+  var USERS={
+    admin:{name:'Diana Marcela Restrepo',role:'Admin (dueña)',ini:'DR'},
+    recepcion:{name:'Carolina Suárez Ortiz',role:'Recepción',ini:'CS'},
+    profesor:{name:'Óscar Iván Sandoval',role:'Profesor',ini:'OS'}
+  };
+
+  var st={q:'',estado:'todos',page:1,role:'recepcion'};
+  var iconCheck='<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>';
+  var iconOff='<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2.5 6h7"/></svg>';
+  function $(s){return document.querySelector(s)}
+  function norm(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+  function renderNav(){
+    var u=USERS[st.role], out='';
+    NAV.forEach(function(it){
+      if(it.r.indexOf(st.role)===-1) return;
+      var cur=(it.p==='/socios')?' aria-current="page"':'';
+      out+='<li><a href="#"'+cur+'>'+it.l+'</a></li>';
+    });
+    $('#navlist').innerHTML=out;
+    $('#foot-admin').hidden=(st.role!=='admin');
+    $('#uname').textContent=u.name;
+    $('#urole').textContent=u.role;
+    $('#uav').textContent=u.ini;
+    var prof=(st.role==='profesor');
+    $('#rolenote').hidden=!prof;
+    $('#btn-new').disabled=prof;
+    $('#btn-new').title=prof?'Solo lectura para el rol profesor':'Alta de socio';
+  }
+
+  function chip(es){
+    return es==='activo'
+      ? '<span class="chip on">'+iconCheck+'<span class="dot" aria-hidden="true"></span>Activo</span>'
+      : '<span class="chip off">'+iconOff+' Inactivo</span>';
+  }
+
+  function results(){
+    var q=norm(st.q.trim());
+    if(!q) return null; /* R13: la búsqueda vacía devuelve cero resultados */
+    return SOC.filter(function(s){
+      return norm(s.n+' '+s.a).indexOf(q)!==-1 || norm(s.t+' '+s.d).indexOf(q)!==-1;
+    }).filter(function(s){
+      return st.estado==='todos' || s.es===st.estado;
+    });
+  }
+
+  function renderRows(){
+    var res=results();
+    var prof=(st.role==='profesor');
+    $('#st-empty').hidden=(res!==null);
+    $('#st-none').hidden=!(res!==null && res.length===0);
+    $('#st-results').hidden=!(res!==null && res.length>0);
+    if(res===null){ $('#live').textContent='Búsqueda vacía: no se devuelven resultados hasta escribir un término.'; return; }
+    if(res.length===0){ $('#none-q').textContent='“'+st.q.trim()+'”'; $('#live').textContent='Sin coincidencias para la búsqueda.'; return; }
+
+    var pages=Math.ceil(res.length/15);
+    if(st.page>pages) st.page=pages;
+    if(st.page<1) st.page=1;
+    var slice=res.slice((st.page-1)*15, st.page*15);
+    var rows=slice.map(function(s){
+      var dis=prof?' disabled title="Solo lectura para el rol profesor"':'';
+      return '<tr>'
+        +'<td data-label="Nombre"><span class="cellname">'+esc(s.n)+'</span></td>'
+        +'<td data-label="Apellidos">'+esc(s.a)+'</td>'
+        +'<td data-label="Documento"><span class="tipo">'+s.t+'</span><span class="tnum">'+esc(s.d)+'</span></td>'
+        +'<td data-label="Teléfono" class="tnum">'+esc(s.tel)+'</td>'
+        +'<td data-label="Email">'+esc(s.e)+'</td>'
+        +'<td data-label="F. nacimiento" class="tnum">'+esc(s.fn)+'</td>'
+        +'<td data-label="Estado">'+chip(s.es)+'</td>'
+        +'<td data-label="Acciones" class="right"><div class="rowactions">'
+        +'<button type="button" class="btn btn-quiet btn-sm"'+dis+'>Editar</button>'
+        +'<button type="button" class="btn btn-quiet btn-sm"'+dis+'>Dar de baja</button>'
+        +'</div></td>'
+        +'</tr>';
+    }).join('');
+    $('#rows').innerHTML=rows;
+
+    $('#countline').textContent=res.length+' socios coinciden';
+    $('#pg-info').textContent=res.length+' socios · página '+st.page+' de '+pages;
+    var pg='';
+    pg+='<button type="button" class="pg" data-go="'+(st.page-1)+'"'+(st.page===1?' disabled':'')+'>‹ Anterior</button>';
+    for(var i=1;i<=pages;i++){
+      pg+='<button type="button" class="pg" data-go="'+i+'"'+(i===st.page?' aria-current="page"':'')+'>'+i+'</button>';
+    }
+    pg+='<button type="button" class="pg" data-go="'+(st.page+1)+'"'+(st.page===pages?' disabled':'')+'>Siguiente ›</button>';
+    $('#pg-pages').innerHTML=pg;
+    $('#live').textContent=res.length+' socios coinciden; página '+st.page+' de '+pages+'.';
+  }
+
+  function render(){ renderNav(); renderRows(); }
+
+  document.querySelectorAll('[data-role]').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.querySelectorAll('[data-role]').forEach(function(x){x.setAttribute('aria-pressed','false')});
+      b.setAttribute('aria-pressed','true');
+      st.role=b.dataset.role; st.page=1; render();
+    });
+  });
+  document.querySelectorAll('[data-scen]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var s=b.dataset.scen;
+      if(s==='results'){ st.q='ar'; st.estado='todos'; }
+      if(s==='empty'){ st.q=''; st.estado='todos'; }
+      if(s==='none'){ st.q='zuluaga'; st.estado='todos'; }
+      st.page=1;
+      $('#q').value=st.q; $('#estado').value=st.estado;
+      render();
+    });
+  });
+  $('#q').addEventListener('input',function(e){ st.q=e.target.value; st.page=1; render(); });
+  $('#estado').addEventListener('change',function(e){ st.estado=e.target.value; st.page=1; render(); });
+  $('#btn-clear').addEventListener('click',function(){ st.q=''; st.estado='todos'; st.page=1; $('#q').value=''; $('#estado').value='todos'; render(); });
+  $('#pg-pages').addEventListener('click',function(e){
+    var b=e.target.closest('[data-go]'); if(!b||b.disabled) return;
+    st.page=parseInt(b.dataset.go,10); render();
+  });
+  var mb=$('#menu-btn');
+  mb.addEventListener('click',function(){
+    var open=document.body.classList.toggle('nav-open');
+    mb.setAttribute('aria-expanded',open?'true':'false');
+    if(open){ var a=$('#navlist a'); if(a) a.focus(); }
+  });
+  document.addEventListener('click',function(e){
+    if(document.body.classList.contains('nav-open') && !e.target.closest('#sidebar') && !e.target.closest('#menu-btn')){
+      document.body.classList.remove('nav-open');
+      mb.setAttribute('aria-expanded','false');
+    }
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && document.body.classList.contains('nav-open')){
+      document.body.classList.remove('nav-open');
+      mb.setAttribute('aria-expanded','false');
+      mb.focus();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

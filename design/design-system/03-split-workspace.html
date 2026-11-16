@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dirección 3 · Split workspace, master and detail — Sistema de diseño LocalGym</title>
+<style>
+  :root{
+    --bg:#f4f5f8;
+    --card:#ffffff;
+    --line:#e2e5eb;
+    --line-strong:#c9cedb;
+    --text:#1c2330;
+    --muted:#5b6472;
+    --accent:#3b5bdb;
+    --accent-ink:#ffffff;
+    --accent-soft:#e8edfb;
+    --ok-bg:#e6f4ec;
+    --ok-line:#bfe0cc;
+    --ok-text:#1e6b3a;
+    --off-bg:#eef0f3;
+    --off-line:#d5dae1;
+    --off-text:#4a5462;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg)}
+  body{
+    margin:0;color:var(--text);background:var(--bg);
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;
+  }
+  .tnum{font-variant-numeric:tabular-nums lining-nums}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  button:disabled{cursor:not-allowed}
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:8px 16px;font-size:13px;font-weight:600;
+    border-radius:8px;border:1px solid transparent;white-space:nowrap;
+    transition:background .12s ease,border-color .12s ease;
+  }
+  .btn-primary{background:var(--accent);color:var(--accent-ink)}
+  .btn-primary:hover:not(:disabled){background:#2f4cc0}
+  .btn-ghost{border-color:var(--line-strong);color:var(--text)}
+  .btn-ghost:hover:not(:disabled){background:var(--bg)}
+  .btn-sm{padding:3px 10px;font-size:12px;font-weight:500}
+  button:disabled{opacity:.45}
+  .chip{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:2px 10px;border-radius:999px;border:1px solid;
+    font-size:12px;font-weight:600;white-space:nowrap;
+  }
+  .chip svg{flex:none}
+  .chip.on{background:var(--ok-bg);border-color:var(--ok-line);color:var(--ok-text)}
+  .chip.off{background:var(--off-bg);border-color:var(--off-line);color:var(--off-text)}
+
+  /* Demo strip (artboard meta, not product UI) */
+  .demo-strip{
+    display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;
+    padding:10px 20px;border-bottom:1px solid var(--line-strong);
+    background:#eceef3;font-size:12.5px;color:var(--muted);
+  }
+  .demo-strip strong{color:var(--text);font-weight:600}
+  .demo-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .demo-group .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+  .demo-btn{
+    padding:3px 10px;border:1px solid var(--line-strong);border-radius:999px;
+    color:var(--text);font-size:12px;transition:background .12s ease;
+  }
+  .demo-btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  /* Shell */
+  .shell{display:flex;min-height:calc(100vh - 42px)}
+  .sidebar{
+    width:232px;flex:none;background:var(--card);
+    border-right:1px solid var(--line);
+    display:flex;flex-direction:column;justify-content:space-between;
+    padding:18px 12px;
+  }
+  .brand{display:flex;align-items:center;gap:9px;font-size:17px;font-weight:700;padding:0 10px;margin-bottom:22px}
+  .brand svg{color:var(--accent)}
+  .nav ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+  .nav a{
+    display:block;padding:8px 10px;border-radius:7px;
+    color:var(--muted);text-decoration:none;font-size:13.5px;
+    transition:background .12s ease,color .12s ease;
+  }
+  .nav a:hover{background:var(--bg);color:var(--text)}
+  .nav a[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .sidebar .foot{padding:0 10px;font-size:12px;color:var(--muted)}
+  .sidebar .foot p{margin:0 0 8px;line-height:1.5}
+  .sidebar .foot a{color:var(--muted);text-decoration:underline}
+  .sidebar .foot a:hover{color:var(--text)}
+
+  .content{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;gap:12px;
+    padding:9px 20px;background:var(--card);border-bottom:1px solid var(--line);
+  }
+  .topbar .who{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:13px}
+  .who .avatar{
+    width:30px;height:30px;border-radius:50%;flex:none;
+    background:var(--accent-soft);color:var(--accent);
+    display:grid;place-items:center;font-size:12px;font-weight:700;
+  }
+  .who b{font-weight:600}
+  .who .role{color:var(--muted);font-size:12px}
+  .logout{padding:5px 12px;border:1px solid var(--line-strong);border-radius:7px;font-size:12.5px;color:var(--muted)}
+  .logout:hover{color:var(--text);background:var(--bg)}
+  .menu-btn{display:none;padding:6px 12px;border:1px solid var(--line-strong);border-radius:7px;font-size:13px}
+
+  .main{flex:1;min-width:0;padding:16px 20px 30px}
+  .pagehead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .pagehead h1{margin:0;font-size:20px;font-weight:650;letter-spacing:-.01em}
+  .pagehead .count{font-size:12.5px;color:var(--muted)}
+
+  .toolbar{
+    display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;
+    padding:12px;background:var(--card);border:1px solid var(--line);border-radius:10px 10px 0 0;
+    border-bottom:0;
+  }
+  .search{flex:1 1 300px;min-width:230px}
+  .search label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+  .search input{
+    width:100%;padding:9px 12px;font:inherit;font-size:14px;
+    background:#fff;border:1px solid var(--line-strong);border-radius:8px;color:var(--text);
+  }
+  .search .hint{margin-top:4px;font-size:11.5px;color:var(--muted)}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field > span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  select{padding:9px 10px;font:inherit;font-size:13px;color:var(--text);background:#fff;border:1px solid var(--line-strong);border-radius:8px}
+  .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+  /* Split: master (list) + detail */
+  .split{display:grid;grid-template-columns:minmax(320px,44%) minmax(380px,1fr);align-items:start}
+  .master{
+    background:var(--card);border:1px solid var(--line);border-radius:0 0 10px 10px;
+    overflow:hidden;
+  }
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  caption{text-align:left}
+  thead th{
+    text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.07em;
+    color:var(--muted);font-weight:600;
+    padding:9px 12px;border-bottom:1px solid var(--line-strong);white-space:nowrap;
+  }
+  tbody td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tbody tr:last-child td{border-bottom:0}
+  .rowname{
+    display:block;width:100%;text-align:left;font-weight:600;color:var(--text);
+    padding:1px 2px;border-radius:4px;
+  }
+  .rowname:hover{color:var(--accent)}
+  tr.sel td{background:var(--accent-soft)}
+  tr.sel .rowname{color:var(--accent)}
+  .tipo{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;color:var(--muted);margin-right:5px}
+  .states{padding:22px 18px}
+  .state-box{text-align:center;color:var(--muted)}
+  .state-box h2,.state-box h3{margin:0 0 6px;font-size:14.5px;font-weight:600;color:var(--text)}
+  .state-box p{margin:0 0 4px;font-size:13px;max-width:46ch;margin-inline:auto}
+  .state-box .esc{margin:12px 0 0}
+  .pgfoot{
+    display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+    padding:10px 12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);
+  }
+  .pgfoot .rule{font-weight:600;color:var(--text)}
+  .pgfoot .pages{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+  .pg{min-width:28px;padding:3px 7px;border:1px solid var(--line-strong);border-radius:6px;color:var(--text);font-size:12px}
+  .pg[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+  .pg:disabled{opacity:.35}
+
+  .detail{padding:0 0 0 18px}
+  .detail-card{
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:18px 20px;position:sticky;top:60px;
+  }
+  .detail-card .head{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+  .photo{
+    width:64px;height:64px;border-radius:12px;flex:none;
+    background:var(--accent-soft);color:var(--accent);
+    display:grid;place-items:center;font-size:20px;font-weight:700;
+    border:1px dashed var(--accent);position:relative;
+  }
+  .photo small{
+    position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);
+    background:var(--card);border:1px solid var(--line-strong);border-radius:999px;
+    font-size:9px;font-weight:600;color:var(--muted);padding:0 6px;white-space:nowrap;
+  }
+  .detail-card .head h2{margin:0;font-size:17px;font-weight:650;line-height:1.25}
+  .detail-card .head .ap{color:var(--muted);font-size:13px}
+  .detail-card .head .chip{margin-left:auto}
+  .detail-card .head .chip + .chip{margin-left:0}
+  .dgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 18px;margin:14px 0 4px}
+  .dfield .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px}
+  .dfield .v{font-size:13.5px}
+  .dfield .v .tipo{font-size:10px}
+  .ec-box{
+    margin-top:12px;padding:10px 12px;border:1px solid var(--line);
+    border-radius:8px;background:var(--bg);
+  }
+  .ec-box .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+  .ec-box .v{font-size:13.5px}
+  .ec-box .rel{color:var(--muted);font-size:12px}
+  .dnotes{margin-top:12px;font-size:11.5px;color:var(--muted);border-left:2px solid var(--line-strong);padding-left:9px}
+  .dnotes p{margin:0 0 4px}
+  .dactions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .detail-empty{
+    padding:34px 18px;text-align:center;color:var(--muted);font-size:13px;
+    border:1px dashed var(--line-strong);border-radius:10px;
+  }
+
+  .rolenote{
+    margin:14px 0 0;padding:9px 12px;border:1px solid var(--line);
+    border-left:3px solid var(--accent);border-radius:8px;
+    font-size:12.5px;color:var(--muted);background:var(--card);
+  }
+  .rolenote b{color:var(--text)}
+  [hidden]{display:none !important}
+
+  /* --- Responsive --- */
+  @media (max-width: 900px){
+    .split{grid-template-columns:1fr}
+    .detail{padding:14px 0 0}
+    .detail-card{position:static}
+    .sidebar{
+      position:fixed;inset:47px auto 0 0;width:260px;z-index:40;
+      transform:translateX(-105%);transition:transform .18s ease;
+      border-right:1px solid var(--line-strong);
+    }
+    body.nav-open .sidebar{transform:none;box-shadow:10px 0 26px rgba(28,35,48,.2)}
+    .menu-btn{display:inline-block}
+  }
+  @media (max-width: 700px){
+    .main{padding:12px 12px 26px}
+    .toolbar{position:static;padding:10px}
+    .search{flex-basis:100%}
+    .dgrid{grid-template-columns:1fr}
+    thead{display:none}
+    table,tbody,tr,td{display:block;width:100%}
+    tbody tr{border-bottom:1px solid var(--line);margin:0;padding:4px 0}
+    tbody td{display:flex;justify-content:space-between;align-items:center;gap:14px;border-bottom:0;padding:4px 12px}
+    tbody td::before{content:attr(data-label);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;flex:none}
+    tr.sel td{background:var(--accent-soft)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;animation:none !important;scroll-behavior:auto !important}
+  }
+</style>
+</head>
+<body>
+
+<!-- Artboard meta / demo controls — not part of the product UI -->
+<div class="demo-strip">
+  <span><strong>Dirección 3 · Split workspace</strong> — lista y ficha lado a lado, una columna bajo 900 px</span>
+  <div class="demo-group" role="group" aria-label="Ver la pantalla como un rol">
+    <span class="lbl">Ver como</span>
+    <button type="button" class="demo-btn" data-role="recepcion" aria-pressed="true">Recepción</button>
+    <button type="button" class="demo-btn" data-role="profesor" aria-pressed="false">Profesor</button>
+    <button type="button" class="demo-btn" data-role="admin" aria-pressed="false">Admin</button>
+  </div>
+  <div class="demo-group" role="group" aria-label="Estados del listado">
+    <span class="lbl">Estados</span>
+    <button type="button" class="demo-btn" data-scen="results">1 · Resultados («ar»)</button>
+    <button type="button" class="demo-btn" data-scen="empty">2 · Búsqueda vacía</button>
+    <button type="button" class="demo-btn" data-scen="none">3 · Sin coincidencias</button>
+  </div>
+</div>
+
+<div class="shell">
+
+  <aside class="sidebar" id="sidebar">
+    <div>
+      <p class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M9 12h6"/></svg>
+        LocalGym
+      </p>
+      <nav class="nav" aria-label="Secciones">
+        <ul id="navlist"></ul>
+      </nav>
+    </div>
+    <div class="foot">
+      <p id="foot-admin"><a href="#">Admin Django</a></p>
+      <p>POS offline-first · respaldo local al cerrar el día.</p>
+    </div>
+  </aside>
+
+  <div class="content">
+    <header class="topbar">
+      <button type="button" class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="sidebar">Menú</button>
+      <span class="who">
+        <span class="avatar" id="uav" aria-hidden="true">CS</span>
+        <span><b id="uname">Carolina Suárez Ortiz</b><br><span class="role" id="urole">Recepción</span></span>
+      </span>
+      <button type="button" class="logout">Cerrar sesión</button>
+    </header>
+
+    <main class="main">
+      <div class="pagehead">
+        <h1>Socios</h1>
+        <span class="count" id="countline" aria-hidden="true"></span>
+      </div>
+
+      <div class="toolbar">
+        <div class="search">
+          <label for="q">Buscar socios</label>
+          <input type="search" id="q" placeholder="Nombre, apellidos o documento (p. ej. «cc 1023»)"
+                 autocomplete="off" inputmode="search">
+          <p class="hint">Ignora acentos y mayúsculas · la búsqueda vacía no devuelve resultados · 15 socios por página</p>
+        </div>
+        <div class="field">
+          <span id="lbl-estado">Estado</span>
+          <select id="estado" aria-labelledby="lbl-estado">
+            <option value="todos">Todos</option>
+            <option value="activo">Activos</option>
+            <option value="inactivo">Inactivos</option>
+          </select>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-ghost" id="btn-export">Exportar CSV</button>
+          <button type="button" class="btn btn-primary" id="btn-new" title="Alta de socio">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg>
+            Nuevo socio
+          </button>
+        </div>
+      </div>
+
+      <div class="split">
+        <section class="master" aria-label="Listado de socios">
+          <p class="sr-only" role="status" aria-live="polite" id="live"></p>
+
+          <!-- Estado 2: búsqueda vacía -->
+          <div class="states" id="st-empty">
+            <div class="state-box">
+              <h2>Escribe para buscar</h2>
+              <p>La búsqueda vacía no devuelve resultados. Escribe al menos una letra de un nombre, apellidos o documento.</p>
+            </div>
+          </div>
+
+          <!-- Estado 3: sin coincidencias -->
+          <div class="states" id="st-none" hidden>
+            <div class="state-box">
+              <h3>Ningún socio coincide con <b id="none-q"></b></h3>
+              <p>Revisa si hay tildes omitidas o prueba con el apellido en vez del nombre.</p>
+              <div class="esc">
+                <button type="button" class="btn btn-ghost" id="btn-clear">Limpiar búsqueda y filtros</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estado 1: resultados -->
+          <div id="st-results" hidden>
+            <table>
+              <caption class="sr-only">Listado de socios: nombre y apellidos, documento y estado; 15 resultados por página. Selecciona un socio para ver su ficha completa.</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Nombre y apellidos</th>
+                  <th scope="col">Documento</th>
+                  <th scope="col">Estado</th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+            <div class="pgfoot">
+              <span><span class="rule" id="pg-info"></span> · 15 por página</span>
+              <div class="pages" id="pg-pages"></div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="detail" aria-label="Ficha del socio seleccionado">
+          <div class="detail-empty" id="detail-empty">
+            Selecciona un socio del listado para ver su ficha completa.
+          </div>
+          <div class="detail-card" id="detail-card" hidden></div>
+
+          <div class="rolenote" id="rolenote" hidden>
+            <b>Rol profesor: solo lectura.</b> Las acciones de escritura (alta, edición y baja) están deshabilitadas para este rol.
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var SOC=[
+    {id:1,n:'María Fernanda',a:'Rincón Peña',t:'CC',d:'1023456789',tel:'3104526781',e:'mafernanda.rincon@gmail.com',fn:'12/04/1988',es:'activo',ecN:'Martha Lucía',ecA:'Peña Gutiérrez',ecT:'3140963225',ecP:'madre'},
+    {id:2,n:'Jhon Jairo',a:'Valencia Ospina',t:'CC',d:'79123456',tel:'3152893402',e:'jjvalencia79@gmail.com',fn:'30/09/1975',es:'activo',ecN:'Édgar Enrique',ecA:'Valencia Cárdenas',ecT:'3174829056',ecP:'padre'},
+    {id:3,n:'Luz Adriana',a:'Cárdenas Mendoza',t:'CC',d:'52109874',tel:'3126745908',e:'luzadriana.cardenas@hotmail.com',fn:'22/01/1982',es:'inactivo',ecN:'Bernardo',ecA:'Mendoza Salas',ecT:'3198476521',ecP:'esposo'},
+    {id:4,n:'Andrés Camilo',a:'Gómez Torres',t:'CC',d:'1098765432',tel:'3209184756',e:'acgomez.torres@gmail.com',fn:'08/07/1996',es:'activo',ecN:'Dora Lucía',ecA:'Torres Vélez',ecT:'3109284673',ecP:'madre'},
+    {id:5,n:'Yuliana Patricia',a:'Mosquera Angulo',t:'CC',d:'1088234176',tel:'3015739284',e:'yulimosquera@gmail.com',fn:'15/11/1993',es:'activo',ecN:'Mario',ecA:'Angulo Perea',ecT:'3185670942',ecP:'padre'},
+    {id:6,n:'Gustavo Adolfo',a:'Pardo Leal',t:'CE',d:'452318',tel:'3162384701',e:'gapardo.leal@yahoo.com',fn:'27/03/1968',es:'activo',ecN:'Cecilia',ecA:'Leal De la Ossa',ecT:'3127450896',ecP:'esposa'},
+    {id:7,n:'Diana Carolina',a:'Restrepo Zapata',t:'CC',d:'1039274615',tel:'3134890275',e:'diacarore@gmail.com',fn:'19/05/1990',es:'inactivo',ecN:'Natalia',ecA:'Zapata Restrepo',ecT:'3219085637',ecP:'hermana'},
+    {id:8,n:'Óscar Iván',a:'Buitrago Salamanca',t:'CC',d:'8012345678',tel:'3187602945',e:'oscar.buitrago80@gmail.com',fn:'03/12/1985',es:'activo',ecN:'Pilar',ecA:'Salamanca Buitrago',ecT:'3150928476',ecP:'esposa'},
+    {id:9,n:'Paola Andrea',a:'Quintero Ríos',t:'CC',d:'1017543289',tel:'3109385672',e:'paolaquintero.rios@gmail.com',fn:'14/02/1994',es:'activo',ecN:'Jorge Enrique',ecA:'Ríos Ocampo',ecT:'3194762385',ecP:'padre'},
+    {id:10,n:'Héctor William',a:'Lozano Pineda',t:'CC',d:'74561928',tel:'3150472839',e:'hwlozano@hotmail.com',fn:'21/08/1971',es:'inactivo',ecN:'Esperanza',ecA:'Pineda Uscátegui',ecT:'3120489573',ecP:'esposa'},
+    {id:11,n:'Sara Sofía',a:'Vargas Caicedo',t:'CC',d:'1055623187',tel:'3216394087',e:'sarasofiavc@gmail.com',fn:'09/10/2001',es:'activo',ecN:'Piedad',ecA:'Caicedo Vargas',ecT:'3102847596',ecP:'madre'},
+    {id:12,n:'Julián David',a:'Ortiz Peñaranda',t:'CC',d:'1020193847',tel:'3172840596',e:'jdortizp@gmail.com',fn:'30/06/1997',es:'activo',ecN:'Carlos',ecA:'Ortiz Ramírez',ecT:'3182937465',ecP:'padre'},
+    {id:13,n:'Nubia Esperanza',a:'Salas Barbosa',t:'CC',d:'42983716',tel:'3124087591',e:'nubia.salas.barbosa@hotmail.com',fn:'02/04/1963',es:'activo',ecN:'Aníbal',ecA:'Barbosa Quintero',ecT:'3156720894',ecP:'esposo'},
+    {id:14,n:'Camilo Esteban',a:'Duarte Contreras',t:'CC',d:'1094762358',tel:'3147590328',e:'camiloeduarte@gmail.com',fn:'17/01/1999',es:'activo',ecN:'María Isabel',ecA:'Contreras Duarte',ecT:'3176049285',ecP:'madre'},
+    {id:15,n:'Viviana Lorena',a:'Ospina Cuesta',t:'CC',d:'1048392017',tel:'3130967482',e:'viviana.ospina.c@gmail.com',fn:'25/09/1992',es:'inactivo',ecN:'Óscar',ecA:'Cuesta Mejía',ecT:'3109637428',ecP:'padre'},
+    {id:16,n:'Álvaro José',a:'Betancur Marmolejo',t:'CC',d:'68327415',tel:'3182940375',e:'ajbetancur@yahoo.com',fn:'28/11/1966',es:'activo',ecN:'Fanny',ecA:'Marmolejo Betancur',ecT:'3149280756',ecP:'esposa'},
+    {id:17,n:'Leidy Johanna',a:'Zapata Bermúdez',t:'CC',d:'1067342985',tel:'3195476023',e:'leidyzapatab@gmail.com',fn:'11/07/1995',es:'activo',ecN:'Sandra',ecA:'Bermúdez Ospina',ecT:'3139085624',ecP:'madre'},
+    {id:18,n:'Farid Antonio',a:'Nassar De la Hoz',t:'CE',d:'731956',tel:'3169037485',e:'fnassar.delahoz@gmail.com',fn:'05/02/1987',es:'activo',ecN:'Julia',ecA:'De la Hoz Nassar',ecT:'3182547963',ecP:'madre'},
+    {id:19,n:'Kelly Tatiana',a:'Cuartas Montoya',t:'CC',d:'1028475619',tel:'3204871596',e:'kellytcuartas@gmail.com',fn:'20/12/1998',es:'activo',ecN:'Hernán',ecA:'Montoya Cano',ecT:'3127804965',ecP:'padre'},
+    {id:20,n:'Édgar Mauricio',a:'Serna Botero',t:'CC',d:'83917546',tel:'3117596034',e:'edgar.serna.botero@hotmail.com',fn:'08/05/1979',es:'inactivo',ecN:'Amparo',ecA:'Botero Serna',ecT:'3194067285',ecP:'esposa'},
+    {id:21,n:'Angélica María',a:'Tobón Giraldo',t:'CC',d:'1059328476',tel:'3140296857',e:'angelicamtobon@gmail.com',fn:'14/03/1991',es:'activo',ecN:'Julián',ecA:'Tobón Portilla',ecT:'3172398506',ecP:'hermano'},
+    {id:22,n:'Diego Fernando',a:'Salazar Ochoa',t:'CC',d:'1013847592',tel:'3174902836',e:'dfsalazar.ochoa@gmail.com',fn:'30/10/1983',es:'activo',ecN:'Rosa',ecA:'Ochoa Cifuentes',ecT:'3107485296',ecP:'madre'},
+    {id:23,n:'Marleny Yohanna',a:'Villalba Cuesta',t:'CC',d:'99827364',tel:'3158903467',e:'marlenyvillalba@hotmail.com',fn:'09/01/1980',es:'activo',ecN:'Yolanda',ecA:'Cuesta Villalba',ecT:'3150937268',ecP:'madre'},
+    {id:24,n:'Brayan Steven',a:'Muñoz Ararat',t:'CC',d:'1104839562',tel:'3219084567',e:'brayansmunoz@gmail.com',fn:'23/06/2002',es:'activo',ecN:'Diana',ecA:'Ararat Muñoz',ecT:'3186049237',ecP:'madre'},
+    {id:25,n:'Gloria Cecilia',a:'Hoyos Naranjo',t:'CC',d:'41762938',tel:'3125960738',e:'gloria.hoyos.naranjo@gmail.com',fn:'16/08/1961',es:'inactivo',ecN:'Mauricio',ecA:'Naranjo Hincapié',ecT:'3145780962',ecP:'hijo'},
+    {id:26,n:'Felipe Andrés',a:'Mejía Callejas',t:'CC',d:'1078234905',tel:'3184759260',e:'felipemejia.callejas@gmail.com',fn:'07/12/1993',es:'activo',ecN:'Sandra Milena',ecA:'Callejas Mejía',ecT:'3129408576',ecP:'madre'},
+    {id:27,n:'Karen Liseth',a:'Arboleda Bonilla',t:'CC',d:'1046729318',tel:'3138470596',e:'karen.arboleda.b@gmail.com',fn:'19/04/2000',es:'activo',ecN:'Fernando',ecA:'Bonilla Arboleda',ecT:'3192740586',ecP:'padre'},
+    {id:28,n:'Ricardo Antonio',a:'Gaviria Londoño',t:'CC',d:'70293846',tel:'3162094837',e:'ragaviria.l@yahoo.com',fn:'24/07/1973',es:'activo',ecN:'Martha',ecA:'Londoño Gaviria',ecT:'3170592846',ecP:'esposa'},
+    {id:29,n:'Paula Andrea',a:'Giraldo Álvarez',t:'CC',d:'1034985672',tel:'3149285067',e:'paulagiraldo.alvarez@gmail.com',fn:'28/02/1996',es:'inactivo',ecN:'Ana María',ecA:'Álvarez Giraldo',ecT:'3105962847',ecP:'madre'},
+    {id:30,n:'Óscar Darío',a:'Carvajalino Rojas',t:'CC',d:'1092938475',tel:'3170629485',e:'oscar.carvajalino@gmail.com',fn:'13/09/1989',es:'activo',ecN:'Édgar',ecA:'Carvajalino Ospina',ecT:'3158276049',ecP:'padre'},
+    {id:31,n:'Marcela',a:'Arango Saldarriaga',t:'CC',d:'1019283746',tel:'3108492375',e:'marcela.arango.s@gmail.com',fn:'21/05/1986',es:'activo',ecN:'Luis Alberto',ecA:'Saldarriaga Arango',ecT:'3182964705',ecP:'esposo'},
+    {id:32,n:'Édgar Alexander',a:'Rueda Cifuentes',t:'CC',d:'1053928460',tel:'3198470526',e:'ealexrueda@gmail.com',fn:'03/08/1994',es:'activo',ecN:'Nidia',ecA:'Cifuentes Rueda',ecT:'3125097468',ecP:'madre'},
+    {id:33,n:'Consuelo Emilia',a:'Peñaloza Ávila',t:'CC',d:'36918472',tel:'3127509384',e:'consuelo.penaloza.avila@hotmail.com',fn:'05/11/1959',es:'activo',ecN:'Óscar',ecA:'Ávila Peñaloza',ecT:'3160947285',ecP:'hijo'},
+    {id:34,n:'Óscar Mauricio',a:'Bonilla Reales',t:'CE',d:'562841',tel:'3180593472',e:'mauriciobonilla.reales@gmail.com',fn:'18/02/1978',es:'inactivo',ecN:'Yulima',ecA:'Reales Bonilla',ecT:'3192740856',ecP:'esposa'},
+    {id:35,n:'Stephania',a:'Zapata Marulanda',t:'CC',d:'1062938471',tel:'3201398475',e:'stephania.zm@gmail.com',fn:'26/10/1997',es:'activo',ecN:'Claudia',ecA:'Marulanda Zapata',ecT:'3174058296',ecP:'madre'},
+    {id:36,n:'Luis Hernando',a:'Botero Arango',t:'CC',d:'79283451',tel:'3156702893',e:'luisbotero.arango@yahoo.com',fn:'11/06/1969',es:'activo',ecN:'Ofelia',ecA:'Arango Botero',ecT:'3150937468',ecP:'esposa'},
+    {id:37,n:'Yesica Paola',a:'Ocampo Restrepo',t:'CC',d:'1049382765',tel:'3140962837',e:'yesica.ocampo.r@gmail.com',fn:'31/03/1992',es:'activo',ecN:'Dora',ecA:'Restrepo Ocampo',ecT:'3129064587',ecP:'madre'},
+    {id:38,n:'Diego Alejandro',a:'Trujillo Pabón',t:'CC',d:'1083746291',tel:'3189204756',e:'diego.trujillo.pabon@gmail.com',fn:'15/12/1990',es:'activo',ecN:'Gladys',ecA:'Pabón Trujillo',ecT:'3179052684',ecP:'madre'},
+    {id:39,n:'Mónica Liliana',a:'Cano Betancur',t:'CC',d:'1027936485',tel:'3119485673',e:'monicaliliana.cano@gmail.com',fn:'27/04/1984',es:'inactivo',ecN:'Arturo',ecA:'Betancur Cano',ecT:'3195824067',ecP:'esposo'},
+    {id:40,n:'Fredy Alberto',a:'Alzate Londoño',t:'CC',d:'74182956',tel:'3167482095',e:'freddy.alzate.l@hotmail.com',fn:'04/09/1976',es:'activo',ecN:'Elcy',ecA:'Londoño Alzate',ecT:'3148609275',ecP:'esposa'},
+    {id:41,n:'Natalia Andrea',a:'Betancourt Polanía',t:'CC',d:'1057483920',tel:'3214087596',e:'natalia.betancourt.p@gmail.com',fn:'19/07/1998',es:'activo',ecN:'Fredy',ecA:'Polanía Betancourt',ecT:'3107285964',ecP:'padre'},
+    {id:42,n:'Harold Esteban',a:'Quiceno Giraldo',t:'CC',d:'1093847265',tel:'3175902846',e:'haroldquiceno.g@gmail.com',fn:'02/11/1995',es:'activo',ecN:'Marta',ecA:'Giraldo Quiceno',ecT:'3189460523',ecP:'madre'}
+  ];
+
+  var NAV=[
+    {p:'/',l:'Inicio',r:['admin','recepcion','profesor']},
+    {p:'/socios',l:'Socios',r:['admin','recepcion','profesor']},
+    {p:'/membresias',l:'Membresías',r:['admin','recepcion']},
+    {p:'/pagos',l:'Pagos',r:['admin','recepcion']},
+    {p:'/dashboard',l:'Dashboard',r:['admin','recepcion']},
+    {p:'/respaldos',l:'Respaldos',r:['admin']},
+    {p:'/perfil',l:'Mi perfil',r:['admin','recepcion','profesor']}
+  ];
+  var USERS={
+    admin:{name:'Diana Marcela Restrepo',role:'Admin (dueña)',ini:'DR'},
+    recepcion:{name:'Carolina Suárez Ortiz',role:'Recepción',ini:'CS'},
+    profesor:{name:'Óscar Iván Sandoval',role:'Profesor',ini:'OS'}
+  };
+
+  var st={q:'',estado:'todos',page:1,role:'recepcion',sel:null};
+  var iconCheck='<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>';
+  var iconOff='<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2.5 6h7"/></svg>';
+  function $(s){return document.querySelector(s)}
+  function norm(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+  function chip(es){
+    return es==='activo'
+      ? '<span class="chip on">'+iconCheck+'Activo</span>'
+      : '<span class="chip off">'+iconOff+'Inactivo</span>';
+  }
+
+  function renderNav(){
+    var u=USERS[st.role], out='';
+    NAV.forEach(function(it){
+      if(it.r.indexOf(st.role)===-1) return;
+      var cur=(it.p==='/socios')?' aria-current="page"':'';
+      out+='<li><a href="#"'+cur+'>'+it.l+'</a></li>';
+    });
+    $('#navlist').innerHTML=out;
+    $('#foot-admin').hidden=(st.role!=='admin');
+    $('#uname').textContent=u.name;
+    $('#urole').textContent=u.role;
+    $('#uav').textContent=u.ini;
+    var prof=(st.role==='profesor');
+    $('#rolenote').hidden=!prof;
+    $('#btn-new').disabled=prof;
+    $('#btn-new').title=prof?'Solo lectura para el rol profesor':'Alta de socio';
+    if(prof) st.sel=null;
+  }
+
+  function results(){
+    var q=norm(st.q.trim());
+    if(!q) return null; /* R13: la búsqueda vacía devuelve cero resultados */
+    return SOC.filter(function(s){
+      return norm(s.n+' '+s.a).indexOf(q)!==-1 || norm(s.t+' '+s.d).indexOf(q)!==-1;
+    }).filter(function(s){
+      return st.estado==='todos' || s.es===st.estado;
+    });
+  }
+
+  function renderRows(){
+    var res=results();
+    $('#st-empty').hidden=(res!==null);
+    $('#st-none').hidden=!(res!==null && res.length===0);
+    $('#st-results').hidden=!(res!==null && res.length>0);
+    if(res===null){ $('#live').textContent='Búsqueda vacía: no se devuelven resultados hasta escribir un término.'; }
+    else if(res.length===0){
+      $('#none-q').textContent='“'+st.q.trim()+'”';
+      $('#live').textContent='Sin coincidencias para la búsqueda.';
+    } else {
+      var pages=Math.ceil(res.length/15);
+      if(st.page>pages) st.page=pages;
+      if(st.page<1) st.page=1;
+      var slice=res.slice((st.page-1)*15, st.page*15);
+      $('#rows').innerHTML=slice.map(function(s){
+        var sel=(st.sel===s.id)?' class="sel" aria-current="true"':'';
+        return '<tr'+sel+'>'
+          +'<td data-label="Socio"><button type="button" class="rowname" data-id="'+s.id+'" aria-pressed="'+(st.sel===s.id)+'">'+esc(s.n+' '+s.a)+'</button></td>'
+          +'<td data-label="Documento"><span class="tipo">'+s.t+'</span><span class="tnum">'+esc(s.d)+'</span></td>'
+          +'<td data-label="Estado">'+chip(s.es)+'</td>'
+          +'</tr>';
+      }).join('');
+      $('#countline').textContent=res.length+' socios coinciden';
+      $('#pg-info').textContent=res.length+' socios · página '+st.page+' de '+pages;
+      var pg='';
+      pg+='<button type="button" class="pg" data-go="'+(st.page-1)+'"'+(st.page===1?' disabled':'')+'>‹</button>';
+      for(var i=1;i<=pages;i++){
+        pg+='<button type="button" class="pg" data-go="'+i+'"'+(i===st.page?' aria-current="page"':'')+'>'+i+'</button>';
+      }
+      pg+='<button type="button" class="pg" data-go="'+(st.page+1)+'"'+(st.page===pages?' disabled':'')+'>›</button>';
+      $('#pg-pages').innerHTML=pg;
+      $('#live').textContent=res.length+' socios coinciden; página '+st.page+' de '+pages+'.';
+    }
+    renderDetail();
+  }
+
+  function renderDetail(){
+    var prof=(st.role==='profesor');
+    var dis=prof?' disabled title="Solo lectura para el rol profesor"':'';
+    var docNote=(st.role==='recepcion')
+      ? '<p>El número de documento solo lo edita un admin (se valida en el backend).</p>'
+      : '';
+    if(st.sel===null){
+      $('#detail-empty').hidden=false;
+      $('#detail-card').hidden=true;
+      $('#detail-empty').textContent = prof
+        ? 'Selecciona un socio del listado para consultar su ficha (solo lectura).'
+        : 'Selecciona un socio del listado para ver su ficha completa.';
+      return;
+    }
+    var s=SOC.find(function(x){return x.id===st.sel});
+    if(!s){ st.sel=null; $('#detail-empty').hidden=false; $('#detail-card').hidden=true; return; }
+    $('#detail-empty').hidden=true;
+    $('#detail-card').hidden=false;
+    var ini=(s.n.charAt(0)+s.a.charAt(0)).toUpperCase();
+    $('#detail-card').innerHTML=
+      '<div class="head">'
+      +'<span class="photo" aria-hidden="true">'+ini+'<small>Foto opcional</small></span>'
+      +'<div><h2>'+esc(s.n)+'</h2><span class="ap">'+esc(s.a)+'</span></div>'
+      +chip(s.es)
+      +'</div>'
+      +'<div class="dgrid">'
+      +'<div class="dfield"><div class="k">Documento</div><div class="v"><span class="tipo">'+s.t+'</span><span class="tnum">'+esc(s.d)+'</span></div></div>'
+      +'<div class="dfield"><div class="k">Teléfono</div><div class="v tnum">'+esc(s.tel)+'</div></div>'
+      +'<div class="dfield"><div class="k">Email</div><div class="v">'+(s.e?esc(s.e):'<span class="ap">Sin correo</span>')+'</div></div>'
+      +'<div class="dfield"><div class="k">Fecha de nacimiento</div><div class="v tnum">'+esc(s.fn)+'</div></div>'
+      +'</div>'
+      +'<div class="ec-box"><div class="k">Contacto de emergencia</div>'
+      +'<div class="v">'+esc(s.ecN+' '+s.ecA)+'</div>'
+      +'<div class="v tnum">'+esc(s.ecT)+'</div>'
+      +'<div class="rel">'+esc(s.ecP)+'</div></div>'
+      +'<div class="dnotes"><p>El teléfono es obligatorio pero no único: si otro socio lo comparte, se avisa sin bloquear (puede ser un familiar).</p>'
+      +'<p>El alta de socio solo admite mayores de 18 años.</p>'
+      +docNote+'</div>'
+      +'<div class="dactions">'
+      +'<button type="button" class="btn btn-primary"'+dis+'>Editar socio</button>'
+      +'<button type="button" class="btn btn-ghost"'+dis+'>Dar de baja</button>'
+      +'</div>';
+  }
+
+  function render(){ renderNav(); renderRows(); }
+
+  document.querySelectorAll('[data-role]').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.querySelectorAll('[data-role]').forEach(function(x){x.setAttribute('aria-pressed','false')});
+      b.setAttribute('aria-pressed','true');
+      st.role=b.dataset.role; st.page=1; st.sel=null; render();
+    });
+  });
+  document.querySelectorAll('[data-scen]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var s=b.dataset.scen;
+      if(s==='results'){ st.q='ar'; st.estado='todos'; st.sel=8; }
+      if(s==='empty'){ st.q=''; st.estado='todos'; st.sel=null; }
+      if(s==='none'){ st.q='zuluaga'; st.estado='todos'; st.sel=null; }
+      st.page=1;
+      $('#q').value=st.q; $('#estado').value=st.estado;
+      render();
+    });
+  });
+  $('#q').addEventListener('input',function(e){ st.q=e.target.value; st.page=1; st.sel=null; render(); });
+  $('#estado').addEventListener('change',function(e){ st.estado=e.target.value; st.page=1; st.sel=null; render(); });
+  $('#btn-clear').addEventListener('click',function(){ st.q=''; st.estado='todos'; st.page=1; st.sel=null; $('#q').value=''; $('#estado').value='todos'; render(); });
+  $('#pg-pages').addEventListener('click',function(e){
+    var b=e.target.closest('[data-go]'); if(!b||b.disabled) return;
+    st.page=parseInt(b.dataset.go,10); st.sel=null; render();
+  });
+  $('#rows').addEventListener('click',function(e){
+    var b=e.target.closest('[data-id]'); if(!b) return;
+    st.sel=parseInt(b.dataset.id,10);
+    renderRows();
+    var card=$('#detail-card');
+    if(!card.hidden && window.matchMedia('(max-width: 900px)').matches){
+      card.scrollIntoView({block:'nearest',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+    }
+  });
+  var mb=$('#menu-btn');
+  mb.addEventListener('click',function(){
+    var open=document.body.classList.toggle('nav-open');
+    mb.setAttribute('aria-expanded',open?'true':'false');
+    if(open){ var a=$('#navlist a'); if(a) a.focus(); }
+  });
+  document.addEventListener('click',function(e){
+    if(document.body.classList.contains('nav-open') && !e.target.closest('#sidebar') && !e.target.closest('#menu-btn')){
+      document.body.classList.remove('nav-open');
+      mb.setAttribute('aria-expanded','false');
+    }
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && document.body.classList.contains('nav-open')){
+      document.body.classList.remove('nav-open');
+      mb.setAttribute('aria-expanded','false');
+      mb.focus();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
