@@ -149,6 +149,14 @@
   .seg-btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
   .seg-btn svg{display:none}
   .seg-btn[aria-pressed="true"] svg{display:inline-block}
+  /* A pressed segment must fill its own segment exactly. The global :focus-visible
+     rule mutates the button radius (5px 2px 2px 5px on the first one) and floats a
+     2px-offset outline outside the 36 px container, so the pressed fill read as an
+     inset pill inside a floating box. Scope it: same 2px accent ring, but inset so it
+     hugs the segment edges, and with the segment's own corner radii preserved. */
+  .seg-btn:focus-visible{outline-offset:-2px;border-radius:0}
+  .seg-btn:first-child:focus-visible{border-radius:5px 0 0 5px}
+  .seg-btn:last-child:focus-visible{border-radius:0 5px 5px 0}
   .actions{display:flex;gap:8px;align-items:center;margin-left:auto;margin-top:20px;flex-wrap:wrap}
   .actions .btn{min-height:36px;line-height:16px}
 
@@ -214,10 +222,17 @@
 
   /* --- Responsive --- */
   @media (max-width: 900px){
-    /* Tablet: when the action buttons wrap, sit them directly under the filter row,
-       still right-aligned, with a tighter row gap (no dead zone above them). */
+    /* Tablet: the search takes the whole first row (uncapped); the second row pairs
+       the estado control (left) with the action buttons (right), so two rows suffice. */
     .command{row-gap:10px}
-    .actions{margin-left:0;margin-top:0;width:100%;justify-content:flex-end}
+    .search{flex-basis:100%;max-width:none}
+    /* The hint's UA margin-bottom (12 px) was dead space under the first row, and the
+       stacked "Estado" label cost 20 px above the control; the second row must cost
+       only the control height plus the row gap, so the label sits beside the control. */
+    .search .hint{margin:4px 0 0}
+    .field{flex-direction:row;align-items:center;gap:8px}
+    .field>span{margin-bottom:0}
+    .actions{margin-left:auto;margin-top:0}
     .sidebar{
       position:fixed;inset:49px auto 0 0;width:260px;z-index:40;
       transform:translateX(-105%);transition:transform .18s ease;
@@ -229,9 +244,23 @@
   }
   @media (max-width: 700px){
     .topbar{padding:8px 12px}
-    .command{top:45px;position:static}
+    .command{top:45px;position:static;padding-block:10px}
     .search{flex-basis:100%;max-width:none}
-    .actions{margin-top:0}
+    .command{gap:10px}
+    /* Mobile: the zone labels repeat what the placeholder and the segments say, and
+       the hint repeats the empty-state rule stated right below the bar — clip them
+       visually (sr-only pattern) but keep them for assistive tech. */
+    .search label,.field>span,.search .hint{
+      position:absolute;width:1px;height:1px;padding:0;margin:0;
+      overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+    }
+    .field{width:100%}
+    /* Shared 44 px touch height for every control; segments fill the row equally. */
+    .search input{min-height:44px}
+    .seg{display:flex;width:100%}
+    .seg-btn{flex:1;justify-content:center;min-height:44px}
+    .actions{margin-left:0;margin-top:0;width:100%}
+    .actions .btn{flex:1;justify-content:center;min-height:44px}
     .pagehead,.states,.tablewrap{padding-inline:12px}
     .pagenav{padding:12px 12px 22px}
     thead{display:none}
@@ -312,9 +341,9 @@
       <div class="command">
         <div class="search">
           <label for="q">Buscar socios</label>
-          <input type="search" id="q" placeholder="Nombre, apellidos o documento (p. ej. «cc 1023»)"
+          <input type="search" id="q" placeholder="Nombre, apellidos o documento"
                  autocomplete="off" inputmode="search">
-          <p class="hint">Ignora acentos y mayúsculas · la búsqueda vacía no devuelve resultados</p>
+          <p class="hint">Sin acentos ni mayúsculas · «cc 1023» · búsqueda vacía = 0 resultados</p>
         </div>
         <div class="field">
           <span>Estado</span>
