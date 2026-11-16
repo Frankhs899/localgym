@@ -9,23 +9,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@400..700&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0e1217;
-    --panel:#151b23;
-    --panel-2:#1b222c;
-    --line:#2a333f;
-    --line-strong:#3a4553;
-    --text:#e8edf4;
-    --muted:#9aa7b6;
-    --accent:#ffb224;
-    --accent-soft:rgba(255,178,36,.14);
-    --accent-ink:#221804;
-    --ok-bg:#132a1d;
-    --ok-line:#2e5138;
-    --ok-text:#9fe0b3;
-    --off-bg:#222a34;
-    --off-line:#3a4553;
-    --off-text:#c3ceda;
-    --danger:#ff7a6e;
+    --bg:#07090F;
+    --panel:#121328;
+    --panel-2:#171B3C;
+    --line:#232752;
+    --line-strong:#2F3468;
+    --text:#F2F4F8;
+    --muted:#A6ABC7;
+    --accent:#EFFF00;
+    --accent-soft:rgba(239,255,0,.12);
+    --accent-ink:#0A0C11;
+    --brand:#3E25F6;
+    --brand-soft:rgba(62,37,246,.28);
+    --ok-bg:#0E2A22;
+    --ok-line:#2B5C4A;
+    --ok-text:#6FD3A0;
+    --off-bg:#1A1E38;
+    --off-line:#2F3468;
+    --off-text:#B4BBD4;
+    --danger:#FF7A6E;
     --font-display:"Playfair Display",Georgia,"Times New Roman",serif;
     --font-ui:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
@@ -91,7 +93,9 @@
     padding:18px 12px;
   }
   .brand{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-size:17px;font-weight:700;padding:0 10px;margin-bottom:22px}
-  .brand svg{color:var(--accent)}
+  /* Violet is mass, never text: the brand mark sits on a small violet block,
+     white icon on top. */
+  .brand svg{background:var(--brand);color:#fff;border-radius:6px;padding:5px}
   .nav ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
   .nav a{
     display:block;padding:8px 10px;border-radius:6px;
@@ -115,7 +119,7 @@
   .topbar .who{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:13px}
   .who .avatar{
     width:30px;height:30px;border-radius:50%;flex:none;
-    background:var(--accent-soft);color:var(--accent);
+    background:var(--brand);color:#fff;
     display:grid;place-items:center;font-size:12px;font-weight:700;
   }
   .who b{font-weight:600}
@@ -170,6 +174,11 @@
   .state-box p{margin:0 0 4px;font-size:13px;max-width:52ch;margin-inline:auto}
   .state-box .esc{margin:10px 0 14px;font-size:12.5px}
   .state-box .esc b{color:var(--text)}
+  /* Violet as mass: icon block of the two empty states, white icon on top. */
+  .state-ico{
+    width:34px;height:34px;margin:0 auto 10px;border-radius:8px;
+    background:var(--brand);color:#fff;display:grid;place-items:center;
+  }
 
   .tablewrap{padding:0 20px 8px}
   table{width:100%;border-collapse:collapse;font-size:13px}
@@ -384,6 +393,7 @@
       <!-- Estado 2: búsqueda vacía -->
       <div class="states" id="st-empty">
         <div class="state-box">
+          <div class="state-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></div>
           <h2>Escribe para buscar</h2>
           <p>La búsqueda vacía no devuelve resultados. Escribe al menos una letra de un nombre, apellidos o documento.</p>
         </div>
@@ -392,6 +402,7 @@
       <!-- Estado 3: sin coincidencias -->
       <div class="states" id="st-none" hidden>
         <div class="state-box">
+          <div class="state-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/><path d="M8.5 11h5"/></svg></div>
           <h2>Ningún socio coincide con <b id="none-q"></b></h2>
           <p>Revisa si hay tildes omitidas o prueba con el apellido en vez del nombre. La búsqueda ignora acentos y mayúsculas.</p>
           <div class="esc">
