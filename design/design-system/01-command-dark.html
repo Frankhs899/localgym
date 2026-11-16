@@ -131,20 +131,24 @@
     padding:12px 20px;background:var(--bg);
     border-bottom:1px solid var(--line);
   }
-  .search{flex:1 1 340px;min-width:240px}
+  .search{flex:1 1 340px;min-width:240px;max-width:420px}
   .search label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
   .search input{
-    width:100%;padding:9px 12px;font:inherit;font-size:14px;
+    width:100%;padding:7px 12px;font:inherit;font-size:14px;line-height:1.6;
     background:var(--panel);border:1px solid var(--line-strong);border-radius:6px;color:var(--text);
   }
   .search input::placeholder{color:#6b7987}
   .search .hint{margin-top:4px;font-family:var(--font-mono);font-size:11.5px;color:var(--muted)}
   .field{display:flex;flex-direction:column;gap:4px}
   .field > span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-  select{
-    padding:9px 10px;font:inherit;font-size:13px;color:var(--text);
-    background:var(--panel);border:1px solid var(--line-strong);border-radius:6px;
-  }
+  .seg{display:inline-flex;background:var(--panel);border:1px solid var(--line-strong);border-radius:6px}
+  .seg-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;font-size:12.5px;color:var(--muted);border-left:1px solid var(--line)}
+  .seg-btn:first-child{border-left:0;border-top-left-radius:5px;border-bottom-left-radius:5px}
+  .seg-btn:last-child{border-top-right-radius:5px;border-bottom-right-radius:5px}
+  .seg-btn:hover{background:var(--panel-2);color:var(--text)}
+  .seg-btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .seg-btn svg{display:none}
+  .seg-btn[aria-pressed="true"] svg{display:inline-block}
   .actions{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
 
   .pagehead{display:flex;align-items:baseline;gap:12px;padding:16px 20px 4px;flex-wrap:wrap}
@@ -221,7 +225,7 @@
   @media (max-width: 700px){
     .topbar{padding:8px 12px}
     .command{top:45px;position:static}
-    .search{flex-basis:100%}
+    .search{flex-basis:100%;max-width:none}
     .pagehead,.states,.tablewrap{padding-inline:12px}
     .pagenav{padding:12px 12px 22px}
     thead{display:none}
@@ -307,12 +311,12 @@
           <p class="hint">Ignora acentos y mayúsculas · busca por nombre, apellidos o documento · la búsqueda vacía no devuelve resultados · 15 socios por página</p>
         </div>
         <div class="field">
-          <span id="lbl-estado">Estado</span>
-          <select id="estado" aria-labelledby="lbl-estado">
-            <option value="todos">Todos</option>
-            <option value="activo">Activos</option>
-            <option value="inactivo">Inactivos</option>
-          </select>
+          <span>Estado</span>
+          <div class="seg" id="estado" role="group" aria-label="Filtrar socios por estado">
+            <button type="button" class="seg-btn" data-estado="todos" aria-pressed="true"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>Todos</button>
+            <button type="button" class="seg-btn" data-estado="activo" aria-pressed="false"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>Activos</button>
+            <button type="button" class="seg-btn" data-estado="inactivo" aria-pressed="false"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>Inactivos</button>
+          </div>
         </div>
         <div class="actions">
           <button type="button" class="btn btn-ghost" id="btn-export">Exportar CSV</button>
@@ -352,13 +356,12 @@
       <div id="st-results" hidden>
         <div class="tablewrap">
           <table>
-            <caption class="sr-only">Listado de socios: nombre completo, documento, teléfono, fecha de nacimiento y estado; 15 resultados por página.</caption>
+            <caption class="sr-only">Listado de socios: nombre completo, documento, teléfono y estado; 15 resultados por página.</caption>
             <thead>
               <tr>
                 <th scope="col">Socio</th>
                 <th scope="col">Documento</th>
                 <th scope="col">Teléfono</th>
-                <th scope="col">F. nacimiento</th>
                 <th scope="col">Estado</th>
                 <th scope="col" class="right">Acciones</th>
               </tr>
@@ -469,6 +472,12 @@
       : '<span class="chip off">'+iconOff+'Inactivo</span>';
   }
 
+  function syncSeg(){
+    document.querySelectorAll('#estado .seg-btn').forEach(function(b){
+      b.setAttribute('aria-pressed', b.dataset.estado===st.estado ? 'true':'false');
+    });
+  }
+
   function results(){
     var q=norm(st.q.trim());
     if(!q) return null; /* R13: la búsqueda vacía devuelve cero resultados */
@@ -503,7 +512,6 @@
         +'</th>'
         +'<td data-label="Documento"><span class="tipo">'+s.t+'</span><span class="doc">'+esc(s.d)+'</span></td>'
         +'<td data-label="Teléfono" class="num">'+esc(s.tel)+'</td>'
-        +'<td data-label="F. nacimiento" class="num">'+esc(s.fn)+'</td>'
         +'<td data-label="Estado">'+chip(s.es)+'</td>'
         +'<td data-label="Acciones" class="right">'+act+'</td>'
         +'</tr>';
@@ -539,13 +547,16 @@
       if(s==='empty'){ st.q=''; st.estado='todos'; }
       if(s==='none'){ st.q='zuluaga'; st.estado='todos'; }
       st.page=1;
-      $('#q').value=st.q; $('#estado').value=st.estado;
+      $('#q').value=st.q; syncSeg();
       render();
     });
   });
   $('#q').addEventListener('input',function(e){ st.q=e.target.value; st.page=1; render(); });
-  $('#estado').addEventListener('change',function(e){ st.estado=e.target.value; st.page=1; render(); });
-  $('#btn-clear').addEventListener('click',function(){ st.q=''; st.estado='todos'; st.page=1; $('#q').value=''; $('#estado').value='todos'; render(); });
+  $('#estado').addEventListener('click',function(e){
+    var b=e.target.closest('.seg-btn'); if(!b || b.getAttribute('aria-pressed')==='true') return;
+    st.estado=b.dataset.estado; st.page=1; syncSeg(); render();
+  });
+  $('#btn-clear').addEventListener('click',function(){ st.q=''; st.estado='todos'; st.page=1; $('#q').value=''; syncSeg(); render(); });
   $('#pg-pages').addEventListener('click',function(e){
     var b=e.target.closest('[data-go]'); if(!b||b.disabled) return;
     st.page=parseInt(b.dataset.go,10); render();

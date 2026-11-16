@@ -36,6 +36,40 @@
       "sentAt": "2026-11-16T20:41:52.021Z",
       "resolvedAt": "2026-11-16T20:44:39.282Z",
       "resolution": "Se eliminó la columna EMAIL: el email del socio ahora va como segunda línea atenuada bajo el nombre, y simplemente no aparece si el socio no tiene. La tabla quedó en 6 columnas y 8 socios del demo no tienen correo."
+    },
+    {
+      "id": "t28x89z5",
+      "file": "01-command-dark.html",
+      "selector": "#q",
+      "excerpt": "",
+      "comment": "La barra de búsqueda me parece demasiado grande en la vista de escritorio.",
+      "createdAt": "2026-11-16T20:49:35.596Z",
+      "status": "open",
+      "sentAt": null,
+      "resolvedAt": null
+    },
+    {
+      "id": "7und3cgg",
+      "file": "01-command-dark.html",
+      "selector": "#estado",
+      "excerpt": "Todos Activos Inactivos",
+      "comment": "No me esta que sea una lista desplegable, me gustaria mas algo como la imagen",
+      "createdAt": "2026-11-16T20:51:11.892Z",
+      "status": "open",
+      "sentAt": null,
+      "resolvedAt": null,
+      "screenshot": ".screenshots/7und3cgg.png"
+    },
+    {
+      "id": "yic156ef",
+      "file": "01-command-dark.html",
+      "selector": "#st-results > div:nth-of-type(1) > table > thead > tr > th:nth-of-type(4)",
+      "excerpt": "F. NACIMIENTO",
+      "comment": "No veo necesaria la columna F. NACIMIENTO",
+      "createdAt": "2026-11-16T20:52:02.068Z",
+      "status": "open",
+      "sentAt": null,
+      "resolvedAt": null
     }
   ]
 }

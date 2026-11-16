@@ -32,6 +32,7 @@ Feature document for issue #27 (LocalGym). Route: design first, then production 
 - **T4** — Base components (App Shell, listing/table, status chips, form controls) in `frontend/src`. Route: writer. Commit: pending.
 - **T5** — `docs/design/DESIGN.md`. Route: writer. Commit: pending.
 - **T6** — Delivery stays within the review budget (chained PRs when a slice exceeds 400 authored lines, per S4). Route: parent. Commit: pending.
+- **T7** — Implement the chosen artboard in the real stack: design tokens in the `@theme`, App Shell, Login, Perfil and the socios listing. Route: writer. Status: in progress (canvas handoff opened 2026-11-16). Blocker: the backend exposes only the accounts API, so a data-backed listing waits on issue #5. Commit: pending.
 
 ## Log
 
@@ -46,3 +47,5 @@ Feature document for issue #27 (LocalGym). Route: design first, then production 
 - **L9** (owner, 2026-11-16) — "cambiemosla por Playfair Display a ver como queda": DM Serif Display was swapped for Playfair Display (full 400-900 range), and the brand (700), page title (700) and state heading (600) got their weights back. Sizes unchanged.
 - **L10** (owner, 2026-11-16) — Comment ojft48gd: the separate Nombre and Apellidos columns became a single SOCIO column holding the full name. The table now has 7 columns; email keeps its own column.
 - **L11** (owner, 2026-11-16) — Comment azch800s: the EMAIL column was removed because the field is optional (#5 R10), and the address now renders as a muted second line under the name, absent when the socio has none. The table is 6 columns.
+- **L12** (owner, 2026-11-16) — Canvas comments t28x89z5, 7und3cgg and yic156ef applied to the artboard: the desktop search field shrank to a 36 px height with a capped width, the estado dropdown became a three-segment control (Todos / Activos / Inactivos), and the F. NACIMIENTO column left the table, which is now 5 columns. No image was attached to comment 7und3cgg, so the segmented reading is an inference to confirm.
+- **L13** (handoff, 2026-11-16) — The canvas handoff for `design-system/01-command-dark.html` opened T7: implement the artboard in the project's real stack. Evidence that bounds the scope: `backend/config/urls.py` only includes `apps.accounts.urls` (auth, session, `/api/me/`), there is no socios app, endpoint or serializer, and issue #5 is still open; `frontend/src/index.css` is one line (`@import "tailwindcss";`) and no component consumes a design token yet. The three artboard comments t28x89z5, 7und3cgg and yic156ef were applied to the artboard as the spec the implementation must follow.
