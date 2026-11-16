@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "chosen": "01-command-dark.html",
+  "handoffs": {
+    "01-command-dark.html": {
+      "status": "in_progress",
+      "queued": false,
+      "sentAt": "2026-11-16T20:52:50.788Z",
+      "startedAt": "2026-11-16T20:53:08.604Z",
+      "implementedAt": null,
+      "feature": "odd/tasks/design-system.md",
+      "note": "Mapeando el artboard al stack real: tokens en @theme, App Shell y listado de socios."
+    }
+  }
+}
