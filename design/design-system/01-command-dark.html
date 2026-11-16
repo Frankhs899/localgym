@@ -171,7 +171,12 @@
   th.right,td.right{text-align:right}
   tbody td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
   tbody tr:hover{background:var(--panel)}
-  td .cellname,th .cellname{font-weight:600}
+  td .cellname,th .cellname{font-weight:600;display:block}
+  th .cellmail{
+    display:block;font-family:var(--font-ui);font-size:11.5px;font-weight:400;
+    color:var(--muted);line-height:1.25;margin-top:1px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px;
+  }
   td .sub{color:var(--muted);font-size:12px}
   .tipo{
     display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.05em;
@@ -347,13 +352,12 @@
       <div id="st-results" hidden>
         <div class="tablewrap">
           <table>
-            <caption class="sr-only">Listado de socios: nombre completo, documento, teléfono, correo, fecha de nacimiento y estado; 15 resultados por página.</caption>
+            <caption class="sr-only">Listado de socios: nombre completo, documento, teléfono, fecha de nacimiento y estado; 15 resultados por página.</caption>
             <thead>
               <tr>
                 <th scope="col">Socio</th>
                 <th scope="col">Documento</th>
                 <th scope="col">Teléfono</th>
-                <th scope="col">Email</th>
                 <th scope="col">F. nacimiento</th>
                 <th scope="col">Estado</th>
                 <th scope="col" class="right">Acciones</th>
@@ -378,42 +382,42 @@
     {n:'María Fernanda',a:'Rincón Peña',t:'CC',d:'1023456789',tel:'3104526781',e:'mafernanda.rincon@gmail.com',fn:'12/04/1988',es:'activo',ecN:'Martha Lucía',ecA:'Peña Gutiérrez',ecT:'3140963225',ecP:'madre'},
     {n:'Jhon Jairo',a:'Valencia Ospina',t:'CC',d:'79123456',tel:'3152893402',e:'jjvalencia79@gmail.com',fn:'30/09/1975',es:'activo',ecN:'Édgar Enrique',ecA:'Valencia Cárdenas',ecT:'3174829056',ecP:'padre'},
     {n:'Luz Adriana',a:'Cárdenas Mendoza',t:'CC',d:'52109874',tel:'3126745908',e:'luzadriana.cardenas@hotmail.com',fn:'22/01/1982',es:'inactivo',ecN:'Bernardo',ecA:'Mendoza Salas',ecT:'3198476521',ecP:'esposo'},
-    {n:'Andrés Camilo',a:'Gómez Torres',t:'CC',d:'1098765432',tel:'3209184756',e:'acgomez.torres@gmail.com',fn:'08/07/1996',es:'activo',ecN:'Dora Lucía',ecA:'Torres Vélez',ecT:'3109284673',ecP:'madre'},
+    {n:'Andrés Camilo',a:'Gómez Torres',t:'CC',d:'1098765432',tel:'3209184756',fn:'08/07/1996',es:'activo',ecN:'Dora Lucía',ecA:'Torres Vélez',ecT:'3109284673',ecP:'madre'},
     {n:'Yuliana Patricia',a:'Mosquera Angulo',t:'CC',d:'1088234176',tel:'3015739284',e:'yulimosquera@gmail.com',fn:'15/11/1993',es:'activo',ecN:'Mario',ecA:'Angulo Perea',ecT:'3185670942',ecP:'padre'},
     {n:'Gustavo Adolfo',a:'Pardo Leal',t:'CE',d:'452318',tel:'3162384701',e:'gapardo.leal@yahoo.com',fn:'27/03/1968',es:'activo',ecN:'Cecilia',ecA:'Leal De la Ossa',ecT:'3127450896',ecP:'esposa'},
     {n:'Diana Carolina',a:'Restrepo Zapata',t:'CC',d:'1039274615',tel:'3134890275',e:'diacarore@gmail.com',fn:'19/05/1990',es:'inactivo',ecN:'Natalia',ecA:'Zapata Restrepo',ecT:'3219085637',ecP:'hermana'},
     {n:'Óscar Iván',a:'Buitrago Salamanca',t:'CC',d:'8012345678',tel:'3187602945',e:'oscar.buitrago80@gmail.com',fn:'03/12/1985',es:'activo',ecN:'Pilar',ecA:'Salamanca Buitrago',ecT:'3150928476',ecP:'esposa'},
     {n:'Paola Andrea',a:'Quintero Ríos',t:'CC',d:'1017543289',tel:'3109385672',e:'paolaquintero.rios@gmail.com',fn:'14/02/1994',es:'activo',ecN:'Jorge Enrique',ecA:'Ríos Ocampo',ecT:'3194762385',ecP:'padre'},
-    {n:'Héctor William',a:'Lozano Pineda',t:'CC',d:'74561928',tel:'3150472839',e:'hwlozano@hotmail.com',fn:'21/08/1971',es:'inactivo',ecN:'Esperanza',ecA:'Pineda Uscátegui',ecT:'3120489573',ecP:'esposa'},
+    {n:'Héctor William',a:'Lozano Pineda',t:'CC',d:'74561928',tel:'3150472839',fn:'21/08/1971',es:'inactivo',ecN:'Esperanza',ecA:'Pineda Uscátegui',ecT:'3120489573',ecP:'esposa'},
     {n:'Sara Sofía',a:'Vargas Caicedo',t:'CC',d:'1055623187',tel:'3216394087',e:'sarasofiavc@gmail.com',fn:'09/10/2001',es:'activo',ecN:'Piedad',ecA:'Caicedo Vargas',ecT:'3102847596',ecP:'madre'},
     {n:'Julián David',a:'Ortiz Peñaranda',t:'CC',d:'1020193847',tel:'3172840596',e:'jdortizp@gmail.com',fn:'30/06/1997',es:'activo',ecN:'Carlos',ecA:'Ortiz Ramírez',ecT:'3182937465',ecP:'padre'},
     {n:'Nubia Esperanza',a:'Salas Barbosa',t:'CC',d:'42983716',tel:'3124087591',e:'nubia.salas.barbosa@hotmail.com',fn:'02/04/1963',es:'activo',ecN:'Aníbal',ecA:'Barbosa Quintero',ecT:'3156720894',ecP:'esposo'},
-    {n:'Camilo Esteban',a:'Duarte Contreras',t:'CC',d:'1094762358',tel:'3147590328',e:'camiloeduarte@gmail.com',fn:'17/01/1999',es:'activo',ecN:'María Isabel',ecA:'Contreras Duarte',ecT:'3176049285',ecP:'madre'},
+    {n:'Camilo Esteban',a:'Duarte Contreras',t:'CC',d:'1094762358',tel:'3147590328',fn:'17/01/1999',es:'activo',ecN:'María Isabel',ecA:'Contreras Duarte',ecT:'3176049285',ecP:'madre'},
     {n:'Viviana Lorena',a:'Ospina Cuesta',t:'CC',d:'1048392017',tel:'3130967482',e:'viviana.ospina.c@gmail.com',fn:'25/09/1992',es:'inactivo',ecN:'Óscar',ecA:'Cuesta Mejía',ecT:'3109637428',ecP:'padre'},
     {n:'Álvaro José',a:'Betancur Marmolejo',t:'CC',d:'68327415',tel:'3182940375',e:'ajbetancur@yahoo.com',fn:'28/11/1966',es:'activo',ecN:'Fanny',ecA:'Marmolejo Betancur',ecT:'3149280756',ecP:'esposa'},
     {n:'Leidy Johanna',a:'Zapata Bermúdez',t:'CC',d:'1067342985',tel:'3195476023',e:'leidyzapatab@gmail.com',fn:'11/07/1995',es:'activo',ecN:'Sandra',ecA:'Bermúdez Ospina',ecT:'3139085624',ecP:'madre'},
     {n:'Farid Antonio',a:'Nassar De la Hoz',t:'CE',d:'731956',tel:'3169037485',e:'fnassar.delahoz@gmail.com',fn:'05/02/1987',es:'activo',ecN:'Julia',ecA:'De la Hoz Nassar',ecT:'3182547963',ecP:'madre'},
-    {n:'Kelly Tatiana',a:'Cuartas Montoya',t:'CC',d:'1028475619',tel:'3204871596',e:'kellytcuartas@gmail.com',fn:'20/12/1998',es:'activo',ecN:'Hernán',ecA:'Montoya Cano',ecT:'3127804965',ecP:'padre'},
+    {n:'Kelly Tatiana',a:'Cuartas Montoya',t:'CC',d:'1028475619',tel:'3204871596',fn:'20/12/1998',es:'activo',ecN:'Hernán',ecA:'Montoya Cano',ecT:'3127804965',ecP:'padre'},
     {n:'Édgar Mauricio',a:'Serna Botero',t:'CC',d:'83917546',tel:'3117596034',e:'edgar.serna.botero@hotmail.com',fn:'08/05/1979',es:'inactivo',ecN:'Amparo',ecA:'Botero Serna',ecT:'3194067285',ecP:'esposa'},
     {n:'Angélica María',a:'Tobón Giraldo',t:'CC',d:'1059328476',tel:'3140296857',e:'angelicamtobon@gmail.com',fn:'14/03/1991',es:'activo',ecN:'Julián',ecA:'Tobón Portilla',ecT:'3172398506',ecP:'hermano'},
     {n:'Diego Fernando',a:'Salazar Ochoa',t:'CC',d:'1013847592',tel:'3174902836',e:'dfsalazar.ochoa@gmail.com',fn:'30/10/1983',es:'activo',ecN:'Rosa',ecA:'Ochoa Cifuentes',ecT:'3107485296',ecP:'madre'},
-    {n:'Marleny Yohanna',a:'Villalba Cuesta',t:'CC',d:'99827364',tel:'3158903467',e:'marlenyvillalba@hotmail.com',fn:'09/01/1980',es:'activo',ecN:'Yolanda',ecA:'Cuesta Villalba',ecT:'3150937268',ecP:'madre'},
+    {n:'Marleny Yohanna',a:'Villalba Cuesta',t:'CC',d:'99827364',tel:'3158903467',fn:'09/01/1980',es:'activo',ecN:'Yolanda',ecA:'Cuesta Villalba',ecT:'3150937268',ecP:'madre'},
     {n:'Brayan Steven',a:'Muñoz Ararat',t:'CC',d:'1104839562',tel:'3219084567',e:'brayansmunoz@gmail.com',fn:'23/06/2002',es:'activo',ecN:'Diana',ecA:'Ararat Muñoz',ecT:'3186049237',ecP:'madre'},
     {n:'Gloria Cecilia',a:'Hoyos Naranjo',t:'CC',d:'41762938',tel:'3125960738',e:'gloria.hoyos.naranjo@gmail.com',fn:'16/08/1961',es:'inactivo',ecN:'Mauricio',ecA:'Naranjo Hincapié',ecT:'3145780962',ecP:'hijo'},
     {n:'Felipe Andrés',a:'Mejía Callejas',t:'CC',d:'1078234905',tel:'3184759260',e:'felipemejia.callejas@gmail.com',fn:'07/12/1993',es:'activo',ecN:'Sandra Milena',ecA:'Callejas Mejía',ecT:'3129408576',ecP:'madre'},
     {n:'Karen Liseth',a:'Arboleda Bonilla',t:'CC',d:'1046729318',tel:'3138470596',e:'karen.arboleda.b@gmail.com',fn:'19/04/2000',es:'activo',ecN:'Fernando',ecA:'Bonilla Arboleda',ecT:'3192740586',ecP:'padre'},
     {n:'Ricardo Antonio',a:'Gaviria Londoño',t:'CC',d:'70293846',tel:'3162094837',e:'ragaviria.l@yahoo.com',fn:'24/07/1973',es:'activo',ecN:'Martha',ecA:'Londoño Gaviria',ecT:'3170592846',ecP:'esposa'},
-    {n:'Paula Andrea',a:'Giraldo Álvarez',t:'CC',d:'1034985672',tel:'3149285067',e:'paulagiraldo.alvarez@gmail.com',fn:'28/02/1996',es:'inactivo',ecN:'Ana María',ecA:'Álvarez Giraldo',ecT:'3105962847',ecP:'madre'},
+    {n:'Paula Andrea',a:'Giraldo Álvarez',t:'CC',d:'1034985672',tel:'3149285067',fn:'28/02/1996',es:'inactivo',ecN:'Ana María',ecA:'Álvarez Giraldo',ecT:'3105962847',ecP:'madre'},
     {n:'Óscar Darío',a:'Carvajalino Rojas',t:'CC',d:'1092938475',tel:'3170629485',e:'oscar.carvajalino@gmail.com',fn:'13/09/1989',es:'activo',ecN:'Édgar',ecA:'Carvajalino Ospina',ecT:'3158276049',ecP:'padre'},
     {n:'Marcela',a:'Arango Saldarriaga',t:'CC',d:'1019283746',tel:'3108492375',e:'marcela.arango.s@gmail.com',fn:'21/05/1986',es:'activo',ecN:'Luis Alberto',ecA:'Saldarriaga Arango',ecT:'3182964705',ecP:'esposo'},
     {n:'Édgar Alexander',a:'Rueda Cifuentes',t:'CC',d:'1053928460',tel:'3198470526',e:'ealexrueda@gmail.com',fn:'03/08/1994',es:'activo',ecN:'Nidia',ecA:'Cifuentes Rueda',ecT:'3125097468',ecP:'madre'},
     {n:'Consuelo Emilia',a:'Peñaloza Ávila',t:'CC',d:'36918472',tel:'3127509384',e:'consuelo.penaloza.avila@hotmail.com',fn:'05/11/1959',es:'activo',ecN:'Óscar',ecA:'Ávila Peñaloza',ecT:'3160947285',ecP:'hijo'},
-    {n:'Óscar Mauricio',a:'Bonilla Reales',t:'CE',d:'562841',tel:'3180593472',e:'mauriciobonilla.reales@gmail.com',fn:'18/02/1978',es:'inactivo',ecN:'Yulima',ecA:'Reales Bonilla',ecT:'3192740856',ecP:'esposa'},
+    {n:'Óscar Mauricio',a:'Bonilla Reales',t:'CE',d:'562841',tel:'3180593472',fn:'18/02/1978',es:'inactivo',ecN:'Yulima',ecA:'Reales Bonilla',ecT:'3192740856',ecP:'esposa'},
     {n:'Stephania',a:'Zapata Marulanda',t:'CC',d:'1062938471',tel:'3201398475',e:'stephania.zm@gmail.com',fn:'26/10/1997',es:'activo',ecN:'Claudia',ecA:'Marulanda Zapata',ecT:'3174058296',ecP:'madre'},
     {n:'Luis Hernando',a:'Botero Arango',t:'CC',d:'79283451',tel:'3156702893',e:'luisbotero.arango@yahoo.com',fn:'11/06/1969',es:'activo',ecN:'Ofelia',ecA:'Arango Botero',ecT:'3150937468',ecP:'esposa'},
     {n:'Yesica Paola',a:'Ocampo Restrepo',t:'CC',d:'1049382765',tel:'3140962837',e:'yesica.ocampo.r@gmail.com',fn:'31/03/1992',es:'activo',ecN:'Dora',ecA:'Restrepo Ocampo',ecT:'3129064587',ecP:'madre'},
     {n:'Diego Alejandro',a:'Trujillo Pabón',t:'CC',d:'1083746291',tel:'3189204756',e:'diego.trujillo.pabon@gmail.com',fn:'15/12/1990',es:'activo',ecN:'Gladys',ecA:'Pabón Trujillo',ecT:'3179052684',ecP:'madre'},
-    {n:'Mónica Liliana',a:'Cano Betancur',t:'CC',d:'1027936485',tel:'3119485673',e:'monicaliliana.cano@gmail.com',fn:'27/04/1984',es:'inactivo',ecN:'Arturo',ecA:'Betancur Cano',ecT:'3195824067',ecP:'esposo'},
+    {n:'Mónica Liliana',a:'Cano Betancur',t:'CC',d:'1027936485',tel:'3119485673',fn:'27/04/1984',es:'inactivo',ecN:'Arturo',ecA:'Betancur Cano',ecT:'3195824067',ecP:'esposo'},
     {n:'Fredy Alberto',a:'Alzate Londoño',t:'CC',d:'74182956',tel:'3167482095',e:'freddy.alzate.l@hotmail.com',fn:'04/09/1976',es:'activo',ecN:'Elcy',ecA:'Londoño Alzate',ecT:'3148609275',ecP:'esposa'},
     {n:'Natalia Andrea',a:'Betancourt Polanía',t:'CC',d:'1057483920',tel:'3214087596',e:'natalia.betancourt.p@gmail.com',fn:'19/07/1998',es:'activo',ecN:'Fredy',ecA:'Polanía Betancourt',ecT:'3107285964',ecP:'padre'},
     {n:'Harold Esteban',a:'Quiceno Giraldo',t:'CC',d:'1093847265',tel:'3175902846',e:'haroldquiceno.g@gmail.com',fn:'02/11/1995',es:'activo',ecN:'Marta',ecA:'Giraldo Quiceno',ecT:'3189460523',ecP:'madre'}
@@ -494,10 +498,11 @@
         +'<button type="button" class="btn btn-ghost btn-sm"'+(prof?' disabled title="Solo lectura para el rol profesor"':'')+'>Dar de baja</button>'
         +'</div>';
       return '<tr>'
-        +'<th scope="row" data-label="Socio"><span class="cellname">'+esc(s.n+' '+s.a)+'</span></th>'
+        +'<th scope="row" data-label="Socio"><span class="cellname">'+esc(s.n+' '+s.a)+'</span>'
+        +(s.e?'<span class="cellmail" title="'+esc(s.e)+'">'+esc(s.e)+'</span>':'')
+        +'</th>'
         +'<td data-label="Documento"><span class="tipo">'+s.t+'</span><span class="doc">'+esc(s.d)+'</span></td>'
         +'<td data-label="Teléfono" class="num">'+esc(s.tel)+'</td>'
-        +'<td data-label="Email">'+esc(s.e)+'</td>'
         +'<td data-label="F. nacimiento" class="num">'+esc(s.fn)+'</td>'
         +'<td data-label="Estado">'+chip(s.es)+'</td>'
         +'<td data-label="Acciones" class="right">'+act+'</td>'

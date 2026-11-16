@@ -24,6 +24,18 @@
       "sentAt": "2026-11-16T20:35:14.002Z",
       "resolvedAt": "2026-11-16T20:36:55.383Z",
       "resolution": "Nombre y Apellidos se fusionaron en una sola columna SOCIO con el nombre completo en un th scope=row. La tabla quedó en 7 columnas y las etiquetas del modo angosto se actualizaron."
+    },
+    {
+      "id": "azch800s",
+      "file": "01-command-dark.html",
+      "selector": "#rows > tr:nth-of-type(1) > td:nth-of-type(3)",
+      "excerpt": "marcela.arango.s@gmail.com",
+      "comment": "Elimina la columna EMAIL ya que este dato de registro es opcional y no todos lo van a tener y coloca el email del socio debajo del nombre",
+      "createdAt": "2026-11-16T20:41:52.013Z",
+      "status": "resolved",
+      "sentAt": "2026-11-16T20:41:52.021Z",
+      "resolvedAt": "2026-11-16T20:44:39.282Z",
+      "resolution": "Se eliminó la columna EMAIL: el email del socio ahora va como segunda línea atenuada bajo el nombre, y simplemente no aparece si el socio no tiene. La tabla quedó en 6 columnas y 8 socios del demo no tienen correo."
     }
   ]
 }
