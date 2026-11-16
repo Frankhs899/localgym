@@ -283,10 +283,9 @@
     /* Documento / Teléfono: small muted label stacked above the value. */
     tbody td[data-label="Documento"]::before,
     tbody td[data-label="Teléfono"]::before{display:block;margin-bottom:2px}
-    /* Estado: the only cell that keeps label left, chip right on one line. */
-    tbody td[data-label="Estado"]{
-      display:flex;justify-content:space-between;align-items:center;gap:14px;
-    }
+    /* Estado: label stacked above the chip like Documento / Teléfono;
+       the chip keeps its natural width, flush left. */
+    tbody td[data-label="Estado"]::before{display:block;margin-bottom:2px}
     /* Acciones: label above, then the two buttons split across one row. */
     tbody td[data-label="Acciones"]{text-align:left} /* reset the desktop .right alignment on the card label */
     tbody td[data-label="Acciones"]::before{display:block;margin-bottom:3px}
