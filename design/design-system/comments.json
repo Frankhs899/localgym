@@ -44,9 +44,10 @@
       "excerpt": "",
       "comment": "La barra de búsqueda me parece demasiado grande en la vista de escritorio.",
       "createdAt": "2026-11-16T20:49:35.596Z",
-      "status": "open",
+      "status": "resolved",
       "sentAt": null,
-      "resolvedAt": null
+      "resolvedAt": "2026-11-16T20:56:35.492Z",
+      "resolution": "Buscador de escritorio a 38 px de alto y 420 px de ancho; el desplegable de estado pasó a control segmentado (Todos / Activos / Inactivos) con el filtrado intacto; se eliminó la columna F. NACIMIENTO y la tabla quedó en 5 columnas. La implementación real sigue esta spec."
     },
     {
       "id": "7und3cgg",
@@ -55,10 +56,11 @@
       "excerpt": "Todos Activos Inactivos",
       "comment": "No me esta que sea una lista desplegable, me gustaria mas algo como la imagen",
       "createdAt": "2026-11-16T20:51:11.892Z",
-      "status": "open",
+      "status": "resolved",
       "sentAt": null,
-      "resolvedAt": null,
-      "screenshot": ".screenshots/7und3cgg.png"
+      "resolvedAt": "2026-11-16T20:56:35.492Z",
+      "screenshot": ".screenshots/7und3cgg.png",
+      "resolution": "Buscador de escritorio a 38 px de alto y 420 px de ancho; el desplegable de estado pasó a control segmentado (Todos / Activos / Inactivos) con el filtrado intacto; se eliminó la columna F. NACIMIENTO y la tabla quedó en 5 columnas. La implementación real sigue esta spec."
     },
     {
       "id": "yic156ef",
@@ -67,9 +69,10 @@
       "excerpt": "F. NACIMIENTO",
       "comment": "No veo necesaria la columna F. NACIMIENTO",
       "createdAt": "2026-11-16T20:52:02.068Z",
-      "status": "open",
+      "status": "resolved",
       "sentAt": null,
-      "resolvedAt": null
+      "resolvedAt": "2026-11-16T20:56:35.492Z",
+      "resolution": "Buscador de escritorio a 38 px de alto y 420 px de ancho; el desplegable de estado pasó a control segmentado (Todos / Activos / Inactivos) con el filtrado intacto; se eliminó la columna F. NACIMIENTO y la tabla quedó en 5 columnas. La implementación real sigue esta spec."
     }
   ]
 }
