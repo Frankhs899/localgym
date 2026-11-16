@@ -12,6 +12,18 @@
       "sentAt": "2026-11-16T20:21:32.443Z",
       "resolvedAt": "2026-11-16T20:23:21.876Z",
       "resolution": "DM Serif Display en marca y títulos, Inter en toda la UI y JetBrains Mono en documentos, teléfonos, fechas y contadores. Los tres stacks quedaron como tokens (--font-display/ui/mono) con fallback local; ninguna medida ni estructura cambió."
+    },
+    {
+      "id": "ojft48gd",
+      "file": "01-command-dark.html",
+      "selector": "#st-results > div:nth-of-type(1)",
+      "excerpt": "Listado de socios: nombre, apellidos, documento, teléfono, correo, fecha de nacimiento y estado; 15 resultados por página. NOMBRE APELLIDOS DOCUMENTO TELÉFONO EMAIL F. NACIMIENTO ESTADO ACCIONES María Fernanda Rincón Peña CC1023456789 3104526781 mafernanda.rincon@gmail.com 12/04/1988 Activo Editar D",
+      "comment": "En lugar de Nombre y apellidos. Haz una columna llamada Socio",
+      "createdAt": "2026-11-16T20:35:13.990Z",
+      "status": "resolved",
+      "sentAt": "2026-11-16T20:35:14.002Z",
+      "resolvedAt": "2026-11-16T20:36:55.383Z",
+      "resolution": "Nombre y Apellidos se fusionaron en una sola columna SOCIO con el nombre completo en un th scope=row. La tabla quedó en 7 columnas y las etiquetas del modo angosto se actualizaron."
     }
   ]
 }
