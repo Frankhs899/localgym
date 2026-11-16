@@ -26,8 +26,8 @@ Feature document for issue #27 (LocalGym). Route: design first, then production 
 
 ## Tasks
 
-- **T1** — Three visual directions (artboards) of App Shell + socios listing in `design/design-system/`. Route: writer. Commit: pending.
-- **T2** — Owner picks one direction; record it in `design.json` and this Log. Route: parent. Commit: pending.
+- **T1** — Three visual directions (artboards) of App Shell + socios listing in `design/design-system/`. Route: writer. Commit: `86898c2`.
+- **T2** — Owner picks one direction; record it in `design.json` and this Log. Chosen: `design/design-system/01-command-dark.html` (Command bar, dark single theme). Route: parent. Commit: pending.
 - **T3** — Tokens to the `@theme` of `frontend/src/index.css`. Route: writer. Commit: pending.
 - **T4** — Base components (App Shell, listing/table, status chips, form controls) in `frontend/src`. Route: writer. Commit: pending.
 - **T5** — `docs/design/DESIGN.md`. Route: writer. Commit: pending.
@@ -40,3 +40,4 @@ Feature document for issue #27 (LocalGym). Route: design first, then production 
 - **L3** (evidence, 2026-11-16) — Verified on `dev` @ `2c50bbc`: `frontend/src/index.css` is one line, `@import "tailwindcss";`; no occurrence of `accent`, `theme` or `dark` anywhere in `frontend/src`; branch `issue/27-design-system` no longer exists; `docs/design/` was never committed.
 - **L4** (evidence, 2026-11-16) — `playwright-cli` v0.1.22 is installed globally and its skill lives in `.agents/skills/playwright-cli/`; only the npm package `playwright` is absent. Browser verification of artboards is available.
 - **L5** (T1, 2026-11-16) — Three directions written to `design/design-system/` (01-command-dark, 02-ledger-light, 03-split-workspace); no direction chosen yet.
+- **L6** (owner, 2026-11-16) — Picked direction 01, "Command bar, dark single theme", from the canvas at three options. This settles S7: the product has one dark theme and no theme toggle, so issue #5's "Modo oscuro" out-of-scope line is read as "no toggle", not "no dark palette". The tradeoff the owner accepted: maximum at-a-glance density and rest for low-light reception, at the cost of contrast discipline and printing.
