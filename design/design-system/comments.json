@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "comments": [
+    {
+      "id": "1r869kpb",
+      "file": "01-command-dark.html",
+      "selector": "#sidebar",
+      "excerpt": "LocalGym Inicio Socios Membresías Pagos Dashboard Mi perfil Versión POS offline-first. Los datos se respaldan localmente al cerrar el día.",
+      "comment": "Vamos a integrar fuentes de Google Fonts, después de ver el resultado ya decido si estas se descargan para el proyecto, Integra para toda la pagina:  DM Serif Display, Inter y JetBrains Mono.",
+      "createdAt": "2026-11-16T20:21:32.432Z",
+      "status": "resolved",
+      "sentAt": "2026-11-16T20:21:32.443Z",
+      "resolvedAt": "2026-11-16T20:23:21.876Z",
+      "resolution": "DM Serif Display en marca y títulos, Inter en toda la UI y JetBrains Mono en documentos, teléfonos, fechas y contadores. Los tres stacks quedaron como tokens (--font-display/ui/mono) con fallback local; ninguna medida ni estructura cambió."
+    }
+  ]
+}
