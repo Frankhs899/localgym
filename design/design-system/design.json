@@ -1,10 +1,8 @@
 {
   "title": "Sistema de diseño LocalGym — shell y listado de socios",
-  "brief": "Tres direcciones visuales del App Shell y el listado de socios de LocalGym (POS administrativo offline-first para staff de gimnasio en Colombia). El dueño elige una; de la elegida salen los tokens del @theme y DESIGN.md (issue #27).",
+  "brief": "Dirección visual del App Shell y el listado de socios de LocalGym (POS administrativo offline-first para staff de gimnasio en Colombia). De esta dirección salen los tokens del @theme y DESIGN.md (issue #27).",
   "feature": "odd/tasks/design-system.md",
   "artboards": [
-    { "file": "01-command-dark.html", "title": "Command bar, dark single theme", "tradeoff": "Densidad máxima y descanso visual en recepción con poca luz; exige disciplina de contraste y no se imprime bien", "width": 1440, "height": 900 },
-    { "file": "02-ledger-light.html", "title": "Ledger, light and typographic", "tradeoff": "Escaneo y lectura excelentes, tono calmo y confiable; poco color, el estado debe leerse por etiqueta", "width": 1440, "height": 900 },
-    { "file": "03-split-workspace.html", "title": "Split workspace, master and detail", "tradeoff": "Camino más corto al registro completo y cómodo en tablet; menos columnas visibles, la búsqueda pesa más", "width": 1440, "height": 900 }
+    { "file": "01-command-dark.html", "title": "Command bar, dark single theme", "tradeoff": "Densidad máxima y descanso visual en recepción con poca luz; exige disciplina de contraste y no se imprime bien", "width": 1440, "height": 900 }
   ]
 }
