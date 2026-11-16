@@ -269,15 +269,29 @@
       border:1px solid var(--line);border-radius:8px;margin-bottom:10px;
       padding:6px 0;background:var(--panel);
     }
-    tbody td,tbody th{
-      display:flex;justify-content:space-between;align-items:center;gap:14px;
-      border-bottom:0;padding:5px 12px;
-    }
+    tbody td,tbody th{display:block;border-bottom:0;padding:5px 12px}
     tbody td::before,tbody th::before{
       content:attr(data-label);
       color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;
       flex:none;
     }
+    /* Socio: card heading, no label — full name first line, email second line. */
+    tbody th{text-align:left}
+    tbody th::before{content:none}
+    tbody th .cellname{font-size:14px;line-height:1.35}
+    tbody th .cellmail{margin-top:2px}
+    /* Documento / Teléfono: small muted label stacked above the value. */
+    tbody td[data-label="Documento"]::before,
+    tbody td[data-label="Teléfono"]::before{display:block;margin-bottom:2px}
+    /* Estado: the only cell that keeps label left, chip right on one line. */
+    tbody td[data-label="Estado"]{
+      display:flex;justify-content:space-between;align-items:center;gap:14px;
+    }
+    /* Acciones: label above, then the two buttons split across one row. */
+    tbody td[data-label="Acciones"]{text-align:left} /* reset the desktop .right alignment on the card label */
+    tbody td[data-label="Acciones"]::before{display:block;margin-bottom:3px}
+    tbody td[data-label="Acciones"] .rowactions{justify-content:space-between;gap:10px}
+    tbody td[data-label="Acciones"] .btn{min-height:44px}
     .pagenav .pages{margin-left:0}
   }
   @media (prefers-reduced-motion: reduce){

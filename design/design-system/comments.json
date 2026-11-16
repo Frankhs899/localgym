@@ -85,6 +85,22 @@
       "sentAt": "2026-11-16T21:23:09.042Z",
       "resolvedAt": "2026-11-16T21:39:32.018Z",
       "resolution": "La barra ahora tiene contrato propio: tablet en dos filas (buscador a todo el ancho, estado y acciones en la segunda) y movil sin labels visibles, segmentos a todo el ancho, controles de 44 px y el hint cedido al estado vacio. Barra de 209 a 175 px en movil y de 180 a 148 en tablet."
+    },
+    {
+      "id": "xsfcwji0",
+      "file": "01-command-dark.html",
+      "selector": "#rows > tr:nth-of-type(4)",
+      "excerpt": "Andrés Camilo Gómez Torres CC 1098765432 3209184756 Activo Editar Dar de baja",
+      "comment": "Se debe cambiar como se vé en la vista movil, prueba que los datos se vea en el siguiente orden:\n\nAndrés Camilo Gómez Torres\nDOCUMENTO\nCC 1098765432\nTELÉFONO\n3209184756\nESTADO      ACTIVO\nACCIONES\n[Editar]       [Dar de baja]",
+      "createdAt": "2026-11-16T21:53:25.557Z",
+      "status": "resolved",
+      "sentAt": "2026-11-16T21:53:25.569Z",
+      "resolvedAt": "2026-11-16T21:58:26.881Z",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "resolution": "La tarjeta movil ahora sigue tu orden: nombre (sin label) con el email debajo, DOCUMENTO y TELEFONO con la etiqueta arriba del valor, ESTADO en la misma linea con el chip a la derecha, y ACCIONES con la etiqueta arriba y los dos botones a los extremos (44 px cada uno)."
     }
   ]
 }
