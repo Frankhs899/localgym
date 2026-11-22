@@ -4,15 +4,15 @@ Fuente de la verdad del sistema visual del POS administrativo. Lo que está acá
 se implementa en `frontend/src/index.css` (`@theme` de Tailwind v4) y lo que cualquier
 artboard tiene que respetar.
 
-**Estado: tokens implementados (T7 slice 1, `f4d52f6`); superficie pendiente.** Los 43
+**Estado: tokens y superficie implementados; falta Mi perfil (T7 slice 4).** Los 43
 tokens de acá son ya producción: viven en el bloque `@theme static` de
-`frontend/src/index.css`, con las tres familias self-hosted desde `/fonts/...`. Lo que
-todavía no está pintado es la capa base — fondo del canvas, color de texto, anillo de foco
-global, `color-scheme: dark` — porque aplicarla mientras las pantallas siguen claras volvía
-invisible el texto tipeado en Login y Mi perfil (hallazgo del verificador independiente,
-L34 en `odd/tasks/design-system.md`). Esa capa aterriza con el App Shell (slice 2), que
-repinta todas las pantallas sobre las superficies del sistema. Hasta entonces este
-documento describe la superficie con exactitud pero no la pinta.
+`frontend/src/index.css`, con las tres familias self-hosted desde `/fonts/...` (slice 1,
+`f4d52f6`). La capa base — fondo del canvas, `color-scheme: dark`, tipografía del cuerpo —
+aterrizó con el App Shell (slice 2), que repintó el shell y sus pantallas sobre las
+superficies del sistema, y **Login** se repintó en el slice 3: es la primera pantalla que
+no conserva ningún valor fuera de los tokens. El anillo de foco es acento y por eso vive en
+el subárbol que lo pinta (shell y login), nunca globalmente: sobre una tarjeta clara no se
+ve. La única pantalla que sigue clara es **Mi perfil**, que el slice 4 repinta.
 
 - **Artboard de referencia:** `design/design-system/02-neutral-signal.html`
 - **Decisión de croma:** una sola croma accionable (lima); el resto es escalera neutra.
