@@ -1,0 +1,17 @@
+{
+  "arrangement": "column",
+  "positions": {
+    "system": {
+      "x": 0,
+      "y": 0
+    },
+    "01-command-dark.html": {
+      "x": 0,
+      "y": 1351
+    },
+    "02-neutral-signal.html": {
+      "x": 0,
+      "y": 2411
+    }
+  }
+}

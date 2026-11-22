@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi perfil · Sistema de gestión LocalGym</title>
+<style>
+    /* Self-hosted: latin subset, SIL OFL 1.1 (frontend/public/fonts/*-OFL.txt).
+       The POS runs on a gym PC with no internet, so no font may leave the machine. */
+    @font-face{font-family:"Inter";font-style:normal;font-weight:400 700;font-display:swap;src:url("../../frontend/public/fonts/inter-latin-normal.woff2") format("woff2")}
+    @font-face{font-family:"Playfair Display";font-style:normal;font-weight:400 900;font-display:swap;src:url("../../frontend/public/fonts/playfair-display-latin-normal.woff2") format("woff2")}
+    @font-face{font-family:"Playfair Display";font-style:italic;font-weight:400 900;font-display:swap;src:url("../../frontend/public/fonts/playfair-display-latin-italic.woff2") format("woff2")}
+    @font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:400 700;font-display:swap;src:url("../../frontend/public/fonts/jetbrains-mono-latin-normal.woff2") format("woff2")}
+  </style>
+<style>
+  :root{
+    /* Variante 02: escalera neutra. Ninguna croma en superficies ni en texto. */
+    --bg:#080A0C;
+    --panel:#101317;
+    --panel-2:#171A1F;
+    --line:#22262C;
+    --line-strong:#2E333A;
+    /* Escalera de superficie. Cada escalon rinde ~1.6x la luminancia del anterior,
+       asi que un borde es siempre el escalon siguiente y nunca un gris inventado
+       aparte. Medido: bg -> shell x1.44 -> panel x1.50 -> panel-2 x1.60 ->
+       line x1.87 -> line-strong x1.71. */
+    /* Superficie invertida (marca y item activo del sidebar). No es texto. */
+    --surface-invert:#FFFFFF;
+    /* Velo de los overlays. Es la unica transparencia de superficie del sistema. */
+    --scrim:rgba(4,6,9,.55);
+    --shell:#0B0E11;
+    --text:#F3F5F7;
+    --muted:#A0A6AF;
+    /* Nivel intermedio: datos secundarios y controles quietos. No es relleno
+       decorativo: el email del socio, el tipo de documento y el rol son datos. */
+    --text-2:#C6CBD4;
+    /* El escalon mas bajo, solo para lo que no es contenido: placeholder. */
+    --faint:#7C828D;
+    /* Una sola croma: la senal. Accion primaria y anillo de foco, nada mas. */
+    --accent:#EFFF00;
+    --accent-soft:rgba(239,255,0,.12);
+    --accent-ink:#0A0C11;
+    --accent-hover:#DCEB00;
+    --ok-bg:#0E2A22;
+    --ok-line:#2B5C4A;
+    --ok-text:#6FD3A0;
+    --off-bg:#191C21;
+    --off-line:#2E333A;
+    --off-text:#C3C8D0;
+    --danger:#FF7A6E;
+
+    /* Escala tipografica: 5 pasos, cada uno con un trabajo, sin medios pixeles. */
+    --fs-label:11px;   /* etiquetas en mayusculas: th, labels de campo, grupos del nav */
+    --fs-meta:12px;    /* metadatos: contadores, pistas, rol, pie, acciones chicas */
+    --fs-body:14px;    /* cuerpo: tabla, controles, nav, inputs */
+    --fs-head:16px;    /* encabezados de bloque, marca */
+    --fs-title:20px;   /* titulo de pagina */
+
+    /* Radios: 3 valores y nada en el medio. */
+    --radius-control:4px;
+    --radius-panel:10px;
+    --radius-pill:999px;
+
+    /* Escala de espaciado: base 4, elegida por trabajo y nunca por numero.
+       Ningun valor fuera de esta escala entra en las reglas del artboard. */
+    --space-unit:4px;
+    --space-tight:calc(var(--space-unit) * 1);   /* 4  inline: chip/badge padding, icon+label gap, dense lists */
+    --space-inset:calc(var(--space-unit) * 2);   /* 8  control and table-cell padding-inline/block */
+    --space-stack:calc(var(--space-unit) * 3);   /* 12 siblings inside one group, card padding */
+    --space-group:calc(var(--space-unit) * 4);   /* 16 blocks inside one panel, panel padding */
+    --space-section:calc(var(--space-unit) * 6); /* 24 screen sections, page gutters */
+    --space-page:calc(var(--space-unit) * 8);    /* 32 */
+    --space-hero:calc(var(--space-unit) * 12);   /* 48 */
+
+    --font-display:"Playfair Display",Georgia,"Times New Roman",serif;
+    --font-ui:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg)}
+  body{
+    margin:0;
+    color:var(--text);
+    background:var(--bg);
+    font-family:var(--font-ui);
+    font-size:var(--fs-body);
+    line-height:1.45;
+  }
+  .num,td.num,.doc{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  button:disabled{cursor:not-allowed}
+  .btn{
+    display:inline-flex;align-items:center;gap:var(--space-tight);
+    /* El alto del control lo sostiene min-height (ver :not(.btn-sm) abajo), no el
+       padding: así el eje vertical también cae en la escala y el botón mide 36 px. */
+    padding:var(--space-tight) var(--space-inset);border-radius:var(--radius-control);font-weight:600;font-size:var(--fs-body);
+    border:1px solid transparent;transition:background .12s ease,border-color .12s ease;
+    white-space:nowrap;
+  }
+  .btn-primary{background:var(--accent);color:var(--accent-ink)}
+  .btn-primary:hover:not(:disabled){background:var(--accent-hover)}
+  .btn-ghost{border-color:var(--line-strong);color:var(--text)}
+  .btn-ghost:hover:not(:disabled){background:var(--panel-2)}
+  .btn-sm{padding:var(--space-tight) var(--space-inset);font-size:var(--fs-meta);font-weight:500}
+  .btn:not(.btn-sm){min-height:36px}
+  button:disabled{opacity:.45}
+  .chip{
+    display:inline-flex;align-items:center;gap:var(--space-tight);
+    padding:var(--space-tight) var(--space-inset);border-radius:var(--radius-pill);border:1px solid;
+    font-size:var(--fs-meta);font-weight:600;white-space:nowrap;
+  }
+  .chip svg{flex:none}
+  .chip.on{background:var(--ok-bg);border-color:var(--ok-line);color:var(--ok-text)}
+  .chip.off{background:var(--off-bg);border-color:var(--off-line);color:var(--off-text)}
+
+  /* Shell (tomado del artboard) */
+  .shell{display:flex;min-height:100vh}
+  .sidebar{
+    width:230px;flex:none;background:var(--shell);
+    border-right:1px solid var(--line-strong);
+    display:flex;flex-direction:column;justify-content:space-between;
+    padding:var(--space-group) var(--space-stack);
+  }
+  .brand{display:flex;align-items:center;gap:var(--space-inset);font-family:var(--font-display);font-size:var(--fs-head);font-weight:700;padding:0 var(--space-inset);margin:0 0 var(--space-group);color:var(--text)}
+  .brand svg{background:var(--surface-invert);color:var(--accent-ink);border-radius:var(--radius-control);padding:var(--space-tight)}
+  .nav ul{list-style:none;margin:0;padding:0;display:grid;gap:var(--space-tight)}
+  .nav a{
+    display:block;padding:var(--space-inset);border-radius:var(--radius-control);
+    color:var(--text);text-decoration:none;font-size:var(--fs-body);
+    transition:background .12s ease,color .12s ease;
+  }
+  .nav a:hover{background:var(--panel);color:var(--text)}
+  .nav a[aria-current="page"]{background:var(--surface-invert);color:var(--accent-ink);font-weight:600}
+  .nav .group{font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:var(--space-group) var(--space-inset) var(--space-tight)}
+  .sidebar .foot{font-family:var(--font-mono);padding:0 var(--space-inset);font-size:var(--fs-meta);color:var(--text-2)}
+  .sidebar .foot .hint{line-height:1.5;margin-bottom:var(--space-inset)}
+  .sidebar .foot a{color:var(--text-2);text-decoration:underline}
+  .sidebar .foot a:hover{color:var(--text)}
+
+  .content{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;gap:var(--space-stack);
+    padding:var(--space-inset) var(--space-section);background:var(--panel);border-bottom:1px solid var(--line);
+  }
+  .topbar .who{margin-left:auto;display:flex;align-items:center;gap:var(--space-inset);font-size:var(--fs-body)}
+  .who .avatar{
+    width:30px;height:30px;border-radius:var(--radius-pill);flex:none;
+    background:var(--panel-2);border:1px solid var(--line-strong);color:var(--text);
+    display:grid;place-items:center;font-size:var(--fs-meta);font-weight:700;
+  }
+  .who b{font-weight:600}
+  .who .role{color:var(--text-2);font-size:var(--fs-meta)}
+  .logout{padding:var(--space-tight) var(--space-stack);border:1px solid var(--line-strong);border-radius:var(--radius-control);font-size:var(--fs-meta);color:var(--text-2)}
+  .logout:hover{color:var(--text);background:var(--panel-2)}
+  .menu-btn{display:none;padding:var(--space-inset) var(--space-stack);border:1px solid var(--line-strong);border-radius:var(--radius-control);font-size:var(--fs-body)}
+  .main{flex:1;min-width:0}
+  .tipo{
+    display:inline-block;font-size:var(--fs-label);font-weight:700;letter-spacing:.05em;
+    color:var(--text-2);border:1px solid var(--line-strong);border-radius:var(--radius-control);
+    padding:0 var(--space-tight);margin-right:var(--space-tight);vertical-align:1px;
+  }
+
+  /* --- Perfil: dos variantes de permiso sobre el mismo shell --- */
+  .boardnote{margin:0;padding:var(--space-group) var(--space-section) 0;font-size:var(--fs-meta);color:var(--muted)}
+  .variants{
+    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-section);
+    padding:var(--space-group) var(--space-section) var(--space-page);align-items:start;
+  }
+  .variant{min-width:0}
+  .caption{
+    margin:0 0 var(--space-inset);font-size:var(--fs-label);font-weight:600;
+    text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+  }
+  .pagehead{display:flex;align-items:center;gap:var(--space-stack);flex-wrap:wrap;margin:0 0 var(--space-group)}
+  .pagehead h1,.pagehead h2{margin:0;font-family:var(--font-display);font-size:var(--fs-title);font-weight:700;letter-spacing:-.01em}
+
+  .block{
+    padding:var(--space-group);margin:0 0 var(--space-group);
+    background:var(--panel);border:1px solid var(--line-strong);border-radius:var(--radius-panel);
+  }
+  .block:last-child{margin-bottom:0}
+  .block-title{margin:0 0 var(--space-stack);font-family:var(--font-display);font-size:var(--fs-head);font-weight:600;color:var(--text)}
+
+  /* Filas de definicion: etiqueta, valor, accion opcional. */
+  .defs{margin:0}
+  .defrow{
+    display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:var(--space-inset) var(--space-stack);align-items:center;
+    padding:var(--space-inset) 0;border-bottom:1px solid var(--line);
+  }
+  .defrow:first-child{padding-top:0}
+  .defrow:last-child{border-bottom:0;padding-bottom:0}
+  .defrow dt{font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+  .defrow dd{margin:0;min-width:0;font-size:var(--fs-body);color:var(--text);overflow-wrap:anywhere}
+  .defrow .act{justify-self:end}
+  .nota{margin:var(--space-stack) 0 0;font-size:var(--fs-meta);color:var(--text-2)}
+
+  /* Sesion: no hay formulario de contrasena en el producto. */
+  .session{margin:0 0 var(--space-group)}
+  .device{margin:0;font-size:var(--fs-body);font-weight:600;color:var(--text)}
+  .last{margin:var(--space-tight) 0 0;font-size:var(--fs-meta);color:var(--muted)}
+  .btn-block{width:100%;justify-content:center;min-height:36px}
+  .honest{margin:var(--space-stack) 0 0;font-size:var(--fs-meta);color:var(--muted)}
+
+  /* --- Responsive (reglas del artboard + apilado de las variantes) --- */
+  @media (max-width: 900px){
+    .sidebar{
+      position:fixed;inset:49px auto 0 0;width:260px;z-index:40;
+      transform:translateX(-105%);transition:transform .18s ease;
+      border-right:1px solid var(--line-strong);
+    }
+    body.nav-open .sidebar{transform:none}
+    .menu-btn{display:inline-block}
+    .scrim{position:fixed;inset:49px 0 0;background:var(--scrim);z-index:35;display:none}
+    body.nav-open .scrim{display:block}
+  }
+  @media (max-width: 700px){
+    .topbar{padding:var(--space-inset) var(--space-stack)}
+    .boardnote{padding:var(--space-stack) var(--space-stack) 0}
+    .variants{grid-template-columns:minmax(0,1fr);padding:var(--space-stack) var(--space-stack) var(--space-section);gap:var(--space-section)}
+    .block{padding:var(--space-stack)}
+    /* Etiqueta arriba, valor abajo: nada se sale de la tarjeta. */
+    .defrow{grid-template-columns:minmax(0,1fr);gap:var(--space-tight);align-items:start;padding:var(--space-inset) 0}
+    .defrow .act{justify-self:start;margin-top:var(--space-inset)}
+    .pagehead{margin-bottom:var(--space-stack)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;animation:none !important}
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <aside class="sidebar" id="sidebar" aria-label="Navegación de secciones">
+    <div>
+      <p class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M9 12h6"/></svg>
+        LocalGym
+      </p>
+      <nav class="nav" aria-label="Secciones">
+        <ul>
+          <li><a href="#">Inicio</a></li>
+          <li><a href="#">Socios</a></li>
+          <li><a href="#">Membresías</a></li>
+          <li><a href="#">Pagos</a></li>
+          <li><a href="#">Dashboard</a></li>
+          <li><a href="#">Respaldos</a></li>
+          <li><a href="#" aria-current="page">Mi perfil</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="foot">
+      <p class="hint">Versión POS offline-first. Los datos se respaldan localmente al cerrar el día.</p>
+      <p><a href="#">Admin Django</a></p>
+    </div>
+  </aside>
+
+  <div class="content">
+    <header class="topbar">
+      <button type="button" class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="sidebar">Menú</button>
+      <span class="who">
+        <span class="avatar" aria-hidden="true">MR</span>
+        <span><b>Marcela Ruiz Gómez</b><br><span class="role">Administradora</span></span>
+      </span>
+      <button type="button" class="logout">Cerrar sesión</button>
+    </header>
+
+    <main class="main">
+
+      <!-- Nota de tablero: el shell es uno solo, cambia el contenido por permiso. -->
+      <p class="boardnote">Los dos paneles comparten el shell; abajo, el contenido del perfil según el rol con el que se entra.</p>
+
+      <div class="variants">
+
+        <!-- Variante 1: administradora. El documento es lo unico editable. -->
+        <section class="variant" aria-labelledby="cap-admin">
+          <p class="caption" id="cap-admin">Administradora</p>
+
+          <div class="pagehead">
+            <h1>Mi perfil</h1>
+            <span class="chip off">Administradora</span>
+          </div>
+
+          <section class="block" aria-labelledby="datos-admin">
+            <h2 class="block-title" id="datos-admin">Datos de la cuenta</h2>
+            <dl class="defs">
+              <div class="defrow">
+                <dt>Nombre completo</dt>
+                <dd>Marcela Ruiz Gómez</dd>
+              </div>
+              <div class="defrow">
+                <dt>Correo</dt>
+                <dd>marcela@localgym.co</dd>
+              </div>
+              <div class="defrow">
+                <dt>Teléfono</dt>
+                <dd class="num">310 452 6781</dd>
+              </div>
+              <div class="defrow">
+                <dt>Documento</dt>
+                <dd><span class="tipo">CC</span><span class="doc">52918473</span></dd>
+                <dd class="act"><button type="button" class="btn btn-ghost btn-sm">Editar</button></dd>
+              </div>
+              <div class="defrow">
+                <dt>Rol</dt>
+                <dd>Administradora</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="block" aria-labelledby="sesion-admin">
+            <h2 class="block-title" id="sesion-admin">Sesión</h2>
+            <div class="session">
+              <p class="device">Este equipo</p>
+              <p class="last">Cerraste sesión por última vez ayer a las 20:14</p>
+            </div>
+            <button type="button" class="btn btn-ghost btn-block">Cerrar sesión</button>
+            <p class="honest">La contraseña la restablece el administrador.</p>
+          </section>
+        </section>
+
+        <!-- Variante 2: profesor. Solo lectura, con la nota de quien administra. -->
+        <section class="variant" aria-labelledby="cap-profesor">
+          <p class="caption" id="cap-profesor">Profesor</p>
+
+          <div class="pagehead">
+            <h2>Mi perfil</h2>
+            <span class="chip off">Profesor</span>
+          </div>
+
+          <section class="block" aria-labelledby="datos-profesor">
+            <h3 class="block-title" id="datos-profesor">Datos de la cuenta</h3>
+            <dl class="defs">
+              <div class="defrow">
+                <dt>Nombre completo</dt>
+                <dd>Andrés Mejía Patiño</dd>
+              </div>
+              <div class="defrow">
+                <dt>Correo</dt>
+                <dd>andres.mejia@localgym.co</dd>
+              </div>
+              <div class="defrow">
+                <dt>Teléfono</dt>
+                <dd class="num">317 408 2936</dd>
+              </div>
+              <div class="defrow">
+                <dt>Documento</dt>
+                <dd><span class="tipo">CC</span><span class="doc">1027394856</span></dd>
+              </div>
+              <div class="defrow">
+                <dt>Rol</dt>
+                <dd>Profesor</dd>
+              </div>
+            </dl>
+            <p class="nota">Los datos los administra el administrador del gimnasio.</p>
+          </section>
+
+          <section class="block" aria-labelledby="sesion-profesor">
+            <h3 class="block-title" id="sesion-profesor">Sesión</h3>
+            <div class="session">
+              <p class="device">Este equipo</p>
+              <p class="last">Cerraste sesión por última vez ayer a las 20:14</p>
+            </div>
+            <button type="button" class="btn btn-ghost btn-block">Cerrar sesión</button>
+            <p class="honest">La contraseña la restablece el administrador.</p>
+          </section>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <div class="scrim" aria-hidden="true"></div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var mb=document.getElementById('menu-btn');
+  var scrim=document.querySelector('.scrim');
+  function closeNav(){
+    document.body.classList.remove('nav-open');
+    mb.setAttribute('aria-expanded','false');
+  }
+  mb.addEventListener('click',function(){
+    var open=document.body.classList.toggle('nav-open');
+    mb.setAttribute('aria-expanded', open?'true':'false');
+  });
+  scrim.addEventListener('click',closeNav);
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && document.body.classList.contains('nav-open')){ closeNav(); mb.focus(); }
+  });
+})();
+</script>
+
+</body>
+</html>
