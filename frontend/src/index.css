@@ -126,10 +126,11 @@
    Base layer — the canvas, and only the canvas.
 
    `body` deliberately sets no `color`. Tailwind preflight makes every form
-   control inherit `color`, so an inherited text tier reaches the still-white
-   Login and Mi perfil cards (slices 3 and 4) and paints the typed credentials
-   invisible: `body { color: var(--color-text) }` measured 1.08:1 there and is the
-   regression recorded in `odd/tasks/design-system.md` L34.
+   control inherit `color`, so an inherited text tier once reached the then-white
+   Login and Mi perfil cards and painted the typed credentials invisible:
+   `body { color: var(--color-text) }` measured 1.08:1 there and is the regression
+   recorded in `odd/tasks/design-system.md` L34. Both screens are painted on these
+   surfaces now, and every control states its own text tier.
 
    The dark text tier and the accent focus ring are therefore scoped to the
    App Shell root (`frontend/src/components/Shell.jsx`), which is where they are
@@ -137,10 +138,10 @@
    lime ring on a light card cannot be seen.
 
    `color-scheme: dark` does resolve the root's default text colour to white, and
-   preflight makes controls inherit it. A screen that is still light states its own
-   control colour instead of being rescued by a global rule: `pages/Login.jsx` was
-   the first (repainted onto the dark surfaces in T7 slice 3) and `pages/Perfil.jsx`
-   is the last one left, which slice 4 repaints.
+   preflight makes controls inherit it. That is why no global rule rescues form
+   controls: every screen is painted on these surfaces (Login in T7 slice 3, Mi perfil
+   in slice 4), so each one states the text tier its controls need and no screen keeps
+   a light-surface stopgap.
 --------------------------------------------------------------------------- */
 @layer base {
   html {

@@ -9,10 +9,13 @@ import Section from './pages/Section.jsx'
 import SinPermiso from './pages/SinPermiso.jsx'
 import { SECTIONS } from './sections.js'
 
+// Cold-boot placeholder, painted on the system's canvas: it is the first thing the
+// screen shows and it used to flash a light `slate-100` surface on a dark app (the
+// only screen left outside the tokens, verifier A6 of T7 slice 4).
 function Loading() {
   return (
-    <div className="flex min-h-svh items-center justify-center bg-slate-100">
-      <p className="text-sm text-slate-500">Cargando…</p>
+    <div className="flex min-h-svh items-center justify-center bg-bg text-text">
+      <p className="text-body text-muted">Cargando…</p>
     </div>
   )
 }
