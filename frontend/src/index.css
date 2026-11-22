@@ -123,14 +123,38 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Base layer: deliberately NOT here yet.
+   Base layer — the canvas, and only the canvas.
 
-   The dark canvas, the body text colour, the global focus ring and
-   `color-scheme: dark` are the App Shell's paint, not the token slice's. Adding
-   them while the existing screens are still light was a real regression, caught
-   by independent verification and reproduced live: Tailwind preflight makes
-   `input` inherit `color`, so `body { color: #F3F5F7 }` turned the typed
-   username and password near-white on the white Login and Mi perfil cards
-   (1.08:1 — invisible). One commit, one paint job: the base layer lands with
-   the App Shell, which repaints every screen on the system's surfaces.
+   `body` deliberately sets no `color`. Tailwind preflight makes every form
+   control inherit `color`, so an inherited text tier reaches the still-white
+   Login and Mi perfil cards (slices 3 and 4) and paints the typed credentials
+   invisible: `body { color: var(--color-text) }` measured 1.08:1 there and is the
+   regression recorded in `odd/tasks/design-system.md` L34.
+
+   The dark text tier and the accent focus ring are therefore scoped to the
+   App Shell root (`frontend/src/components/Shell.jsx`), which is where they are
+   painted. A global `:focus-visible` ring is also wrong for the same reason: a
+   lime ring on a light card cannot be seen.
+
+   `color-scheme: dark` does resolve the root's default text colour to white, and
+   preflight makes controls inherit it. The two screens that are still light state
+   their own control colour instead of being rescued by a global rule: see the
+   `inputClass` in `pages/Login.jsx` and `pages/Perfil.jsx`, which slices 3 and 4
+   repaint onto the tokens.
 --------------------------------------------------------------------------- */
+@layer base {
+  html {
+    /* Dark only (S7): without this the browser paints light scrollbars and
+       light native controls on the `--color-bg` canvas. */
+    color-scheme: dark;
+    background: var(--color-bg);
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    font-family: var(--font-ui);
+    font-size: var(--text-body);
+    line-height: 1.45;
+  }
+}
