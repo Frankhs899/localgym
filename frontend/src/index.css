@@ -123,34 +123,14 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Base. Same declarations as the artboard's `html` / `body` rules.
-   `color-scheme: dark` is the one addition: the system is dark-only (S7) and
-   without it the browser paints light scrollbars and native controls.
+   Base layer: deliberately NOT here yet.
+
+   The dark canvas, the body text colour, the global focus ring and
+   `color-scheme: dark` are the App Shell's paint, not the token slice's. Adding
+   them while the existing screens are still light was a real regression, caught
+   by independent verification and reproduced live: Tailwind preflight makes
+   `input` inherit `color`, so `body { color: #F3F5F7 }` turned the typed
+   username and password near-white on the white Login and Mi perfil cards
+   (1.08:1 — invisible). One commit, one paint job: the base layer lands with
+   the App Shell, which repaints every screen on the system's surfaces.
 --------------------------------------------------------------------------- */
-@layer base {
-  html {
-    background: var(--color-bg);
-    color-scheme: dark;
-  }
-
-  body {
-    margin: 0;
-    background: var(--color-bg);
-    color: var(--color-text);
-    font-family: var(--font-ui);
-    font-size: var(--text-body);
-    line-height: 1.45;
-  }
-
-  /* Numbers, documents and counters are tabular. */
-  .num,
-  .doc {
-    font-family: var(--font-mono);
-    font-variant-numeric: tabular-nums;
-  }
-
-  :focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 2px;
-  }
-}
