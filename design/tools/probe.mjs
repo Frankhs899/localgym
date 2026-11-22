@@ -16,7 +16,7 @@
 //   1  the artboard or the injected probe is broken: no </body>, no probe output,
 //      or the page reported a fatal error while measuring
 //   2  the environment or the invocation is wrong: no Chrome, no argument, or a
-//      pre-existing ._probe_ file we refuse to touch
+//      ._probe_ file that is NOT ours and is therefore refused
 //   3  Chrome itself failed: non-zero exit, signal, or the timeout below
 //
 // Timing knobs and what each one buys (reverse-engineering them is how you get
@@ -67,7 +67,12 @@ if (!html) {
 }
 const width = widthArg || "1440";
 
+// Stamped into every copy the tool writes, so a leftover from a killed run can be
+// recognised as ours instead of being mistaken for someone's real file.
+const PROBE_MARKER = "gentle-design-probe-copy";
+
 const PROBE = `<script>
+/* ${PROBE_MARKER} */
 (function () {
   var log = [];
   function measure() {
@@ -136,11 +141,16 @@ if (at < 0) {
 }
 
 const outFile = join(dirname(resolve(html)), "._probe_" + basename(html));
-// Never overwrite, and never delete, a file we did not create: a silent overwrite
-// here would destroy a real artboard that happens to share the probe's name.
+// Two properties must hold at once: a silent overwrite would destroy a real artboard
+// that happens to share the probe's name, and a hard refusal would leave the tool
+// unusable forever after a killed run. The marker separates the cases: our own
+// leftover gets overwritten, anything else is refused untouched.
 if (existsSync(outFile)) {
-  console.error("Refusing to touch an existing file: " + outFile);
-  process.exit(2);
+  const existing = readFileSync(outFile, "utf8");
+  if (!existing.includes(PROBE_MARKER)) {
+    console.error("Refusing to touch an existing file that is not a probe copy: " + outFile);
+    process.exit(2);
+  }
 }
 writeFileSync(outFile, src.slice(0, at) + PROBE + src.slice(at), "utf8");
 
@@ -179,7 +189,7 @@ if (chromeFailure) {
   if (chromeFailure.code === "ETIMEDOUT" || chromeFailure.signal) {
     console.error("Chrome did not finish within " + TIMEOUT_MS + " ms.");
   } else {
-    console.error("Chrome exited with status " + chromeFailure.status + ".");
+    console.error("Chrome exited with status " + (chromeFailure.status ?? "none") + ".");
   }
   if (detail) {
     console.error("Chrome stderr:");
