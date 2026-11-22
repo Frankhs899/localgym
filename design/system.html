@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tablero del sistema de diseño — LocalGym</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@400..700&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Variante 02: escalera neutra. Ninguna croma en superficies ni en texto. */
+    --bg:#080A0C;
+    --panel:#101317;
+    --panel-2:#171A1F;
+    --line:#22262C;
+    --line-strong:#2E333A;
+    /* Escalera de superficie. Cada escalon rinde ~1.6x la luminancia del anterior,
+       asi que un borde es siempre el escalon siguiente y nunca un gris inventado
+       aparte. Medido: bg -> shell x1.44 -> panel x1.50 -> panel-2 x1.60 ->
+       line x1.87 -> line-strong x1.71. */
+    /* Superficie invertida (marca y item activo del sidebar). No es texto. */
+    --surface-invert:#FFFFFF;
+    /* Velo de los overlays. Es la unica transparencia de superficie del sistema. */
+    --scrim:rgba(4,6,9,.55);
+    --shell:#0B0E11;
+    --text:#F3F5F7;
+    --muted:#A0A6AF;
+    /* Nivel intermedio: datos secundarios y controles quietos. No es relleno
+       decorativo: el email del socio, el tipo de documento y el rol son datos. */
+    --text-2:#C6CBD4;
+    /* El escalon mas bajo, solo para lo que no es contenido: placeholder. */
+    --faint:#7C828D;
+    /* Una sola croma: la senal. Accion primaria y anillo de foco, nada mas. */
+    --accent:#EFFF00;
+    --accent-soft:rgba(239,255,0,.12);
+    --accent-ink:#0A0C11;
+    --accent-hover:#DCEB00;
+    --ok-bg:#0E2A22;
+    --ok-line:#2B5C4A;
+    --ok-text:#6FD3A0;
+    --off-bg:#191C21;
+    --off-line:#2E333A;
+    --off-text:#C3C8D0;
+    --danger:#FF7A6E;
+
+    /* Escala tipografica: 5 pasos, cada uno con un trabajo, sin medios pixeles. */
+    --fs-label:11px;   /* etiquetas en mayusculas: th, labels de campo, grupos del nav */
+    --fs-meta:12px;    /* metadatos: contadores, pistas, rol, pie, acciones chicas */
+    --fs-body:14px;    /* cuerpo: tabla, controles, nav, inputs */
+    --fs-head:16px;    /* encabezados de bloque, marca */
+    --fs-title:20px;   /* titulo de pagina */
+
+    /* Radios: 3 valores y nada en el medio. */
+    --radius-control:4px;
+    --radius-panel:10px;
+    --radius-pill:999px;
+    --font-display:"Playfair Display",Georgia,"Times New Roman",serif;
+    --font-ui:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+
+  /* --- Reglas heredadas del artboard (componentes reutilizados verbatim) --- */
+  *{box-sizing:border-box}
+  html{background:var(--bg)}
+  body{
+    margin:0;
+    color:var(--text);
+    background:var(--bg);
+    font-family:var(--font-ui);
+    font-size:var(--fs-body);
+    line-height:1.45;
+  }
+  .num, td.num, .doc{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+  tbody th{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle;text-align:left;font-weight:inherit}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  button:disabled{cursor:not-allowed}
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:7px 14px;border-radius:var(--radius-control);font-weight:600;font-size:var(--fs-body);
+    border:1px solid transparent;transition:background .12s ease,border-color .12s ease;
+    white-space:nowrap;
+  }
+  .btn-primary{background:var(--accent);color:var(--accent-ink)}
+  .btn-primary:hover:not(:disabled){background:var(--accent-hover)}
+  .btn-ghost{border-color:var(--line-strong);color:var(--text)}
+  .btn-ghost:hover:not(:disabled){background:var(--panel-2)}
+  .btn-sm{padding:3px 9px;font-size:var(--fs-meta);font-weight:500}
+  button:disabled{opacity:.45}
+  .chip{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:2px 9px;border-radius:var(--radius-pill);border:1px solid;
+    font-size:var(--fs-meta);font-weight:600;white-space:nowrap;
+  }
+  .chip svg{flex:none}
+  .chip.on{background:var(--ok-bg);border-color:var(--ok-line);color:var(--ok-text)}
+  .chip.off{background:var(--off-bg);border-color:var(--off-line);color:var(--off-text)}
+
+  .search{flex:1 1 340px;min-width:240px;max-width:420px}
+  .search label{display:block;font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+  .search input{
+    width:100%;min-height:36px;padding:7px 12px;font:inherit;font-size:var(--fs-body);line-height:16px;
+    background:var(--panel);border:1px solid var(--line-strong);border-radius:var(--radius-control);color:var(--text);
+  }
+  .search input::placeholder{color:var(--faint)}
+  .search .hint{margin-top:4px;font-family:var(--font-ui);font-size:var(--fs-meta);color:var(--muted)}
+
+  .seg{display:inline-flex;background:var(--panel);border:1px solid var(--line-strong);border-radius:var(--radius-control)}
+  .seg-btn{display:inline-flex;align-items:center;gap:5px;min-height:34px;padding:7px 12px;font-size:var(--fs-body);line-height:16px;color:var(--text-2);border-left:1px solid var(--line)}
+  .seg-btn:first-child{border-left:0;border-top-left-radius:calc(var(--radius-control) - 1px);border-bottom-left-radius:calc(var(--radius-control) - 1px)}
+  .seg-btn:last-child{border-top-right-radius:calc(var(--radius-control) - 1px);border-bottom-right-radius:calc(var(--radius-control) - 1px)}
+  .seg-btn:hover{background:var(--panel-2);color:var(--text)}
+  .seg-btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .seg-btn svg{display:none}
+  .seg-btn[aria-pressed="true"] svg{display:inline-block}
+  .seg-btn:focus-visible{outline-offset:-2px;border-radius:0}
+  .seg-btn:first-child:focus-visible{border-radius:calc(var(--radius-control) - 1px) 0 0 calc(var(--radius-control) - 1px)}
+  .seg-btn:last-child:focus-visible{border-radius:0 calc(var(--radius-control) - 1px) calc(var(--radius-control) - 1px) 0}
+
+  .nav ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+  .nav a{
+    display:block;padding:8px 10px;border-radius:var(--radius-control);
+    color:var(--text);text-decoration:none;font-size:var(--fs-body);
+    transition:background .12s ease,color .12s ease;
+  }
+  .nav a:hover{background:var(--panel);color:var(--text)}
+  .nav a[aria-current="page"]{background:var(--surface-invert);color:var(--accent-ink);font-weight:600}
+
+  table{width:100%;border-collapse:collapse;font-size:var(--fs-body)}
+  caption{text-align:left}
+  thead th{
+    background:var(--bg);
+    text-align:left;font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.07em;
+    color:var(--muted);font-weight:600;
+    padding:8px 10px;border-bottom:1px solid var(--line-strong);white-space:nowrap;
+  }
+  th.right,td.right{text-align:right}
+  tbody td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tbody tr:hover{background:var(--panel)}
+  td .cellname,th .cellname{font-weight:600;display:block}
+  th .cellmail{
+    display:block;font-family:var(--font-ui);font-size:var(--fs-meta);font-weight:400;
+    color:var(--text-2);line-height:1.25;margin-top:1px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px;
+  }
+  td .sub{color:var(--text-2);font-size:var(--fs-meta)}
+  .tipo{
+    display:inline-block;font-size:var(--fs-label);font-weight:700;letter-spacing:.05em;
+    color:var(--text-2);border:1px solid var(--line-strong);border-radius:var(--radius-control);
+    padding:0 4px;margin-right:5px;vertical-align:1px;
+  }
+  .rowactions{display:flex;gap:6px;justify-content:flex-end}
+
+  .state-box{border:1px dashed var(--line-strong);border-radius:var(--radius-panel);padding:26px 24px;text-align:center;color:var(--text-2)}
+  .state-box p{margin:0 0 4px;font-size:var(--fs-body);max-width:52ch;margin-inline:auto}
+  .state-ico{
+    width:34px;height:34px;margin:0 auto 10px;border-radius:var(--radius-panel);
+    background:var(--panel-2);border:1px solid var(--line-strong);color:var(--text);display:grid;place-items:center;
+  }
+
+  /* --- Tablero (no es UI del producto: es la hoja del sistema) --- */
+  .board{width:100%;max-width:1440px;margin:0 auto;padding:0 40px 64px}
+  .board-head{padding:44px 0 28px;border-bottom:1px solid var(--line-strong)}
+  .board-head h1{margin:0 0 8px;font-family:var(--font-display);font-size:var(--fs-title);font-weight:700;letter-spacing:-.01em}
+  .lede{margin:0 0 16px;max-width:78ch;color:var(--text-2);font-size:var(--fs-body)}
+  .head-meta{display:flex;flex-wrap:wrap;gap:6px 24px;margin:0;font-size:var(--fs-meta);color:var(--muted)}
+  .head-meta span{min-width:0;overflow-wrap:anywhere}
+
+  .sec{padding:32px 0;border-bottom:1px solid var(--line)}
+  .sec:last-child{border-bottom:0}
+  .sec-num{margin:0 0 4px;font-family:var(--font-mono);font-size:var(--fs-label);letter-spacing:.08em;color:var(--muted)}
+  .sec h2{margin:0 0 6px;font-family:var(--font-display);font-size:var(--fs-head);font-weight:600;color:var(--text)}
+  .sec-note{margin:0 0 24px;max-width:88ch;font-size:var(--fs-meta);color:var(--text-2)}
+
+  .tok{font-family:var(--font-mono);font-size:var(--fs-meta);font-weight:600;color:var(--text)}
+  .hex{font-family:var(--font-mono);font-size:var(--fs-meta);color:var(--text-2);overflow-wrap:anywhere}
+
+  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:0;padding:0;list-style:none}
+  .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .sw{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .sw-name{margin:8px 0 0;font-family:var(--font-mono);font-size:var(--fs-meta);font-weight:600;color:var(--text);overflow-wrap:anywhere}
+  .sw-value{margin:0;font-family:var(--font-mono);font-size:var(--fs-meta);color:var(--text-2);overflow-wrap:anywhere}
+  .sw-job{margin:2px 0 0;font-size:var(--fs-meta);color:var(--muted)}
+
+  /* Muestras de color: el bloque es la superficie, no un relleno decorativo. */
+  .cs{position:relative;display:block;height:56px;border:1px solid var(--line-strong);border-radius:var(--radius-control);overflow:hidden}
+  .veil{position:absolute;inset:0}
+  .cs-bg{background:var(--bg)}
+  .cs-shell{background:var(--shell)}
+  .cs-panel{background:var(--panel)}
+  .cs-panel-2{background:var(--panel-2)}
+  .cs-line{background:var(--line)}
+  .cs-line-strong{background:var(--line-strong)}
+  .cs-invert{background:var(--surface-invert)}
+  .cs-scrim-ground{background:var(--panel-2)}
+  .veil-scrim{background:var(--scrim)}
+  .cs-soft-ground{background:var(--panel)}
+  .veil-soft{background:var(--accent-soft)}
+  .cs-accent{background:var(--accent)}
+  .cs-accent-hover{background:var(--accent-hover)}
+  .cs-accent-ink{background:var(--accent-ink)}
+  .cs-ok-bg{background:var(--ok-bg)}
+  .cs-ok-line{background:var(--ok-line)}
+  .cs-ok-text{background:var(--ok-text)}
+  .cs-off-bg{background:var(--off-bg)}
+  .cs-off-line{background:var(--off-line)}
+  .cs-off-text{background:var(--off-text)}
+  .cs-danger{background:var(--danger)}
+
+  .tiers{margin:0}
+  .tiers td{vertical-align:middle}
+  .tier-job{color:var(--text-2)}
+  .sp-name{color:var(--text);font-weight:600}
+  .sp-mail{color:var(--text-2);font-size:var(--fs-meta)}
+  .sp-label{color:var(--muted);font-size:var(--fs-label);font-weight:600;text-transform:uppercase;letter-spacing:.07em}
+  .sp-place{color:var(--faint)}
+
+  .type-list{margin:0;padding:0;list-style:none}
+  .type-row{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;align-items:baseline;padding:14px 0;border-bottom:1px solid var(--line)}
+  .type-row:last-child{border-bottom:0}
+  .type-spec{color:var(--text);min-width:0}
+  .type-meta{margin:0;font-size:var(--fs-meta);color:var(--text-2)}
+  .t-label{font-size:var(--fs-label);font-weight:600;text-transform:uppercase;letter-spacing:.07em}
+  .t-meta{font-size:var(--fs-meta)}
+  .t-body{font-size:var(--fs-body)}
+  .t-head{font-family:var(--font-display);font-size:var(--fs-head);font-weight:600}
+  .t-title{font-family:var(--font-display);font-size:var(--fs-title);font-weight:700;letter-spacing:-.01em}
+  .fams{margin:20px 0 0;padding:0;list-style:none;display:grid;gap:4px;font-size:var(--fs-meta);color:var(--text-2)}
+  .fams li{overflow-wrap:anywhere}
+
+  .rad-box{display:block;height:84px;background:var(--panel-2);border:1px solid var(--line-strong)}
+  .rad-control{border-radius:var(--radius-control)}
+  .rad-panel{border-radius:var(--radius-panel)}
+  .rad-pill{border-radius:var(--radius-pill)}
+
+  .prop-tag{
+    display:inline-flex;align-items:center;gap:6px;padding:2px 9px;margin:0 0 6px;
+    border:1px solid var(--danger);border-radius:var(--radius-pill);
+    font-size:var(--fs-meta);font-weight:600;color:var(--danger);
+  }
+  .sp-list{margin:0;padding:0;list-style:none;display:grid;gap:12px;max-width:880px}
+  .sp-row{display:grid;grid-template-columns:48px 56px minmax(0,1fr);gap:16px;align-items:center}
+  .sp-val{font-family:var(--font-mono);font-size:var(--fs-meta);color:var(--text);font-variant-numeric:tabular-nums}
+  .sp-bar{display:block;height:14px;background:var(--panel-2);border:1px solid var(--line-strong);border-radius:var(--radius-control)}
+  .bar-4{width:4px}
+  .bar-8{width:8px}
+  .bar-12{width:12px}
+  .bar-16{width:16px}
+  .bar-24{width:24px}
+  .bar-32{width:32px}
+  .bar-48{width:48px}
+  .sp-use{font-size:var(--fs-meta);color:var(--text-2)}
+
+  .comp-grid{margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  .comp{display:flex;flex-direction:column;gap:12px;min-width:0;padding:16px;background:var(--shell);border:1px solid var(--line-strong);border-radius:var(--radius-panel)}
+  .comp-wide{grid-column:1 / -1}
+  .comp-cap{margin:0;font-size:var(--fs-label);font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+  .comp-body{display:flex;flex-wrap:wrap;gap:12px;align-items:center;min-width:0}
+  .comp-body .search{flex:0 1 340px}
+  .comp-stage{min-width:0}
+  .state-box .st-title{margin:0 0 6px;font-family:var(--font-display);font-size:var(--fs-head);font-weight:600;color:var(--text);max-width:none}
+</style>
+</head>
+<body>
+
+<div class="board">
+
+  <header class="board-head">
+    <h1>Sistema de diseño — LocalGym</h1>
+    <p class="lede">Tablero del sistema visual del POS administrativo. Cada valor de esta hoja sale del bloque <code class="tok">:root</code> del artboard elegido: ninguna sección introduce un color, un tamaño, un radio ni un borde propio.</p>
+    <p class="head-meta">
+      <span>Artboard fuente: <code class="tok">design/design-system/02-neutral-signal.html</code></span>
+      <span>Tema oscuro único · sin toggle</span>
+      <span>Una sola croma accionable (lima)</span>
+      <span>Estado: propuesto, todavía no implementado</span>
+    </p>
+  </header>
+
+  <main>
+
+    <!-- 01 -->
+    <section class="sec" aria-labelledby="sec-superficies">
+      <p class="sec-num" aria-hidden="true">01</p>
+      <h2 id="sec-superficies">Escalera de superficies y elevación</h2>
+      <p class="sec-note">La profundidad se expresa subiendo un escalón de superficie, nunca con sombra. Un borde es siempre el escalón siguiente de la escalera: no existe un gris inventado aparte. Cada escalón rinde ~1.6× la luminancia del anterior (bg → shell ×1.44 → panel ×1.50 → panel-2 ×1.60 → line ×1.87 → line-strong ×1.71).</p>
+      <ul class="grid">
+        <li class="sw">
+          <span class="cs cs-bg" aria-hidden="true"></span>
+          <p class="sw-name">--bg</p>
+          <p class="sw-value">#080A0C</p>
+          <p class="sw-job">Lienzo de la app, fondo de la tabla y de la barra de comandos.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-shell" aria-hidden="true"></span>
+          <p class="sw-name">--shell</p>
+          <p class="sw-value">#0B0E11</p>
+          <p class="sw-job">Fondo del sidebar: el primer escalón sobre el lienzo.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-panel" aria-hidden="true"></span>
+          <p class="sw-name">--panel</p>
+          <p class="sw-value">#101317</p>
+          <p class="sw-job">Topbar, inputs, hover de fila y hover del ítem del nav.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-panel-2" aria-hidden="true"></span>
+          <p class="sw-name">--panel-2</p>
+          <p class="sw-value">#171A1F</p>
+          <p class="sw-job">Superficie elevada dentro de un panel: avatar, icono del estado vacío.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-line" aria-hidden="true"></span>
+          <p class="sw-name">--line</p>
+          <p class="sw-value">#22262C</p>
+          <p class="sw-job">Separador de filas y bordes de bajo contraste.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-line-strong" aria-hidden="true"></span>
+          <p class="sw-name">--line-strong</p>
+          <p class="sw-value">#2E333A</p>
+          <p class="sw-job">Borde de input, botón fantasma, tarjeta y hairline del sidebar.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-invert" aria-hidden="true"></span>
+          <p class="sw-name">--surface-invert</p>
+          <p class="sw-value">#FFFFFF</p>
+          <p class="sw-job">Superficie invertida: bloque de la marca e ítem activo del nav. No es texto.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-scrim-ground" aria-hidden="true"><span class="veil veil-scrim"></span></span>
+          <p class="sw-name">--scrim</p>
+          <p class="sw-value">rgba(4,6,9,.55)</p>
+          <p class="sw-job">Velo de los overlays móviles; la única transparencia de superficie. Se muestra sobre --panel-2.</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 02 -->
+    <section class="sec" aria-labelledby="sec-texto">
+      <p class="sec-num" aria-hidden="true">02</p>
+      <h2 id="sec-texto">Texto</h2>
+      <p class="sec-note">Cuatro niveles, cada uno con un trabajo. No se inventan niveles intermedios: si un dato es secundario va en --text-2 y si es una etiqueta va en --muted. Ningún nivel baja de AA sobre --panel.</p>
+      <table class="tiers">
+        <caption class="sr-only">Niveles de texto: token, valor, trabajo y muestra.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Nivel</th>
+            <th scope="col">Valor</th>
+            <th scope="col">Trabajo</th>
+            <th scope="col">Muestra</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><code class="tok">--text</code></th>
+            <td class="hex">#F3F5F7</td>
+            <td class="tier-job">Primario: nombres, valores de celda, títulos y botones. 17.04:1 sobre --panel.</td>
+            <td><span class="sp-name">María Fernanda Rincón Peña</span></td>
+          </tr>
+          <tr>
+            <th scope="row"><code class="tok">--text-2</code></th>
+            <td class="hex">#C6CBD4</td>
+            <td class="tier-job">Datos secundarios y controles quietos: email del socio, tipo de documento, rol, cerrar sesión, copia del estado vacío. 11.44:1.</td>
+            <td><span class="sp-mail">mafernanda.rincon@gmail.com</span></td>
+          </tr>
+          <tr>
+            <th scope="row"><code class="tok">--muted</code></th>
+            <td class="hex">#A0A6AF</td>
+            <td class="tier-job">Etiquetas y metadatos únicamente: th, labels de campo, contadores, pistas, paginador. 7.60:1.</td>
+            <td><span class="sp-label">Documento</span></td>
+          </tr>
+          <tr>
+            <th scope="row"><code class="tok">--faint</code></th>
+            <td class="hex">#7C828D</td>
+            <td class="tier-job">Solo lo que no es contenido: el placeholder de un input. 4.82:1.</td>
+            <td><span class="sp-place">Nombre, apellidos o documento</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- 03 -->
+    <section class="sec" aria-labelledby="sec-croma">
+      <p class="sec-num" aria-hidden="true">03</p>
+      <h2 id="sec-croma">Croma y estado</h2>
+      <p class="sec-note">Una sola croma accionable. El lima señala la acción primaria y el anillo de foco; nunca rellena una fila, una celda, un badge ni un panel. El estado es semántico y tiene su propio trío de fondo, borde y texto.</p>
+      <ul class="grid">
+        <li class="sw">
+          <span class="cs cs-accent" aria-hidden="true"></span>
+          <p class="sw-name">--accent</p>
+          <p class="sw-value">#EFFF00</p>
+          <p class="sw-job">Relleno del botón primario, anillo de foco y texto del segmento presionado.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-accent-hover" aria-hidden="true"></span>
+          <p class="sw-name">--accent-hover</p>
+          <p class="sw-value">#DCEB00</p>
+          <p class="sw-job">Hover del botón primario. Derivado del lima, no un naranja ni un gris.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-soft-ground" aria-hidden="true"><span class="veil veil-soft"></span></span>
+          <p class="sw-name">--accent-soft</p>
+          <p class="sw-value">rgba(239,255,0,.12)</p>
+          <p class="sw-job">Tinte de estado presionado: segmento activo y botón de demo. Se muestra sobre --panel.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-accent-ink" aria-hidden="true"></span>
+          <p class="sw-name">--accent-ink</p>
+          <p class="sw-value">#0A0C11</p>
+          <p class="sw-job">Tinta sobre el lima y sobre la superficie invertida.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-ok-bg" aria-hidden="true"></span>
+          <p class="sw-name">--ok-bg</p>
+          <p class="sw-value">#0E2A22</p>
+          <p class="sw-job">Fondo del chip «Activo».</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-ok-line" aria-hidden="true"></span>
+          <p class="sw-name">--ok-line</p>
+          <p class="sw-value">#2B5C4A</p>
+          <p class="sw-job">Borde del chip «Activo».</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-ok-text" aria-hidden="true"></span>
+          <p class="sw-name">--ok-text</p>
+          <p class="sw-value">#6FD3A0</p>
+          <p class="sw-job">Texto del chip «Activo», 8.38:1 sobre su propio fondo.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-off-bg" aria-hidden="true"></span>
+          <p class="sw-name">--off-bg</p>
+          <p class="sw-value">#191C21</p>
+          <p class="sw-job">Fondo del chip «Inactivo».</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-off-line" aria-hidden="true"></span>
+          <p class="sw-name">--off-line</p>
+          <p class="sw-value">#2E333A</p>
+          <p class="sw-job">Borde del chip «Inactivo»; comparte el valor de --line-strong.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-off-text" aria-hidden="true"></span>
+          <p class="sw-name">--off-text</p>
+          <p class="sw-value">#C3C8D0</p>
+          <p class="sw-job">Texto del chip «Inactivo», 10.16:1 sobre su propio fondo.</p>
+        </li>
+        <li class="sw">
+          <span class="cs cs-danger" aria-hidden="true"></span>
+          <p class="sw-name">--danger</p>
+          <p class="sw-value">#FF7A6E</p>
+          <p class="sw-job">Texto y borde de las acciones destructivas, como «Dar de baja». 7.80:1 sobre el lienzo.</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 04 -->
+    <section class="sec" aria-labelledby="sec-tipografia">
+      <p class="sec-num" aria-hidden="true">04</p>
+      <h2 id="sec-tipografia">Tipografía</h2>
+      <p class="sec-note">Cinco pasos, cada uno con un trabajo y sin medios píxeles. Las etiquetas de --fs-label van en mayúsculas con tracking entre .05em y .08em; los números van en mono con tabular-nums. Pesos: 400 cuerpo, 600 énfasis de UI, 700 display y marca.</p>
+      <ul class="type-list">
+        <li class="type-row">
+          <span class="type-spec t-label">Documento</span>
+          <p class="type-meta"><code class="tok">--fs-label</code> <span class="hex">11px</span> — etiquetas en mayúsculas con tracking: th de la tabla, label de campo y grupo del nav.</p>
+        </li>
+        <li class="type-row">
+          <span class="type-spec t-meta">15 socios · página 1 de 2</span>
+          <p class="type-meta"><code class="tok">--fs-meta</code> <span class="hex">12px</span> — metadatos: contadores, pistas, rol del usuario, pie, acciones chicas y el chip de estado.</p>
+        </li>
+        <li class="type-row">
+          <span class="type-spec t-body">María Fernanda Rincón Peña</span>
+          <p class="type-meta"><code class="tok">--fs-body</code> <span class="hex">14px</span> — cuerpo: filas de la tabla, controles, nav, inputs y segmentado.</p>
+        </li>
+        <li class="type-row">
+          <span class="type-spec t-head">Datos del socio</span>
+          <p class="type-meta"><code class="tok">--fs-head</code> <span class="hex">16px</span> — encabezados de bloque y marca del producto.</p>
+        </li>
+        <li class="type-row">
+          <span class="type-spec t-title">Socios</span>
+          <p class="type-meta"><code class="tok">--fs-title</code> <span class="hex">20px</span> — título de página. Único paso por encima de --fs-head.</p>
+        </li>
+      </ul>
+      <ul class="fams">
+        <li>Display: <code class="tok">--font-display</code> — Playfair Display, Georgia, «Times New Roman», serif.</li>
+        <li>UI: <code class="tok">--font-ui</code> — Inter, system-ui, -apple-system, «Segoe UI», Roboto, «Helvetica Neue», Arial, sans-serif.</li>
+        <li>Números y meta: <code class="tok">--font-mono</code> — JetBrains Mono, ui-monospace, «Cascadia Mono», Consolas, «Liberation Mono», Menlo, monospace.</li>
+        <li>Las tres familias se cargan desde Google Fonts en el artboard; el self-hosting en el POS offline-first sigue pendiente de decisión.</li>
+      </ul>
+    </section>
+
+    <!-- 05 -->
+    <section class="sec" aria-labelledby="sec-radios">
+      <p class="sec-num" aria-hidden="true">05</p>
+      <h2 id="sec-radios">Radios</h2>
+      <p class="sec-note">Tres valores y nada en el medio. La esquina interna de un control compuesto se deriva con calc(var(--radius-control) - 1px), nunca con un 5px suelto.</p>
+      <ul class="grid grid-3">
+        <li class="sw">
+          <span class="rad-box rad-control" aria-hidden="true"></span>
+          <p class="sw-name">--radius-control</p>
+          <p class="sw-value">4px</p>
+          <p class="sw-job">Botones, inputs, segmentado, ítems del nav, paginador y chip de tipo de documento.</p>
+        </li>
+        <li class="sw">
+          <span class="rad-box rad-panel" aria-hidden="true"></span>
+          <p class="sw-name">--radius-panel</p>
+          <p class="sw-value">10px</p>
+          <p class="sw-job">Paneles de estado vacío y tarjetas de socio en móvil.</p>
+        </li>
+        <li class="sw">
+          <span class="rad-box rad-pill" aria-hidden="true"></span>
+          <p class="sw-name">--radius-pill</p>
+          <p class="sw-value">999px</p>
+          <p class="sw-job">Chips de estado, avatar del topbar y botones de demo.</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 06 -->
+    <section class="sec" aria-labelledby="sec-espaciado">
+      <p class="sec-num" aria-hidden="true">06</p>
+      <h2 id="sec-espaciado">Espaciado</h2>
+      <p class="prop-tag">Propuesta, no aplicada al artboard</p>
+      <p class="sec-note">Hoy el artboard usa 19 valores distintos de padding, margin y gap: documentar eso como escala sería mentir. La propuesta es base 4; adoptarla implica barrer el artboard y volver a medir, igual que se hizo con tipografía y radios.</p>
+      <ul class="sp-list">
+        <li class="sp-row">
+          <span class="sp-val">4px</span>
+          <span class="sp-bar bar-4" aria-hidden="true"></span>
+          <span class="sp-use">Separación interna mínima: chip y badge.</span>
+        </li>
+        <li class="sp-row">
+          <span class="sp-val">8px</span>
+          <span class="sp-bar bar-8" aria-hidden="true"></span>
+          <span class="sp-use">Ritmo entre elementos de una misma fila.</span>
+        </li>
+        <li class="sp-row">
+          <span class="sp-val">12px</span>
+          <span class="sp-bar bar-12" aria-hidden="true"></span>
+          <span class="sp-use">Padding interno de controles.</span>
+        </li>
+        <li class="sp-row">
+          <span class="sp-val">16px</span>
+          <span class="sp-bar bar-16" aria-hidden="true"></span>
+          <span class="sp-use">Padding de panel y separación entre tarjetas.</span>
+        </li>
+        <li class="sp-row">
+          <span class="sp-val">24px</span>
+          <span class="sp-bar bar-24" aria-hidden="true"></span>
+          <span class="sp-use">Separación entre bloques de una pantalla.</span>
+        </li>
+        <li class="sp-row">
+          <span class="sp-val">32px</span>
+          <span class="sp-bar bar-32" aria-hidden="true"></span>
+          <span class="sp-use">Ritmo de página: margen de sección.</span>
+        </li>
+        <li class="sp-row">
+          <span class="sp-val">48px</span>
+          <span class="sp-bar bar-48" aria-hidden="true"></span>
+          <span class="sp-use">Ritmo de página: respiro entre áreas mayores.</span>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 07 -->
+    <section class="sec" aria-labelledby="sec-componentes">
+      <p class="sec-num" aria-hidden="true">07</p>
+      <h2 id="sec-componentes">Componentes</h2>
+      <p class="sec-note">Reglas heredadas del artboard. Cualquier implementación nueva las respeta; todos los controles son enfocables con el anillo global de foco.</p>
+
+      <ul class="comp-grid">
+        <li class="comp">
+          <h3 class="comp-cap">Botón primario</h3>
+          <div class="comp-body">
+            <button type="button" class="btn btn-primary">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg>
+              Nuevo socio
+            </button>
+          </div>
+          <p class="sw-job">Relleno --accent, tinta --accent-ink, alto mínimo 36px, peso 600. Es el único relleno sólido de lima por vista.</p>
+        </li>
+
+        <li class="comp">
+          <h3 class="comp-cap">Botón fantasma</h3>
+          <div class="comp-body">
+            <button type="button" class="btn btn-ghost">Exportar CSV</button>
+            <button type="button" class="btn btn-ghost" disabled>Solo lectura</button>
+          </div>
+          <p class="sw-job">Transparente, borde --line-strong, texto --text, hover --panel-2. Deshabilitado: opacidad .45.</p>
+        </li>
+
+        <li class="comp">
+          <h3 class="comp-cap">Chips de estado</h3>
+          <div class="comp-body">
+            <span class="chip on"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>Activo</span>
+            <span class="chip off"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2.5 6h7"/></svg>Inactivo</span>
+          </div>
+          <p class="sw-job">Pill, borde y fondo semánticos, texto --fs-meta peso 600. El estado nunca se rellena de lima: no es una acción.</p>
+        </li>
+
+        <li class="comp">
+          <h3 class="comp-cap">Input de texto</h3>
+          <div class="comp-body">
+            <div class="search">
+              <label for="demo-q">Buscar socios</label>
+              <input type="search" id="demo-q" placeholder="Nombre, apellidos o documento" autocomplete="off" inputmode="search">
+            </div>
+          </div>
+          <p class="sw-job">Fondo --panel, borde --line-strong, alto mínimo 36px, texto --fs-body, placeholder --faint, foco con anillo --accent de 2px.</p>
+        </li>
+
+        <li class="comp">
+          <h3 class="comp-cap">Control de tres segmentos</h3>
+          <div class="comp-body">
+            <div class="seg" role="group" aria-label="Filtrar socios por estado">
+              <button type="button" class="seg-btn" aria-pressed="true"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>Todos</button>
+              <button type="button" class="seg-btn" aria-pressed="false"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>Activos</button>
+              <button type="button" class="seg-btn" aria-pressed="false"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>Inactivos</button>
+            </div>
+          </div>
+          <p class="sw-job">Contenedor de --radius-control con borde --line-strong. El segmento presionado usa --accent-soft y texto --accent; el foco interno se ancla con outline-offset:-2px.</p>
+        </li>
+
+        <li class="comp">
+          <h3 class="comp-cap">Ítems del nav</h3>
+          <div class="comp-body">
+            <nav class="nav" aria-label="Ejemplo de navegación de secciones">
+              <ul>
+                <li><a href="#" aria-current="page">Socios</a></li>
+                <li><a href="#">Membresías</a></li>
+              </ul>
+            </nav>
+          </div>
+          <p class="sw-job">Padding 8px 10px y --radius-control. Hover --panel (un escalón, no un blanco translúcido); ítem activo sobre --surface-invert con tinta --accent-ink.</p>
+        </li>
+
+        <li class="comp comp-wide">
+          <h3 class="comp-cap">Fila de tabla</h3>
+          <div class="comp-stage">
+            <table>
+              <caption class="sr-only">Fila de la tabla de socios: nombre completo, documento, teléfono, estado y acciones.</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Socio</th>
+                  <th scope="col">Documento</th>
+                  <th scope="col">Teléfono</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col" class="right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row" data-label="Socio"><span class="cellname">María Fernanda Rincón Peña</span><span class="cellmail" title="mafernanda.rincon@gmail.com">mafernanda.rincon@gmail.com</span></th>
+                  <td data-label="Documento"><span class="tipo">CC</span><span class="doc">1023456789</span></td>
+                  <td data-label="Teléfono" class="num">3104526781</td>
+                  <td data-label="Estado"><span class="chip on"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>Activo</span></td>
+                  <td data-label="Acciones" class="right">
+                    <div class="rowactions">
+                      <button type="button" class="btn btn-ghost btn-sm">Editar</button>
+                      <button type="button" class="btn btn-ghost btn-sm">Dar de baja</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="sw-job">Separador inferior --line y hover --panel. El nombre va en --text peso 600 y el email como segunda línea en --text-2, nunca en --muted: el email es un dato. El número de documento solo lo edita un admin.</p>
+        </li>
+
+        <li class="comp comp-wide">
+          <h3 class="comp-cap">Panel de estado vacío</h3>
+          <div class="comp-stage">
+            <div class="state-box">
+              <div class="state-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></div>
+              <p class="st-title">Escribe para buscar</p>
+              <p>La búsqueda vacía no devuelve resultados. Escribe al menos una letra de un nombre, apellidos o documento.</p>
+            </div>
+          </div>
+          <p class="sw-job">Panel de --radius-panel con borde 1px dashed --line-strong, icono en un bloque --panel-2 de 34px y copia en --text-2. La copia dice la regla aplicada, no «no hay datos».</p>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+</div>
+
+</body>
+</html>
