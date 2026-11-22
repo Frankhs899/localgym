@@ -3,7 +3,7 @@ import PageShell from '../components/PageShell.jsx'
 import { useAuth } from '../auth-context.js'
 
 const inputClass =
-  'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none'
+  'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none'
 
 export default function Perfil() {
   const { user, changePassword } = useAuth()
