@@ -103,7 +103,7 @@ Tres valores y nada en el medio. La esquina interna de un control compuesto se d
 
 ## Espaciado
 
-**Sistema: base 4, elegida por trabajo.** Ratificado y aplicado al artboard (barrrido del
+**Sistema: base 4, elegida por trabajo.** Ratificado y aplicado al artboard (barrido del
 2026-11-21). Toda separación sale de siete pasos y de un token de rol, nunca de un número
 suelto:
 
@@ -119,15 +119,29 @@ suelto:
 | `--space-page` | `32px` | ritmo de página |
 | `--space-hero` | `48px` | cabeceras de board y separaciones mayores |
 
-Los 19 valores anteriores (`1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24 26`) no aparecen en
-ninguna regla. Un componente elige el rol, no el número: si un trabajo no entra en ningún
-paso, el componente está mal definido, no falta un paso.
+Los 19 valores anteriores (`1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24 26`) no sobreviven en
+ninguna declaración de `padding`, `margin`, `gap`, `row-gap` ni `column-gap`. Lo que conserva
+su número propio es la geometría, no el ritmo: los `1px` ópticos de `th .cellmail` y de
+`.errline svg`, el `-1px` del `.sr-only`, y el `right:6px` que ancla el control "Mostrar"
+dentro del campo en `.reveal`. Mover esos valores rompe una alineación, no un sistema.
+
+Un componente elige el rol, no el número: si un trabajo no entra en ningún paso, el
+componente está mal definido, no falta un paso.
 
 El alto de un control no se compra con padding: se declara con `min-height:36px`. Por eso
 el botón puede tener `--space-tight` en el eje vertical y seguir midiendo 36px.
 
-Medido después del barrrido: fila de tabla 52.8px @1440 y 57.09px @768, `thead` 32.44px,
-controles 36px, sin overflow horizontal en 1440/768/500.
+Medido con `node design/tools/probe.mjs <artboard> <ancho>` — Chrome headless, herramienta
+versionada para que el número se reproduzca en lugar de creerle a la sesión que lo midió:
+
+| medida | valor | base | límite S8 |
+| --- | --- | --- | --- |
+| fila de tabla @1440 | `52.8px` | `50.8px` | +4px → **+2.0px, cumple** |
+| fila de tabla @768 | `57.09px` | `71.09px` | la tabla reacomodó; no es una regresión de densidad |
+| `thead` | `32.44px` | igual | — |
+| control (input, `.btn`) | `36px` | igual | debe quedar en 36px |
+| `.btn-sm` (acción de fila) | `27.39px` | `25.39px` | bajo 36px a propósito: es la densidad de la tabla |
+| overflow horizontal | ninguno | ninguno | ninguno en 1440 / 768 / 500 |
 
 ## Componentes
 
@@ -177,8 +191,9 @@ Reglas heredadas del artboard; cualquier implementación nueva las respeta.
 
 ## Known Gaps
 
-- **Excepciones ópticas de 1px** — `th .cellmail` (nombre→email) y `.errline svg`: fuera de
-  la escala a propósito; moverlas rompe la alineación y, en la celda, saca la fila del límite.
+- **Excepciones de geometría** — `th .cellmail` (nombre→email), `.errline svg`, el `-1px` del
+  `.sr-only` y el `right:6px` del `.reveal`: fuera de la escala a propósito, porque son
+  posición y no ritmo; moverlas rompe la alineación y, en la celda, saca la fila del límite.
 - **Self-hosting de tipografías:** el artboard carga Playfair, Inter y JetBrains Mono desde
   Google Fonts. El POS es offline-first (D3): en producción las familias tienen que vivir en
   el proyecto o caer a las pilas del sistema. Decisión pendiente del dueño.
