@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dirección 2 · Neutral, una sola croma — Sistema de diseño LocalGym</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@400..700&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Variante 02: escalera neutra. Ninguna croma en superficies ni en texto. */
+    --bg:#080A0C;
+    --panel:#101317;
+    --panel-2:#171A1F;
+    --line:#22262C;
+    --line-strong:#2E333A;
+    /* Escalera de superficie. Cada escalon rinde ~1.6x la luminancia del anterior,
+       asi que un borde es siempre el escalon siguiente y nunca un gris inventado
+       aparte. Medido: bg -> shell x1.44 -> panel x1.50 -> panel-2 x1.60 ->
+       line x1.87 -> line-strong x1.71. */
+    /* Superficie invertida (marca y item activo del sidebar). No es texto. */
+    --surface-invert:#FFFFFF;
+    /* Velo de los overlays. Es la unica transparencia de superficie del sistema. */
+    --scrim:rgba(4,6,9,.55);
+    --shell:#0B0E11;
+    --text:#F3F5F7;
+    --muted:#A0A6AF;
+    /* Nivel intermedio: datos secundarios y controles quietos. No es relleno
+       decorativo: el email del socio, el tipo de documento y el rol son datos. */
+    --text-2:#C6CBD4;
+    /* El escalon mas bajo, solo para lo que no es contenido: placeholder. */
+    --faint:#7C828D;
+    /* Una sola croma: la senal. Accion primaria y anillo de foco, nada mas. */
+    --accent:#EFFF00;
+    --accent-soft:rgba(239,255,0,.12);
+    --accent-ink:#0A0C11;
+    --accent-hover:#DCEB00;
+    --ok-bg:#0E2A22;
+    --ok-line:#2B5C4A;
+    --ok-text:#6FD3A0;
+    --off-bg:#191C21;
+    --off-line:#2E333A;
+    --off-text:#C3C8D0;
+    --danger:#FF7A6E;
+
+    /* Escala tipografica: 5 pasos, cada uno con un trabajo, sin medios pixeles. */
+    --fs-label:11px;   /* etiquetas en mayusculas: th, labels de campo, grupos del nav */
+    --fs-meta:12px;    /* metadatos: contadores, pistas, rol, pie, acciones chicas */
+    --fs-body:14px;    /* cuerpo: tabla, controles, nav, inputs */
+    --fs-head:16px;    /* encabezados de bloque, marca */
+    --fs-title:20px;   /* titulo de pagina */
+
+    /* Radios: 3 valores y nada en el medio. */
+    --radius-control:4px;
+    --radius-panel:10px;
+    --radius-pill:999px;
+    --font-display:"Playfair Display",Georgia,"Times New Roman",serif;
+    --font-ui:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg)}
+  body{
+    margin:0;
+    color:var(--text);
+    background:var(--bg);
+    font-family:var(--font-ui);
+    font-size:var(--fs-body);
+    line-height:1.45;
+  }
+  .num, td.num, .doc{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+  tbody th{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle;text-align:left;font-weight:inherit}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  button:disabled{cursor:not-allowed}
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    padding:7px 14px;border-radius:var(--radius-control);font-weight:600;font-size:var(--fs-body);
+    border:1px solid transparent;transition:background .12s ease,border-color .12s ease;
+    white-space:nowrap;
+  }
+  .btn-primary{background:var(--accent);color:var(--accent-ink)}
+  .btn-primary:hover:not(:disabled){background:var(--accent-hover)}
+  .btn-ghost{border-color:var(--line-strong);color:var(--text)}
+  .btn-ghost:hover:not(:disabled){background:var(--panel-2)}
+  .btn-sm{padding:3px 9px;font-size:var(--fs-meta);font-weight:500}
+  button:disabled{opacity:.45}
+  .chip{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:2px 9px;border-radius:var(--radius-pill);border:1px solid;
+    font-size:var(--fs-meta);font-weight:600;white-space:nowrap;
+  }
+  .chip svg{flex:none}
+  .chip.on{background:var(--ok-bg);border-color:var(--ok-line);color:var(--ok-text)}
+  .chip.off{background:var(--off-bg);border-color:var(--off-line);color:var(--off-text)}
+
+  /* Demo strip (artboard meta, not product UI) */
+  .demo-strip{
+    display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;
+    padding:10px 20px;border-bottom:1px solid var(--line-strong);
+    background:var(--shell);font-size:var(--fs-meta);color:var(--muted);
+  }
+  .demo-strip strong{color:var(--text);font-weight:600}
+  .demo-group{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .demo-group .lbl{font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.06em}
+  .demo-btn{
+    padding:3px 10px;border:1px solid var(--line-strong);border-radius:var(--radius-pill);
+    color:var(--text);font-size:var(--fs-meta);transition:background .12s ease;
+  }
+  .demo-btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+
+  /* Shell */
+  .shell{display:flex;min-height:calc(100vh - 42px)}
+  /* Variante 02: sin masa de color. El sidebar es un escalon neutro por debajo
+     del canvas, todo su contenido en la familia blanca, y el lima queda como
+     unica croma del artboard: accion primaria y anillo de foco. */
+  .sidebar{
+    width:230px;flex:none;background:var(--shell);
+    border-right:1px solid var(--line-strong);
+    display:flex;flex-direction:column;justify-content:space-between;
+    padding:18px 12px;
+  }
+  .brand{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-size:var(--fs-head);font-weight:700;padding:0 10px;margin-bottom:22px;color:var(--text)}
+  /* La marca invierte sobre el neutro: bloque blanco, icono en tinta. */
+  .brand svg{background:var(--surface-invert);color:var(--accent-ink);border-radius:var(--radius-control);padding:5px}
+  .nav ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+  .nav a{
+    display:block;padding:8px 10px;border-radius:var(--radius-control);
+    color:var(--text);text-decoration:none;font-size:var(--fs-body);
+    transition:background .12s ease,color .12s ease;
+  }
+  .nav a:hover{background:var(--panel);color:var(--text)}
+  .nav a[aria-current="page"]{background:var(--surface-invert);color:var(--accent-ink);font-weight:600}
+  .nav .group{font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:14px 10px 4px}
+  .sidebar .foot{font-family:var(--font-mono);padding:0 10px;font-size:var(--fs-meta);color:var(--text-2)}
+  .sidebar .foot .hint{line-height:1.5;margin-bottom:8px}
+  .sidebar .foot a{color:var(--text-2);text-decoration:underline}
+  .sidebar .foot a:hover{color:var(--text)}
+
+  .content{flex:1;min-width:0;display:flex;flex-direction:column}
+  .topbar{
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;gap:12px;
+    padding:9px 20px;background:var(--panel);border-bottom:1px solid var(--line);
+  }
+  .topbar .who{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:var(--fs-body)}
+  .who .avatar{
+    width:30px;height:30px;border-radius:var(--radius-pill);flex:none;
+    background:var(--panel-2);border:1px solid var(--line-strong);color:var(--text);
+    display:grid;place-items:center;font-size:var(--fs-meta);font-weight:700;
+  }
+  .who b{font-weight:600}
+  .who .role{color:var(--text-2);font-size:var(--fs-meta)}
+  .logout{padding:5px 12px;border:1px solid var(--line-strong);border-radius:var(--radius-control);font-size:var(--fs-meta);color:var(--text-2)}
+  .logout:hover{color:var(--text);background:var(--panel-2)}
+  .menu-btn{display:none;padding:6px 12px;border:1px solid var(--line-strong);border-radius:var(--radius-control);font-size:var(--fs-body)}
+
+  .main{flex:1;min-width:0}
+  .command{
+    position:sticky;top:49px;z-index:10;
+    display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;
+    padding:12px 20px;background:var(--bg);
+    border-bottom:1px solid var(--line);
+  }
+  .search{flex:1 1 340px;min-width:240px;max-width:420px}
+  .search label{display:block;font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+  .search input{
+    width:100%;min-height:36px;padding:7px 12px;font:inherit;font-size:var(--fs-body);line-height:16px;
+    background:var(--panel);border:1px solid var(--line-strong);border-radius:var(--radius-control);color:var(--text);
+  }
+  .search input::placeholder{color:var(--faint)}
+  .search .hint{margin-top:4px;font-family:var(--font-ui);font-size:var(--fs-meta);color:var(--muted)}
+  .field{display:flex;flex-direction:column;gap:0}
+  .field > span{font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+  .seg{display:inline-flex;background:var(--panel);border:1px solid var(--line-strong);border-radius:var(--radius-control)}
+  .seg-btn{display:inline-flex;align-items:center;gap:5px;min-height:34px;padding:7px 12px;font-size:var(--fs-body);line-height:16px;color:var(--text-2);border-left:1px solid var(--line)}
+  .seg-btn:first-child{border-left:0;border-top-left-radius:calc(var(--radius-control) - 1px);border-bottom-left-radius:calc(var(--radius-control) - 1px)}
+  .seg-btn:last-child{border-top-right-radius:calc(var(--radius-control) - 1px);border-bottom-right-radius:calc(var(--radius-control) - 1px)}
+  .seg-btn:hover{background:var(--panel-2);color:var(--text)}
+  .seg-btn[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+  .seg-btn svg{display:none}
+  .seg-btn[aria-pressed="true"] svg{display:inline-block}
+  /* A pressed segment must fill its own segment exactly. The global :focus-visible
+     rule mutates the button radius (5px 2px 2px 5px on the first one) and floats a
+     2px-offset outline outside the 36 px container, so the pressed fill read as an
+     inset pill inside a floating box. Scope it: same 2px accent ring, but inset so it
+     hugs the segment edges, and with the segment's own corner radii preserved. */
+  .seg-btn:focus-visible{outline-offset:-2px;border-radius:0}
+  .seg-btn:first-child:focus-visible{border-radius:calc(var(--radius-control) - 1px) 0 0 calc(var(--radius-control) - 1px)}
+  .seg-btn:last-child:focus-visible{border-radius:0 calc(var(--radius-control) - 1px) calc(var(--radius-control) - 1px) 0}
+  .actions{display:flex;gap:8px;align-items:center;margin-left:auto;margin-top:20px;flex-wrap:wrap}
+  .actions .btn{min-height:36px;line-height:16px}
+
+  .pagehead{display:flex;align-items:baseline;gap:12px;padding:16px 20px 4px;flex-wrap:wrap}
+  .pagehead h1{margin:0;font-family:var(--font-display);font-size:var(--fs-title);font-weight:700;letter-spacing:-.01em}
+  .pagehead .count{font-family:var(--font-mono);font-size:var(--fs-meta);color:var(--muted)}
+
+  .states{padding:12px 20px}
+  .state-box{border:1px dashed var(--line-strong);border-radius:var(--radius-panel);padding:26px 24px;text-align:center;color:var(--text-2)}
+  .state-box h2{margin:0 0 6px;font-family:var(--font-display);font-size:var(--fs-head);font-weight:600;color:var(--text)}
+  .state-box p{margin:0 0 4px;font-size:var(--fs-body);max-width:52ch;margin-inline:auto}
+  .state-box .esc{margin:10px 0 14px;font-size:var(--fs-meta)}
+  .state-box .esc b{color:var(--text)}
+  /* Por regla, no por gusto: el icono del estado vacio es un escalon de
+     superficie, no una masa de color. */
+  .state-ico{
+    width:34px;height:34px;margin:0 auto 10px;border-radius:var(--radius-panel);
+    background:var(--panel-2);border:1px solid var(--line-strong);color:var(--text);display:grid;place-items:center;
+  }
+
+  .tablewrap{padding:0 20px 8px}
+  table{width:100%;border-collapse:collapse;font-size:var(--fs-body)}
+  caption{text-align:left}
+  thead th{
+    position:sticky;top:98px;
+    background:var(--bg);
+    text-align:left;font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.07em;
+    color:var(--muted);font-weight:600;
+    padding:8px 10px;border-bottom:1px solid var(--line-strong);white-space:nowrap;
+  }
+  th.right,td.right{text-align:right}
+  tbody td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tbody tr:hover{background:var(--panel)}
+  td .cellname,th .cellname{font-weight:600;display:block}
+  th .cellmail{
+    display:block;font-family:var(--font-ui);font-size:var(--fs-meta);font-weight:400;
+    color:var(--text-2);line-height:1.25;margin-top:1px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px;
+  }
+  td .sub{color:var(--text-2);font-size:var(--fs-meta)}
+  .tipo{
+    display:inline-block;font-size:var(--fs-label);font-weight:700;letter-spacing:.05em;
+    color:var(--text-2);border:1px solid var(--line-strong);border-radius:var(--radius-control);
+    padding:0 4px;margin-right:5px;vertical-align:1px;
+  }
+  .rowactions{display:flex;gap:6px;justify-content:flex-end}
+
+  .pagenav{
+    display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+    padding:12px 20px 26px;font-family:var(--font-mono);font-size:var(--fs-meta);color:var(--muted);
+  }
+  .pagenav .rule{font-weight:600;color:var(--text)}
+  .pagenav .pages{display:flex;gap:4px;margin-left:auto}
+  .pg{
+    min-width:30px;padding:4px 8px;border:1px solid var(--line-strong);border-radius:var(--radius-control);
+    color:var(--text);font-size:var(--fs-meta);
+  }
+  .pg[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+  .pg:disabled{opacity:.35}
+  .pg:hover:not(:disabled):not([aria-current="page"]){background:var(--panel-2)}
+
+  .rolenote{
+    margin:0 20px 18px;padding:9px 12px;border:1px solid var(--line-strong);
+    border-left:3px solid var(--accent);border-radius:var(--radius-control);
+    font-size:var(--fs-meta);color:var(--text-2);background:var(--panel);
+  }
+  .rolenote b{color:var(--text)}
+  [hidden]{display:none !important}
+
+  /* --- Responsive --- */
+  @media (max-width: 900px){
+    /* Tablet: the search takes the whole first row (uncapped); the second row pairs
+       the estado control (left) with the action buttons (right), so two rows suffice. */
+    .command{row-gap:10px}
+    .search{flex-basis:100%;max-width:none}
+    /* The hint's UA margin-bottom (12 px) was dead space under the first row, and the
+       stacked "Estado" label cost 20 px above the control; the second row must cost
+       only the control height plus the row gap, so the label sits beside the control. */
+    .search .hint{margin:4px 0 0}
+    .field{flex-direction:row;align-items:center;gap:8px}
+    .field>span{margin-bottom:0}
+    .actions{margin-left:auto;margin-top:0}
+    .sidebar{
+      position:fixed;inset:49px auto 0 0;width:260px;z-index:40;
+      transform:translateX(-105%);transition:transform .18s ease;
+      border-right:1px solid var(--line-strong);
+    }
+    body.nav-open .sidebar{transform:none}
+    .menu-btn{display:inline-block}
+    .scrim{position:fixed;inset:49px 0 0;background:var(--scrim);z-index:35}
+  }
+  @media (max-width: 700px){
+    .topbar{padding:8px 12px}
+    .command{top:45px;position:static;padding-block:10px}
+    .search{flex-basis:100%;max-width:none}
+    .command{gap:10px}
+    /* Mobile: the zone labels repeat what the placeholder and the segments say, and
+       the hint repeats the empty-state rule stated right below the bar — clip them
+       visually (sr-only pattern) but keep them for assistive tech. */
+    .search label,.field>span,.search .hint{
+      position:absolute;width:1px;height:1px;padding:0;margin:0;
+      overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+    }
+    .field{width:100%}
+    /* Shared 44 px touch height for every control; segments fill the row equally. */
+    .search input{min-height:44px}
+    .seg{display:flex;width:100%}
+    .seg-btn{flex:1;justify-content:center;min-height:44px}
+    .actions{margin-left:0;margin-top:0;width:100%}
+    .actions .btn{flex:1;justify-content:center;min-height:44px}
+    .pagehead,.states,.tablewrap{padding-inline:12px}
+    .pagenav{padding:12px 12px 22px}
+    thead{display:none}
+    table,tbody,tr,td,th{display:block;width:100%}
+    tbody tr{
+      border:1px solid var(--line);border-radius:var(--radius-panel);margin-bottom:10px;
+      padding:6px 0;background:var(--panel);
+    }
+    tbody td,tbody th{display:block;border-bottom:0;padding:5px 12px}
+    tbody td::before,tbody th::before{
+      content:attr(data-label);
+      color:var(--muted);font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.05em;
+      flex:none;
+    }
+    /* Socio: card heading, no label — full name first line, email second line. */
+    tbody th{text-align:left}
+    tbody th::before{content:none}
+    tbody th .cellname{font-size:var(--fs-body);line-height:1.35}
+    tbody th .cellmail{margin-top:2px}
+    /* Documento / Teléfono: small muted label stacked above the value. */
+    tbody td[data-label="Documento"]::before,
+    tbody td[data-label="Teléfono"]::before{display:block;margin-bottom:2px}
+    /* Estado: label stacked above the chip like Documento / Teléfono;
+       the chip keeps its natural width, flush left. */
+    tbody td[data-label="Estado"]::before{display:block;margin-bottom:2px}
+    /* Acciones: label above, then the two buttons split across one row. */
+    tbody td[data-label="Acciones"]{text-align:left} /* reset the desktop .right alignment on the card label */
+    tbody td[data-label="Acciones"]::before{display:block;margin-bottom:3px}
+    tbody td[data-label="Acciones"] .rowactions{justify-content:space-between;gap:10px}
+    tbody td[data-label="Acciones"] .btn{min-height:44px}
+    .pagenav .pages{margin-left:0}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;animation:none !important}
+  }
+</style>
+</head>
+<body>
+
+<!-- Artboard meta / demo controls — not part of the product UI -->
+<div class="demo-strip">
+  <span><strong>Dirección 1 · Command bar</strong> — densidad máxima, tema oscuro único</span>
+  <div class="demo-group" role="group" aria-label="Ver la pantalla como un rol">
+    <span class="lbl">Ver como</span>
+    <button type="button" class="demo-btn" data-role="recepcion" aria-pressed="true">Recepción</button>
+    <button type="button" class="demo-btn" data-role="profesor" aria-pressed="false">Profesor</button>
+    <button type="button" class="demo-btn" data-role="admin" aria-pressed="false">Admin</button>
+  </div>
+  <div class="demo-group" role="group" aria-label="Estados del listado">
+    <span class="lbl">Estados</span>
+    <button type="button" class="demo-btn" data-scen="results">1 · Resultados («ar»)</button>
+    <button type="button" class="demo-btn" data-scen="empty">2 · Búsqueda vacía</button>
+    <button type="button" class="demo-btn" data-scen="none">3 · Sin coincidencias</button>
+  </div>
+</div>
+
+<div class="shell">
+
+  <aside class="sidebar" id="sidebar" aria-label="Navegación de secciones">
+    <div>
+      <p class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M9 12h6"/></svg>
+        LocalGym
+      </p>
+      <nav class="nav" aria-label="Secciones">
+        <ul id="navlist"></ul>
+      </nav>
+    </div>
+    <div class="foot">
+      <p class="hint" id="foot-hint">Versión POS offline-first. Los datos se respaldan localmente al cerrar el día.</p>
+      <p id="foot-admin"><a href="#">Admin Django</a></p>
+    </div>
+  </aside>
+
+  <div class="content">
+    <header class="topbar">
+      <button type="button" class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="sidebar">Menú</button>
+      <span class="who">
+        <span class="avatar" id="uav" aria-hidden="true">CS</span>
+        <span><b id="uname">Carolina Suárez Ortiz</b><br><span class="role" id="urole">Recepción</span></span>
+      </span>
+      <button type="button" class="logout">Cerrar sesión</button>
+    </header>
+
+    <main class="main">
+      <div class="pagehead">
+        <h1>Socios</h1>
+        <span class="count" id="countline" aria-hidden="true"></span>
+      </div>
+
+      <div class="command">
+        <div class="search">
+          <label for="q">Buscar socios</label>
+          <input type="search" id="q" placeholder="Nombre, apellidos o documento"
+                 autocomplete="off" inputmode="search">
+          <p class="hint">Ignora acentos y mayúsculas · sin búsqueda no hay resultados</p>
+        </div>
+        <div class="field">
+          <span>Estado</span>
+          <div class="seg" id="estado" role="group" aria-label="Filtrar socios por estado">
+            <button type="button" class="seg-btn" data-estado="todos" aria-pressed="true"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>Todos</button>
+            <button type="button" class="seg-btn" data-estado="activo" aria-pressed="false"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>Activos</button>
+            <button type="button" class="seg-btn" data-estado="inactivo" aria-pressed="false"><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>Inactivos</button>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-ghost" id="btn-export">Exportar CSV</button>
+          <button type="button" class="btn btn-primary" id="btn-new" title="Alta de socio">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 1v10M1 6h10"/></svg>
+            Nuevo socio
+          </button>
+        </div>
+      </div>
+
+      <div class="rolenote" id="rolenote" hidden>
+        <b>Rol profesor: solo lectura.</b> Puedes consultar el listado y el detalle de cada socio; las acciones de escritura (alta, edición y baja) están deshabilitadas para este rol.
+      </div>
+
+      <p class="sr-only" role="status" aria-live="polite" id="live"></p>
+
+      <!-- Estado 2: búsqueda vacía -->
+      <div class="states" id="st-empty">
+        <div class="state-box">
+          <div class="state-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></div>
+          <h2>Escribe para buscar</h2>
+          <p>La búsqueda vacía no devuelve resultados. Escribe al menos una letra de un nombre, apellidos o documento.</p>
+        </div>
+      </div>
+
+      <!-- Estado 3: sin coincidencias -->
+      <div class="states" id="st-none" hidden>
+        <div class="state-box">
+          <div class="state-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/><path d="M8.5 11h5"/></svg></div>
+          <h2>Ningún socio coincide con <b id="none-q"></b></h2>
+          <p>Revisa si hay tildes omitidas o prueba con el apellido en vez del nombre. La búsqueda ignora acentos y mayúsculas.</p>
+          <div class="esc">
+            <button type="button" class="btn btn-ghost" id="btn-clear">Limpiar búsqueda y filtros</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado 1: resultados -->
+      <div id="st-results" hidden>
+        <div class="tablewrap">
+          <table>
+            <caption class="sr-only">Listado de socios: nombre completo, documento, teléfono y estado; 15 resultados por página.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Socio</th>
+                <th scope="col">Documento</th>
+                <th scope="col">Teléfono</th>
+                <th scope="col">Estado</th>
+                <th scope="col" class="right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <div class="pagenav">
+          <span><span class="rule" id="pg-info"></span> · 15 socios por página</span>
+          <div class="pages" id="pg-pages"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var SOC=[
+    {n:'María Fernanda',a:'Rincón Peña',t:'CC',d:'1023456789',tel:'3104526781',e:'mafernanda.rincon@gmail.com',fn:'12/04/1988',es:'activo',ecN:'Martha Lucía',ecA:'Peña Gutiérrez',ecT:'3140963225',ecP:'madre'},
+    {n:'Jhon Jairo',a:'Valencia Ospina',t:'CC',d:'79123456',tel:'3152893402',e:'jjvalencia79@gmail.com',fn:'30/09/1975',es:'activo',ecN:'Édgar Enrique',ecA:'Valencia Cárdenas',ecT:'3174829056',ecP:'padre'},
+    {n:'Luz Adriana',a:'Cárdenas Mendoza',t:'CC',d:'52109874',tel:'3126745908',e:'luzadriana.cardenas@hotmail.com',fn:'22/01/1982',es:'inactivo',ecN:'Bernardo',ecA:'Mendoza Salas',ecT:'3198476521',ecP:'esposo'},
+    {n:'Andrés Camilo',a:'Gómez Torres',t:'CC',d:'1098765432',tel:'3209184756',fn:'08/07/1996',es:'activo',ecN:'Dora Lucía',ecA:'Torres Vélez',ecT:'3109284673',ecP:'madre'},
+    {n:'Yuliana Patricia',a:'Mosquera Angulo',t:'CC',d:'1088234176',tel:'3015739284',e:'yulimosquera@gmail.com',fn:'15/11/1993',es:'activo',ecN:'Mario',ecA:'Angulo Perea',ecT:'3185670942',ecP:'padre'},
+    {n:'Gustavo Adolfo',a:'Pardo Leal',t:'CE',d:'452318',tel:'3162384701',e:'gapardo.leal@yahoo.com',fn:'27/03/1968',es:'activo',ecN:'Cecilia',ecA:'Leal De la Ossa',ecT:'3127450896',ecP:'esposa'},
+    {n:'Diana Carolina',a:'Restrepo Zapata',t:'CC',d:'1039274615',tel:'3134890275',e:'diacarore@gmail.com',fn:'19/05/1990',es:'inactivo',ecN:'Natalia',ecA:'Zapata Restrepo',ecT:'3219085637',ecP:'hermana'},
+    {n:'Óscar Iván',a:'Buitrago Salamanca',t:'CC',d:'8012345678',tel:'3187602945',e:'oscar.buitrago80@gmail.com',fn:'03/12/1985',es:'activo',ecN:'Pilar',ecA:'Salamanca Buitrago',ecT:'3150928476',ecP:'esposa'},
+    {n:'Paola Andrea',a:'Quintero Ríos',t:'CC',d:'1017543289',tel:'3109385672',e:'paolaquintero.rios@gmail.com',fn:'14/02/1994',es:'activo',ecN:'Jorge Enrique',ecA:'Ríos Ocampo',ecT:'3194762385',ecP:'padre'},
+    {n:'Héctor William',a:'Lozano Pineda',t:'CC',d:'74561928',tel:'3150472839',fn:'21/08/1971',es:'inactivo',ecN:'Esperanza',ecA:'Pineda Uscátegui',ecT:'3120489573',ecP:'esposa'},
+    {n:'Sara Sofía',a:'Vargas Caicedo',t:'CC',d:'1055623187',tel:'3216394087',e:'sarasofiavc@gmail.com',fn:'09/10/2001',es:'activo',ecN:'Piedad',ecA:'Caicedo Vargas',ecT:'3102847596',ecP:'madre'},
+    {n:'Julián David',a:'Ortiz Peñaranda',t:'CC',d:'1020193847',tel:'3172840596',e:'jdortizp@gmail.com',fn:'30/06/1997',es:'activo',ecN:'Carlos',ecA:'Ortiz Ramírez',ecT:'3182937465',ecP:'padre'},
+    {n:'Nubia Esperanza',a:'Salas Barbosa',t:'CC',d:'42983716',tel:'3124087591',e:'nubia.salas.barbosa@hotmail.com',fn:'02/04/1963',es:'activo',ecN:'Aníbal',ecA:'Barbosa Quintero',ecT:'3156720894',ecP:'esposo'},
+    {n:'Camilo Esteban',a:'Duarte Contreras',t:'CC',d:'1094762358',tel:'3147590328',fn:'17/01/1999',es:'activo',ecN:'María Isabel',ecA:'Contreras Duarte',ecT:'3176049285',ecP:'madre'},
+    {n:'Viviana Lorena',a:'Ospina Cuesta',t:'CC',d:'1048392017',tel:'3130967482',e:'viviana.ospina.c@gmail.com',fn:'25/09/1992',es:'inactivo',ecN:'Óscar',ecA:'Cuesta Mejía',ecT:'3109637428',ecP:'padre'},
+    {n:'Álvaro José',a:'Betancur Marmolejo',t:'CC',d:'68327415',tel:'3182940375',e:'ajbetancur@yahoo.com',fn:'28/11/1966',es:'activo',ecN:'Fanny',ecA:'Marmolejo Betancur',ecT:'3149280756',ecP:'esposa'},
+    {n:'Leidy Johanna',a:'Zapata Bermúdez',t:'CC',d:'1067342985',tel:'3195476023',e:'leidyzapatab@gmail.com',fn:'11/07/1995',es:'activo',ecN:'Sandra',ecA:'Bermúdez Ospina',ecT:'3139085624',ecP:'madre'},
+    {n:'Farid Antonio',a:'Nassar De la Hoz',t:'CE',d:'731956',tel:'3169037485',e:'fnassar.delahoz@gmail.com',fn:'05/02/1987',es:'activo',ecN:'Julia',ecA:'De la Hoz Nassar',ecT:'3182547963',ecP:'madre'},
+    {n:'Kelly Tatiana',a:'Cuartas Montoya',t:'CC',d:'1028475619',tel:'3204871596',fn:'20/12/1998',es:'activo',ecN:'Hernán',ecA:'Montoya Cano',ecT:'3127804965',ecP:'padre'},
+    {n:'Édgar Mauricio',a:'Serna Botero',t:'CC',d:'83917546',tel:'3117596034',e:'edgar.serna.botero@hotmail.com',fn:'08/05/1979',es:'inactivo',ecN:'Amparo',ecA:'Botero Serna',ecT:'3194067285',ecP:'esposa'},
+    {n:'Angélica María',a:'Tobón Giraldo',t:'CC',d:'1059328476',tel:'3140296857',e:'angelicamtobon@gmail.com',fn:'14/03/1991',es:'activo',ecN:'Julián',ecA:'Tobón Portilla',ecT:'3172398506',ecP:'hermano'},
+    {n:'Diego Fernando',a:'Salazar Ochoa',t:'CC',d:'1013847592',tel:'3174902836',e:'dfsalazar.ochoa@gmail.com',fn:'30/10/1983',es:'activo',ecN:'Rosa',ecA:'Ochoa Cifuentes',ecT:'3107485296',ecP:'madre'},
+    {n:'Marleny Yohanna',a:'Villalba Cuesta',t:'CC',d:'99827364',tel:'3158903467',fn:'09/01/1980',es:'activo',ecN:'Yolanda',ecA:'Cuesta Villalba',ecT:'3150937268',ecP:'madre'},
+    {n:'Brayan Steven',a:'Muñoz Ararat',t:'CC',d:'1104839562',tel:'3219084567',e:'brayansmunoz@gmail.com',fn:'23/06/2002',es:'activo',ecN:'Diana',ecA:'Ararat Muñoz',ecT:'3186049237',ecP:'madre'},
+    {n:'Gloria Cecilia',a:'Hoyos Naranjo',t:'CC',d:'41762938',tel:'3125960738',e:'gloria.hoyos.naranjo@gmail.com',fn:'16/08/1961',es:'inactivo',ecN:'Mauricio',ecA:'Naranjo Hincapié',ecT:'3145780962',ecP:'hijo'},
+    {n:'Felipe Andrés',a:'Mejía Callejas',t:'CC',d:'1078234905',tel:'3184759260',e:'felipemejia.callejas@gmail.com',fn:'07/12/1993',es:'activo',ecN:'Sandra Milena',ecA:'Callejas Mejía',ecT:'3129408576',ecP:'madre'},
+    {n:'Karen Liseth',a:'Arboleda Bonilla',t:'CC',d:'1046729318',tel:'3138470596',e:'karen.arboleda.b@gmail.com',fn:'19/04/2000',es:'activo',ecN:'Fernando',ecA:'Bonilla Arboleda',ecT:'3192740586',ecP:'padre'},
+    {n:'Ricardo Antonio',a:'Gaviria Londoño',t:'CC',d:'70293846',tel:'3162094837',e:'ragaviria.l@yahoo.com',fn:'24/07/1973',es:'activo',ecN:'Martha',ecA:'Londoño Gaviria',ecT:'3170592846',ecP:'esposa'},
+    {n:'Paula Andrea',a:'Giraldo Álvarez',t:'CC',d:'1034985672',tel:'3149285067',fn:'28/02/1996',es:'inactivo',ecN:'Ana María',ecA:'Álvarez Giraldo',ecT:'3105962847',ecP:'madre'},
+    {n:'Óscar Darío',a:'Carvajalino Rojas',t:'CC',d:'1092938475',tel:'3170629485',e:'oscar.carvajalino@gmail.com',fn:'13/09/1989',es:'activo',ecN:'Édgar',ecA:'Carvajalino Ospina',ecT:'3158276049',ecP:'padre'},
+    {n:'Marcela',a:'Arango Saldarriaga',t:'CC',d:'1019283746',tel:'3108492375',e:'marcela.arango.s@gmail.com',fn:'21/05/1986',es:'activo',ecN:'Luis Alberto',ecA:'Saldarriaga Arango',ecT:'3182964705',ecP:'esposo'},
+    {n:'Édgar Alexander',a:'Rueda Cifuentes',t:'CC',d:'1053928460',tel:'3198470526',e:'ealexrueda@gmail.com',fn:'03/08/1994',es:'activo',ecN:'Nidia',ecA:'Cifuentes Rueda',ecT:'3125097468',ecP:'madre'},
+    {n:'Consuelo Emilia',a:'Peñaloza Ávila',t:'CC',d:'36918472',tel:'3127509384',e:'consuelo.penaloza.avila@hotmail.com',fn:'05/11/1959',es:'activo',ecN:'Óscar',ecA:'Ávila Peñaloza',ecT:'3160947285',ecP:'hijo'},
+    {n:'Óscar Mauricio',a:'Bonilla Reales',t:'CE',d:'562841',tel:'3180593472',fn:'18/02/1978',es:'inactivo',ecN:'Yulima',ecA:'Reales Bonilla',ecT:'3192740856',ecP:'esposa'},
+    {n:'Stephania',a:'Zapata Marulanda',t:'CC',d:'1062938471',tel:'3201398475',e:'stephania.zm@gmail.com',fn:'26/10/1997',es:'activo',ecN:'Claudia',ecA:'Marulanda Zapata',ecT:'3174058296',ecP:'madre'},
+    {n:'Luis Hernando',a:'Botero Arango',t:'CC',d:'79283451',tel:'3156702893',e:'luisbotero.arango@yahoo.com',fn:'11/06/1969',es:'activo',ecN:'Ofelia',ecA:'Arango Botero',ecT:'3150937468',ecP:'esposa'},
+    {n:'Yesica Paola',a:'Ocampo Restrepo',t:'CC',d:'1049382765',tel:'3140962837',e:'yesica.ocampo.r@gmail.com',fn:'31/03/1992',es:'activo',ecN:'Dora',ecA:'Restrepo Ocampo',ecT:'3129064587',ecP:'madre'},
+    {n:'Diego Alejandro',a:'Trujillo Pabón',t:'CC',d:'1083746291',tel:'3189204756',e:'diego.trujillo.pabon@gmail.com',fn:'15/12/1990',es:'activo',ecN:'Gladys',ecA:'Pabón Trujillo',ecT:'3179052684',ecP:'madre'},
+    {n:'Mónica Liliana',a:'Cano Betancur',t:'CC',d:'1027936485',tel:'3119485673',fn:'27/04/1984',es:'inactivo',ecN:'Arturo',ecA:'Betancur Cano',ecT:'3195824067',ecP:'esposo'},
+    {n:'Fredy Alberto',a:'Alzate Londoño',t:'CC',d:'74182956',tel:'3167482095',e:'freddy.alzate.l@hotmail.com',fn:'04/09/1976',es:'activo',ecN:'Elcy',ecA:'Londoño Alzate',ecT:'3148609275',ecP:'esposa'},
+    {n:'Natalia Andrea',a:'Betancourt Polanía',t:'CC',d:'1057483920',tel:'3214087596',e:'natalia.betancourt.p@gmail.com',fn:'19/07/1998',es:'activo',ecN:'Fredy',ecA:'Polanía Betancourt',ecT:'3107285964',ecP:'padre'},
+    {n:'Harold Esteban',a:'Quiceno Giraldo',t:'CC',d:'1093847265',tel:'3175902846',e:'haroldquiceno.g@gmail.com',fn:'02/11/1995',es:'activo',ecN:'Marta',ecA:'Giraldo Quiceno',ecT:'3189460523',ecP:'madre'}
+  ];
+
+  var NAV=[
+    {p:'/',l:'Inicio',r:['admin','recepcion','profesor']},
+    {p:'/socios',l:'Socios',r:['admin','recepcion','profesor']},
+    {p:'/membresias',l:'Membresías',r:['admin','recepcion']},
+    {p:'/pagos',l:'Pagos',r:['admin','recepcion']},
+    {p:'/dashboard',l:'Dashboard',r:['admin','recepcion']},
+    {p:'/respaldos',l:'Respaldos',r:['admin']},
+    {p:'/perfil',l:'Mi perfil',r:['admin','recepcion','profesor']}
+  ];
+  var USERS={
+    admin:{name:'Diana Marcela Restrepo',role:'Admin (dueña)',ini:'DR'},
+    recepcion:{name:'Carolina Suárez Ortiz',role:'Recepción',ini:'CS'},
+    profesor:{name:'Óscar Iván Sandoval',role:'Profesor',ini:'OS'}
+  };
+
+  var st={q:'',estado:'todos',page:1,role:'recepcion'};
+  var iconCheck='<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 6.5l2.5 2.5L10 3.5"/></svg>';
+  var iconOff='<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2.5 6h7"/></svg>';
+  function $(s){return document.querySelector(s)}
+  function norm(s){return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+  function renderNav(){
+    var u=USERS[st.role], out='';
+    NAV.forEach(function(it){
+      if(it.r.indexOf(st.role)===-1) return;
+      var cur=(it.p==='/socios')?' aria-current="page"':'';
+      out+='<li><a href="#"'+cur+'>'+it.l+'</a></li>';
+    });
+    $('#navlist').innerHTML=out;
+    $('#foot-admin').hidden=(st.role!=='admin');
+    $('#uname').textContent=u.name;
+    $('#urole').textContent=u.role;
+    $('#uav').textContent=u.ini;
+    var prof=(st.role==='profesor');
+    $('#rolenote').hidden=!prof;
+    $('#btn-new').disabled=prof;
+    $('#btn-new').title=prof?'Solo lectura para el rol profesor':'Alta de socio';
+  }
+
+  function chip(es){
+    return es==='activo'
+      ? '<span class="chip on">'+iconCheck+'Activo</span>'
+      : '<span class="chip off">'+iconOff+'Inactivo</span>';
+  }
+
+  function syncSeg(){
+    document.querySelectorAll('#estado .seg-btn').forEach(function(b){
+      b.setAttribute('aria-pressed', b.dataset.estado===st.estado ? 'true':'false');
+    });
+  }
+
+  function results(){
+    var q=norm(st.q.trim());
+    if(!q) return null; /* R13: la búsqueda vacía devuelve cero resultados */
+    return SOC.filter(function(s){
+      return norm(s.n+' '+s.a).indexOf(q)!==-1 || norm(s.t+' '+s.d).indexOf(q)!==-1;
+    }).filter(function(s){
+      return st.estado==='todos' || s.es===st.estado;
+    });
+  }
+
+  function renderRows(){
+    var res=results();
+    var prof=(st.role==='profesor');
+    $('#st-empty').hidden=(res!==null);
+    $('#st-none').hidden=!(res!==null && res.length===0);
+    $('#st-results').hidden=!(res!==null && res.length>0);
+    if(res===null){ $('#live').textContent='Búsqueda vacía: no se devuelven resultados hasta escribir un término.'; return; }
+    if(res.length===0){ $('#none-q').textContent='“'+st.q.trim()+'”'; $('#live').textContent='Sin coincidencias para la búsqueda.'; return; }
+
+    var pages=Math.ceil(res.length/15);
+    if(st.page>pages) st.page=pages;
+    if(st.page<1) st.page=1;
+    var slice=res.slice((st.page-1)*15, st.page*15);
+    var rows=slice.map(function(s){
+      var act='<div class="rowactions">'
+        +'<button type="button" class="btn btn-ghost btn-sm"'+(prof?' disabled title="Solo lectura para el rol profesor"':'')+'>Editar</button>'
+        +'<button type="button" class="btn btn-ghost btn-sm"'+(prof?' disabled title="Solo lectura para el rol profesor"':'')+'>Dar de baja</button>'
+        +'</div>';
+      return '<tr>'
+        +'<th scope="row" data-label="Socio"><span class="cellname">'+esc(s.n+' '+s.a)+'</span>'
+        +(s.e?'<span class="cellmail" title="'+esc(s.e)+'">'+esc(s.e)+'</span>':'')
+        +'</th>'
+        +'<td data-label="Documento"><span class="tipo">'+s.t+'</span><span class="doc">'+esc(s.d)+'</span></td>'
+        +'<td data-label="Teléfono" class="num">'+esc(s.tel)+'</td>'
+        +'<td data-label="Estado">'+chip(s.es)+'</td>'
+        +'<td data-label="Acciones" class="right">'+act+'</td>'
+        +'</tr>';
+    }).join('');
+    $('#rows').innerHTML=rows;
+
+    $('#countline').textContent=res.length+' socios coinciden';
+    $('#pg-info').textContent=res.length+' socios · página '+st.page+' de '+pages;
+    var pg='';
+    pg+='<button type="button" class="pg" data-go="'+(st.page-1)+'"'+(st.page===1?' disabled':'')+'>‹ Anterior</button>';
+    for(var i=1;i<=pages;i++){
+      pg+='<button type="button" class="pg" data-go="'+i+'"'+(i===st.page?' aria-current="page"':'')+'>'+i+'</button>';
+    }
+    pg+='<button type="button" class="pg" data-go="'+(st.page+1)+'"'+(st.page===pages?' disabled':'')+'>Siguiente ›</button>';
+    $('#pg-pages').innerHTML=pg;
+    $('#live').textContent=res.length+' socios coinciden; página '+st.page+' de '+pages+'.';
+  }
+
+  function render(){ renderNav(); renderRows(); }
+
+  /* demo controls */
+  document.querySelectorAll('[data-role]').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.querySelectorAll('[data-role]').forEach(function(x){x.setAttribute('aria-pressed','false')});
+      b.setAttribute('aria-pressed','true');
+      st.role=b.dataset.role; st.page=1; render();
+    });
+  });
+  document.querySelectorAll('[data-scen]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var s=b.dataset.scen;
+      if(s==='results'){ st.q='ar'; st.estado='todos'; }
+      if(s==='empty'){ st.q=''; st.estado='todos'; }
+      if(s==='none'){ st.q='zuluaga'; st.estado='todos'; }
+      st.page=1;
+      $('#q').value=st.q; syncSeg();
+      render();
+    });
+  });
+  $('#q').addEventListener('input',function(e){ st.q=e.target.value; st.page=1; render(); });
+  $('#estado').addEventListener('click',function(e){
+    var b=e.target.closest('.seg-btn'); if(!b || b.getAttribute('aria-pressed')==='true') return;
+    st.estado=b.dataset.estado; st.page=1; syncSeg(); render();
+  });
+  $('#btn-clear').addEventListener('click',function(){ st.q=''; st.estado='todos'; st.page=1; $('#q').value=''; syncSeg(); render(); });
+  $('#pg-pages').addEventListener('click',function(e){
+    var b=e.target.closest('[data-go]'); if(!b||b.disabled) return;
+    st.page=parseInt(b.dataset.go,10); render();
+  });
+  /* mobile menu */
+  var mb=$('#menu-btn');
+  mb.addEventListener('click',function(){
+    var open=document.body.classList.toggle('nav-open');
+    mb.setAttribute('aria-expanded',open?'true':'false');
+    if(open){ var a=$('#navlist a'); if(a) a.focus(); }
+  });
+  document.addEventListener('click',function(e){
+    if(document.body.classList.contains('nav-open') && !e.target.closest('#sidebar') && !e.target.closest('#menu-btn')){
+      document.body.classList.remove('nav-open');
+      mb.setAttribute('aria-expanded','false');
+    }
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && document.body.classList.contains('nav-open')){
+      document.body.classList.remove('nav-open');
+      mb.setAttribute('aria-expanded','false');
+      mb.focus();
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
