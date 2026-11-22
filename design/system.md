@@ -14,8 +14,8 @@ este archivo se re-sincroniza leyendo la fuente real y deja de ser propuesta.
 - **Decisión de croma:** una sola croma accionable (lima); el resto es escalera neutra.
 - **Tema:** oscuro único. No hay toggle (S7).
 - **Tipografías:** Playfair Display (display), Inter (UI), JetBrains Mono (números y meta).
-  El artboard las carga desde Google Fonts porque el dueño lo pidió así (L8/L9); ver
-  *Known Gaps* para la decisión de self-hosting pendiente.
+  Self-hosted: `woff2` variable, subset latin, con su `OFL.txt` en `frontend/public/fonts/`
+  (T9). Ningún artboard hace ya un request a Google Fonts.
 
 ## Superficies y elevación
 
@@ -194,9 +194,10 @@ Reglas heredadas del artboard; cualquier implementación nueva las respeta.
 - **Excepciones de geometría** — `th .cellmail` (nombre→email), `.errline svg`, el `-1px` del
   `.sr-only` y el `right:6px` del `.reveal`: fuera de la escala a propósito, porque son
   posición y no ritmo; moverlas rompe la alineación y, en la celda, saca la fila del límite.
-- **Self-hosting de tipografías:** el artboard carga Playfair, Inter y JetBrains Mono desde
-  Google Fonts. El POS es offline-first (D3): en producción las familias tienen que vivir en
-  el proyecto o caer a las pilas del sistema. Decisión pendiente del dueño.
+- **Self-hosting de tipografías:** resuelto en T9 — las tres familias viven en
+  `frontend/public/fonts/` como `woff2` variable con subset latin y su `OFL.txt`, sin
+  ningún request externo. Lo que sigue abierto no es la decisión sino el peso: el subset
+  latin cubre lo que el producto escribe (español), no otros alfabetos.
 - **Tema claro:** no existe ni se prevé. El sistema es oscuro único (S7).
 - **Estados no documentados:** error de validación por campo, carga/skeleton, deshabilitado
   más allá de `opacity:.45`, y el modal de baja (backdrop e `inert`) no están extraídos acá.
