@@ -137,10 +137,10 @@
    lime ring on a light card cannot be seen.
 
    `color-scheme: dark` does resolve the root's default text colour to white, and
-   preflight makes controls inherit it. The two screens that are still light state
-   their own control colour instead of being rescued by a global rule: see the
-   `inputClass` in `pages/Login.jsx` and `pages/Perfil.jsx`, which slices 3 and 4
-   repaint onto the tokens.
+   preflight makes controls inherit it. A screen that is still light states its own
+   control colour instead of being rescued by a global rule: `pages/Login.jsx` was
+   the first (repainted onto the dark surfaces in T7 slice 3) and `pages/Perfil.jsx`
+   is the last one left, which slice 4 repaints.
 --------------------------------------------------------------------------- */
 @layer base {
   html {
