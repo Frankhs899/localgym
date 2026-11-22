@@ -60,6 +60,18 @@
     --radius-control:4px;
     --radius-panel:10px;
     --radius-pill:999px;
+
+    /* Escala de espaciado: base 4, elegida por trabajo y nunca por numero.
+       Ningun valor fuera de esta escala entra en las reglas del artboard. */
+    --space-unit:4px;
+    --space-tight:calc(var(--space-unit) * 1);   /* 4  inline: chip/badge padding, icon+label gap, dense lists */
+    --space-inset:calc(var(--space-unit) * 2);   /* 8  control and table-cell padding-inline/block */
+    --space-stack:calc(var(--space-unit) * 3);   /* 12 siblings inside one group, card padding */
+    --space-group:calc(var(--space-unit) * 4);   /* 16 blocks inside one panel, panel padding */
+    --space-section:calc(var(--space-unit) * 6); /* 24 screen sections, page gutters */
+    --space-page:calc(var(--space-unit) * 8);    /* 32 */
+    --space-hero:calc(var(--space-unit) * 12);   /* 48 */
+
     --font-display:"Playfair Display",Georgia,"Times New Roman",serif;
     --font-ui:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
     --font-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
@@ -79,8 +91,10 @@
   button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
   button:disabled{cursor:not-allowed}
   .btn{
-    display:inline-flex;align-items:center;gap:6px;
-    padding:7px 14px;border-radius:var(--radius-control);font-weight:600;font-size:var(--fs-body);
+    display:inline-flex;align-items:center;gap:var(--space-tight);
+    /* El alto del control lo sostiene min-height (ver :not(.btn-sm) abajo), no el
+       padding: así el eje vertical también cae en la escala y el botón mide 36 px. */
+    padding:var(--space-tight) var(--space-inset);border-radius:var(--radius-control);font-weight:600;font-size:var(--fs-body);
     border:1px solid transparent;transition:background .12s ease,border-color .12s ease;
     white-space:nowrap;
   }
@@ -88,61 +102,62 @@
   .btn-primary:hover:not(:disabled){background:var(--accent-hover)}
   .btn-ghost{border-color:var(--line-strong);color:var(--text)}
   .btn-ghost:hover:not(:disabled){background:var(--panel-2)}
+  .btn:not(.btn-sm){min-height:36px}
 
   /* --- Ingreso: no reusa el shell. Antes de autenticar no hay sidebar ni topbar. --- */
   .auth{
     min-height:100vh;
     display:flex;align-items:center;justify-content:center;
-    padding:32px 20px;
+    padding:var(--space-page) var(--space-section);
   }
   .auth-inner{width:100%;max-width:864px;display:flex;flex-direction:column;align-items:center}
 
   /* Marca: el mismo tratamiento del artboard (Playfair 700 y bloque invertido). */
   .brand{
-    display:flex;align-items:center;justify-content:center;gap:12px;
+    display:flex;align-items:center;justify-content:center;gap:var(--space-stack);
     margin:0;font-family:var(--font-display);font-size:var(--fs-title);font-weight:700;color:var(--text);
   }
-  .brand svg{background:var(--surface-invert);color:var(--accent-ink);border-radius:var(--radius-control);padding:6px;flex:none}
-  .brand-line{margin:8px 0 0;font-size:var(--fs-meta);color:var(--muted);text-align:center}
+  .brand svg{background:var(--surface-invert);color:var(--accent-ink);border-radius:var(--radius-control);padding:var(--space-tight);flex:none}
+  .brand-line{margin:var(--space-inset) 0 0;font-size:var(--fs-meta);color:var(--muted);text-align:center}
 
   .board{
-    width:100%;margin:32px 0 0;
-    display:grid;grid-template-columns:repeat(2,minmax(0,420px));gap:24px;
+    width:100%;margin:var(--space-page) 0 0;
+    display:grid;grid-template-columns:repeat(2,minmax(0,420px));gap:var(--space-section);
     justify-content:center;align-items:start;
   }
   .state{min-width:0}
   .caption{
-    margin:0 0 8px;font-size:var(--fs-label);font-weight:600;
+    margin:0 0 var(--space-inset);font-size:var(--fs-label);font-weight:600;
     text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
   }
 
   /* Tarjeta: el panel del sistema, sin sombras. */
   .card{
-    display:grid;gap:16px;
-    padding:24px;
+    display:grid;gap:var(--space-group);
+    padding:var(--space-section);
     background:var(--panel);
     border:1px solid var(--line-strong);
     border-radius:var(--radius-panel);
   }
   .card-title{margin:0;font-family:var(--font-display);font-size:var(--fs-head);font-weight:700;color:var(--text);letter-spacing:-.01em}
-  .card-sub{margin:4px 0 0;font-size:var(--fs-meta);color:var(--muted)}
+  .card-sub{margin:var(--space-tight) 0 0;font-size:var(--fs-meta);color:var(--muted)}
 
   /* Campos: la misma regla del input del artboard (panel, line-strong, 36px). */
   .field > label{
-    display:block;margin-bottom:4px;
+    display:block;margin-bottom:var(--space-tight);
     font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
   }
   .field input{
-    width:100%;min-height:36px;padding:7px 12px;font:inherit;font-size:var(--fs-body);line-height:16px;
+    width:100%;min-height:36px;padding:var(--space-inset) var(--space-stack);font:inherit;font-size:var(--fs-body);line-height:16px;
     background:var(--panel);border:1px solid var(--line-strong);border-radius:var(--radius-control);color:var(--text);
   }
   .field input::placeholder{color:var(--faint)}
   .passwrap{position:relative;display:flex}
-  .passwrap input{padding-right:84px}
+  .passwrap input{padding-right:calc(var(--space-hero) + var(--space-page) + var(--space-tight))}
   /* "Mostrar" es un control quieto dentro del campo: texto secundario, sin relleno. */
   .reveal{
     position:absolute;right:6px;top:50%;transform:translateY(-50%);
-    min-height:32px;padding:2px 8px;border-radius:var(--radius-control);
+    min-height:32px;padding:var(--space-tight) var(--space-inset);border-radius:var(--radius-control);
     font-size:var(--fs-meta);font-weight:600;color:var(--text-2);
     transition:color .12s ease;
   }
@@ -153,7 +168,7 @@
      nombra cuál de los dos datos falló. */
   .field.error input{border-color:var(--danger)}
   .errline{
-    display:flex;align-items:flex-start;gap:8px;margin:0;
+    display:flex;align-items:flex-start;gap:var(--space-inset);margin:0;
     font-size:var(--fs-meta);color:var(--danger);
   }
   .errline svg{flex:none;margin-top:1px}
@@ -161,12 +176,12 @@
   .btn-block{width:100%;justify-content:center;min-height:36px}
   .help{margin:0;font-size:var(--fs-meta);color:var(--muted);line-height:1.5}
 
-  .footline{margin:32px 0 0;font-size:var(--fs-meta);color:var(--muted);text-align:center}
+  .footline{margin:var(--space-page) 0 0;font-size:var(--fs-meta);color:var(--muted);text-align:center}
 
   @media (max-width: 900px){
     .board{grid-template-columns:minmax(0,420px)}
-    .auth{padding:24px 16px}
-    .brand-line{margin-top:8px}
+    .auth{padding:var(--space-section) var(--space-group)}
+    .brand-line{margin-top:var(--space-inset)}
   }
   @media (prefers-reduced-motion: reduce){
     *{transition:none !important;animation:none !important}

@@ -103,15 +103,31 @@ Tres valores y nada en el medio. La esquina interna de un control compuesto se d
 
 ## Espaciado
 
-**Brecha conocida, no es un sistema.** El artboard usa 19 valores distintos de
-padding/margin/gap: `1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24 26`. Es el mismo defecto que
-tenía la tipografía antes de colapsar a 5 pasos. Documentar esto como escala sería mentir.
+**Sistema: base 4, elegida por trabajo.** Ratificado y aplicado al artboard (barrrido del
+2026-11-21). Toda separación sale de siete pasos y de un token de rol, nunca de un número
+suelto:
 
-Propuesta a decidir (no implementada, no aplicada al artboard todavía): base 4 con pasos
-`4 8 12 16 24 32 48`, donde 4 es separación interna mínima (chip, badge), 8 el ritmo entre
-elementos de una misma fila, 12 el padding interno de controles, 16 el padding de panel,
-24 la separación entre bloques, 32 y 48 el ritmo de página. Ratificarla implica barrer el
-artboard y volver a medir, igual que se hizo con tipografía y radios.
+`4 / 8 / 12 / 16 / 24 / 32 / 48`
+
+| token | valor | trabajo |
+| --- | --- | --- |
+| `--space-tight` | `4px` | inline: chip, badge, ícono+etiqueta |
+| `--space-inset` | `8px` | padding de celda de tabla y de control |
+| `--space-stack` | `12px` | hermanos dentro de un grupo, padding de tarjeta |
+| `--space-group` | `16px` | bloques dentro de un panel |
+| `--space-section` | `24px` | secciones de pantalla, gutter de página |
+| `--space-page` | `32px` | ritmo de página |
+| `--space-hero` | `48px` | cabeceras de board y separaciones mayores |
+
+Los 19 valores anteriores (`1 2 3 4 5 6 7 8 9 10 12 14 16 18 20 22 24 26`) no aparecen en
+ninguna regla. Un componente elige el rol, no el número: si un trabajo no entra en ningún
+paso, el componente está mal definido, no falta un paso.
+
+El alto de un control no se compra con padding: se declara con `min-height:36px`. Por eso
+el botón puede tener `--space-tight` en el eje vertical y seguir midiendo 36px.
+
+Medido después del barrrido: fila de tabla 52.8px @1440 y 57.09px @768, `thead` 32.44px,
+controles 36px, sin overflow horizontal en 1440/768/500.
 
 ## Componentes
 
@@ -161,7 +177,8 @@ Reglas heredadas del artboard; cualquier implementación nueva las respeta.
 
 ## Known Gaps
 
-- **Espaciado sin sistema** (arriba): 19 valores; la propuesta de base 4 no está aplicada.
+- **Excepciones ópticas de 1px** — `th .cellmail` (nombre→email) y `.errline svg`: fuera de
+  la escala a propósito; moverlas rompe la alineación y, en la celda, saca la fila del límite.
 - **Self-hosting de tipografías:** el artboard carga Playfair, Inter y JetBrains Mono desde
   Google Fonts. El POS es offline-first (D3): en producción las familias tienen que vivir en
   el proyecto o caer a las pilas del sistema. Decisión pendiente del dueño.
@@ -169,7 +186,7 @@ Reglas heredadas del artboard; cualquier implementación nueva las respeta.
 - **Estados no documentados:** error de validación por campo, carga/skeleton, deshabilitado
   más allá de `opacity:.45`, y el modal de baja (backdrop e `inert`) no están extraídos acá.
   El artboard no los muestra.
-- **Densidad:** medidas a 1440 (fila ~51px) y tablet (wrap a ~71px); no se midió a 1920 ni en
+- **Densidad:** medidas a 1440 (fila 52.8px) y tablet (57.09px); no se midió a 1920 ni en
   pantalla de recepción real.
 - **Drawer del nav fuera de pantalla pero vivo:** en tablet y móvil el sidebar se esconde con
   `translateX(-105%)` y sigue en el árbol de foco y de accesibilidad. El artboard solo devuelve
