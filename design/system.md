@@ -4,11 +4,15 @@ Fuente de la verdad del sistema visual del POS administrativo. Lo que está acá
 se implementa en `frontend/src/index.css` (`@theme` de Tailwind v4) y lo que cualquier
 artboard tiene que respetar.
 
-**Estado: propuesto, todavía no implementado.** Este documento se ratificó desde el
-artboard elegido, `design/design-system/02-neutral-signal.html`, porque el proyecto aún no
-tiene tokens reales: `frontend/src/index.css` es una sola línea (`@import "tailwindcss";`).
-La tarea T7 de `odd/tasks/design-system.md` baja estos valores al código; cuando eso pase,
-este archivo se re-sincroniza leyendo la fuente real y deja de ser propuesta.
+**Estado: tokens implementados (T7 slice 1, `f4d52f6`); superficie pendiente.** Los 43
+tokens de acá son ya producción: viven en el bloque `@theme static` de
+`frontend/src/index.css`, con las tres familias self-hosted desde `/fonts/...`. Lo que
+todavía no está pintado es la capa base — fondo del canvas, color de texto, anillo de foco
+global, `color-scheme: dark` — porque aplicarla mientras las pantallas siguen claras volvía
+invisible el texto tipeado en Login y Mi perfil (hallazgo del verificador independiente,
+L34 en `odd/tasks/design-system.md`). Esa capa aterriza con el App Shell (slice 2), que
+repinta todas las pantallas sobre las superficies del sistema. Hasta entonces este
+documento describe la superficie con exactitud pero no la pinta.
 
 - **Artboard de referencia:** `design/design-system/02-neutral-signal.html`
 - **Decisión de croma:** una sola croma accionable (lima); el resto es escalera neutra.
@@ -221,8 +225,19 @@ Reglas heredadas del artboard; cualquier implementación nueva las respeta.
 
 ## Handoff a implementación (T7)
 
-Mapeo previsto a `@theme` de Tailwind v4 en `frontend/src/index.css`: `--color-*` para los
-tokens de color, `--text-*` para la escala (con sus pares `--text-<n>--line-height`),
-`--radius-*` para los radios y `--font-*` para las familias. La fuente de los valores es
-`design/design-system/02-neutral-signal.html`; después de la implementación, este archivo se
-re-sincroniza leyendo `frontend/src/index.css` y deja de marcar "propuesto".
+Mapeo implementado en `frontend/src/index.css` (`@theme static`, Tailwind v4):
+
+| Sistema | Namespace | Utilidad |
+| --- | --- | --- |
+| superficies, texto, croma, estado | `--color-*` | `bg-panel`, `text-muted`, `border-line-strong` |
+| escala tipográfica | `--text-*` | `text-label`, `text-title` |
+| familias | `--font-display`, `--font-ui`, `--font-mono`, y `--font-sans: var(--font-ui)` | `font-ui`, `font-mono` |
+| radios | `--radius-*` | `rounded-control`, `rounded-pill` |
+| espaciado por rol | `--spacing-*`, derivados de `--spacing-unit` con `calc` | `p-inset`, `gap-stack`, `py-hero` |
+
+Sin pares `line-height` por paso a propósito: el artboard declara `1.45` una sola vez en el
+body, así que los tokens de tamaño siguen siendo tamaños y el interlineado se declara donde
+se pinta. `static` no es decorativo: Tailwind v4 descarta las variables de tema que ninguna
+utilidad usa, y el CSS de componentes escrito a mano las lee directamente. La fuente de los
+valores sigue siendo el `:root` del artboard; cualquier cambio se hace ahí primero y acá
+después.
