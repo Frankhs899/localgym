@@ -29,3 +29,6 @@ Thumbs.db
 .atl/
 # Playwright CLI output (may contain credentials)
 .playwright-cli/
+
+# Canvas screenshots (local review only)
+design/**/.screenshots/
