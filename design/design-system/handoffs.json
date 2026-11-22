@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "chosen": "02-neutral-signal.html",
+  "handoffs": {
+    "01-command-dark.html": {
+      "status": "in_progress",
+      "queued": false,
+      "sentAt": "2026-11-16T20:52:50.788Z",
+      "startedAt": "2026-11-16T20:53:08.604Z",
+      "implementedAt": null,
+      "feature": "odd/tasks/design-system.md",
+      "note": "Implementación en pausa: el dueño sigue iterando el artboard. Nada de producción tocado."
+    },
+    "02-neutral-signal.html": {
+      "status": "sent",
+      "queued": false,
+      "sentAt": "2026-11-21T23:07:17.379Z",
+      "startedAt": null,
+      "implementedAt": null,
+      "feature": "odd/tasks/design-system.md"
+    }
+  }
+}

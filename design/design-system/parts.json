@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "parts": [
+    {
+      "id": "e9d5ca948180",
+      "file": "01-command-dark.html",
+      "selector": "body > div:nth-of-type(2) > div > main > div:nth-of-type(2)",
+      "excerpt": "BUSCAR SOCIOS Ignora acentos y mayúsculas · busca por nombre, apellidos o documento · la búsqueda vacía no devuelve resultados · 15 socios por página ESTADO Todos Activos Inactivos Exportar CSV Nuevo socio",
+      "instruction": "Mejora la distribución de los elementos de esta sesión.",
+      "status": "in_progress",
+      "queued": false,
+      "sentAt": "2026-11-16T21:02:58.667Z",
+      "startedAt": "2026-11-16T21:14:27.637Z",
+      "implementedAt": null,
+      "note": "Distribución de la barra de filtros corregida en el artboard; nada implementado en el stack por pedido del dueño."
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "comments": [
+    {
+      "id": "1r869kpb",
+      "file": "01-command-dark.html",
+      "selector": "#sidebar",
+      "excerpt": "LocalGym Inicio Socios Membresías Pagos Dashboard Mi perfil Versión POS offline-first. Los datos se respaldan localmente al cerrar el día.",
+      "comment": "Vamos a integrar fuentes de Google Fonts, después de ver el resultado ya decido si estas se descargan para el proyecto, Integra para toda la pagina:  DM Serif Display, Inter y JetBrains Mono.",
+      "createdAt": "2026-11-16T20:21:32.432Z",
+      "status": "resolved",
+      "sentAt": "2026-11-16T20:21:32.443Z",
+      "resolvedAt": "2026-11-16T20:23:21.876Z",
+      "resolution": "DM Serif Display en marca y títulos, Inter en toda la UI y JetBrains Mono en documentos, teléfonos, fechas y contadores. Los tres stacks quedaron como tokens (--font-display/ui/mono) con fallback local; ninguna medida ni estructura cambió."
+    },
+    {
+      "id": "ojft48gd",
+      "file": "01-command-dark.html",
+      "selector": "#st-results > div:nth-of-type(1)",
+      "excerpt": "Listado de socios: nombre, apellidos, documento, teléfono, correo, fecha de nacimiento y estado; 15 resultados por página. NOMBRE APELLIDOS DOCUMENTO TELÉFONO EMAIL F. NACIMIENTO ESTADO ACCIONES María Fernanda Rincón Peña CC1023456789 3104526781 mafernanda.rincon@gmail.com 12/04/1988 Activo Editar D",
+      "comment": "En lugar de Nombre y apellidos. Haz una columna llamada Socio",
+      "createdAt": "2026-11-16T20:35:13.990Z",
+      "status": "resolved",
+      "sentAt": "2026-11-16T20:35:14.002Z",
+      "resolvedAt": "2026-11-16T20:36:55.383Z",
+      "resolution": "Nombre y Apellidos se fusionaron en una sola columna SOCIO con el nombre completo en un th scope=row. La tabla quedó en 7 columnas y las etiquetas del modo angosto se actualizaron."
+    },
+    {
+      "id": "azch800s",
+      "file": "01-command-dark.html",
+      "selector": "#rows > tr:nth-of-type(1) > td:nth-of-type(3)",
+      "excerpt": "marcela.arango.s@gmail.com",
+      "comment": "Elimina la columna EMAIL ya que este dato de registro es opcional y no todos lo van a tener y coloca el email del socio debajo del nombre",
+      "createdAt": "2026-11-16T20:41:52.013Z",
+      "status": "resolved",
+      "sentAt": "2026-11-16T20:41:52.021Z",
+      "resolvedAt": "2026-11-16T20:44:39.282Z",
+      "resolution": "Se eliminó la columna EMAIL: el email del socio ahora va como segunda línea atenuada bajo el nombre, y simplemente no aparece si el socio no tiene. La tabla quedó en 6 columnas y 8 socios del demo no tienen correo."
+    },
+    {
+      "id": "t28x89z5",
+      "file": "01-command-dark.html",
+      "selector": "#q",
+      "excerpt": "",
+      "comment": "La barra de búsqueda me parece demasiado grande en la vista de escritorio.",
+      "createdAt": "2026-11-16T20:49:35.596Z",
+      "status": "resolved",
+      "sentAt": null,
+      "resolvedAt": "2026-11-16T20:56:35.492Z",
+      "resolution": "Buscador de escritorio a 38 px de alto y 420 px de ancho; el desplegable de estado pasó a control segmentado (Todos / Activos / Inactivos) con el filtrado intacto; se eliminó la columna F. NACIMIENTO y la tabla quedó en 5 columnas. La implementación real sigue esta spec."
+    },
+    {
+      "id": "7und3cgg",
+      "file": "01-command-dark.html",
+      "selector": "#estado",
+      "excerpt": "Todos Activos Inactivos",
+      "comment": "No me esta que sea una lista desplegable, me gustaria mas algo como la imagen",
+      "createdAt": "2026-11-16T20:51:11.892Z",
+      "status": "resolved",
+      "sentAt": null,
+      "resolvedAt": "2026-11-16T20:56:35.492Z",
+      "screenshot": ".screenshots/7und3cgg.png",
+      "resolution": "Buscador de escritorio a 38 px de alto y 420 px de ancho; el desplegable de estado pasó a control segmentado (Todos / Activos / Inactivos) con el filtrado intacto; se eliminó la columna F. NACIMIENTO y la tabla quedó en 5 columnas. La implementación real sigue esta spec."
+    },
+    {
+      "id": "yic156ef",
+      "file": "01-command-dark.html",
+      "selector": "#st-results > div:nth-of-type(1) > table > thead > tr > th:nth-of-type(4)",
+      "excerpt": "F. NACIMIENTO",
+      "comment": "No veo necesaria la columna F. NACIMIENTO",
+      "createdAt": "2026-11-16T20:52:02.068Z",
+      "status": "resolved",
+      "sentAt": null,
+      "resolvedAt": "2026-11-16T20:56:35.492Z",
+      "resolution": "Buscador de escritorio a 38 px de alto y 420 px de ancho; el desplegable de estado pasó a control segmentado (Todos / Activos / Inactivos) con el filtrado intacto; se eliminó la columna F. NACIMIENTO y la tabla quedó en 5 columnas. La implementación real sigue esta spec."
+    },
+    {
+      "id": "anymhcf4",
+      "file": "01-command-dark.html",
+      "selector": "body > div:nth-of-type(2) > div > main > div:nth-of-type(2)",
+      "excerpt": "BUSCAR SOCIOS Ignora acentos y mayúsculas · la búsqueda vacía no devuelve resultados ESTADO Todos Activos Inactivos Exportar CSV Nuevo socio",
+      "comment": "No se adapta a bien para tablet y movil",
+      "createdAt": "2026-11-16T21:23:09.033Z",
+      "status": "resolved",
+      "sentAt": "2026-11-16T21:23:09.042Z",
+      "resolvedAt": "2026-11-16T21:39:32.018Z",
+      "resolution": "La barra ahora tiene contrato propio: tablet en dos filas (buscador a todo el ancho, estado y acciones en la segunda) y movil sin labels visibles, segmentos a todo el ancho, controles de 44 px y el hint cedido al estado vacio. Barra de 209 a 175 px en movil y de 180 a 148 en tablet."
+    },
+    {
+      "id": "xsfcwji0",
+      "file": "01-command-dark.html",
+      "selector": "#rows > tr:nth-of-type(4)",
+      "excerpt": "Andrés Camilo Gómez Torres CC 1098765432 3209184756 Activo Editar Dar de baja",
+      "comment": "Se debe cambiar como se vé en la vista movil, prueba que los datos se vea en el siguiente orden:\n\nAndrés Camilo Gómez Torres\nDOCUMENTO\nCC 1098765432\nTELÉFONO\n3209184756\nESTADO      ACTIVO\nACCIONES\n[Editar]       [Dar de baja]",
+      "createdAt": "2026-11-16T21:53:25.557Z",
+      "status": "resolved",
+      "sentAt": "2026-11-16T21:53:25.569Z",
+      "resolvedAt": "2026-11-16T21:58:26.881Z",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "resolution": "La tarjeta movil ahora sigue tu orden: nombre (sin label) con el email debajo, DOCUMENTO y TELEFONO con la etiqueta arriba del valor, ESTADO en la misma linea con el chip a la derecha, y ACCIONES con la etiqueta arriba y los dos botones a los extremos (44 px cada uno)."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "title": "Sistema de diseño LocalGym — shell y listado de socios",
+  "brief": "Dirección visual del App Shell, el listado de socios, el login y Mi perfil de LocalGym (POS administrativo offline-first para staff de gimnasio en Colombia). De esta dirección salen los tokens del @theme y design/system.md (issue #27).",
+  "feature": "odd/tasks/design-system.md",
+  "artboards": [
+    {
+      "file": "01-command-dark.html",
+      "title": "Command bar, dark single theme",
+      "tradeoff": "Densidad máxima y descanso visual en recepción con poca luz; exige disciplina de contraste y no se imprime bien. Dos cromas: violeta como masa del shell y lima como señal",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "02-neutral-signal.html",
+      "title": "Neutral, una sola croma",
+      "tradeoff": "Jerarquía de un vistazo: el lima es la única croma y el shell deja de competir por la masa, al costo de perder el violeta como identidad y quedar más cerca de cualquier admin oscuro",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "03-login.html",
+      "title": "Login, estado inicial y con error",
+      "tradeoff": "Entrada sobria y honesta sobre lo que el producto no tiene (sin registro ni reseteo por correo): el costo es que el primer contacto con la app no tiene narrativa de marca",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "04-perfil.html",
+      "title": "Mi perfil, variantes administrador y profesor",
+      "tradeoff": "El permiso del documento se ve en el diseño: el costo es que las dos variantes comparten la lámina y el panel del profesor convive con el shell del administrador",
+      "width": 1440,
+      "height": 900
+    }
+  ]
+}

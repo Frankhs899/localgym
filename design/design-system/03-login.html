@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ingreso · Sistema de gestión LocalGym</title>
+<style>
+    /* Self-hosted: latin subset, SIL OFL 1.1 (frontend/public/fonts/*-OFL.txt).
+       The POS runs on a gym PC with no internet, so no font may leave the machine. */
+    @font-face{font-family:"Inter";font-style:normal;font-weight:400 700;font-display:swap;src:url("../../frontend/public/fonts/inter-latin-normal.woff2") format("woff2")}
+    @font-face{font-family:"Playfair Display";font-style:normal;font-weight:400 900;font-display:swap;src:url("../../frontend/public/fonts/playfair-display-latin-normal.woff2") format("woff2")}
+    @font-face{font-family:"Playfair Display";font-style:italic;font-weight:400 900;font-display:swap;src:url("../../frontend/public/fonts/playfair-display-latin-italic.woff2") format("woff2")}
+    @font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:400 700;font-display:swap;src:url("../../frontend/public/fonts/jetbrains-mono-latin-normal.woff2") format("woff2")}
+  </style>
+<style>
+  :root{
+    /* Variante 02: escalera neutra. Ninguna croma en superficies ni en texto. */
+    --bg:#080A0C;
+    --panel:#101317;
+    --panel-2:#171A1F;
+    --line:#22262C;
+    --line-strong:#2E333A;
+    /* Escalera de superficie. Cada escalon rinde ~1.6x la luminancia del anterior,
+       asi que un borde es siempre el escalon siguiente y nunca un gris inventado
+       aparte. Medido: bg -> shell x1.44 -> panel x1.50 -> panel-2 x1.60 ->
+       line x1.87 -> line-strong x1.71. */
+    /* Superficie invertida (marca y item activo del sidebar). No es texto. */
+    --surface-invert:#FFFFFF;
+    /* Velo de los overlays. Es la unica transparencia de superficie del sistema. */
+    --scrim:rgba(4,6,9,.55);
+    --shell:#0B0E11;
+    --text:#F3F5F7;
+    --muted:#A0A6AF;
+    /* Nivel intermedio: datos secundarios y controles quietos. No es relleno
+       decorativo: el email del socio, el tipo de documento y el rol son datos. */
+    --text-2:#C6CBD4;
+    /* El escalon mas bajo, solo para lo que no es contenido: placeholder. */
+    --faint:#7C828D;
+    /* Una sola croma: la senal. Accion primaria y anillo de foco, nada mas. */
+    --accent:#EFFF00;
+    --accent-soft:rgba(239,255,0,.12);
+    --accent-ink:#0A0C11;
+    --accent-hover:#DCEB00;
+    --ok-bg:#0E2A22;
+    --ok-line:#2B5C4A;
+    --ok-text:#6FD3A0;
+    --off-bg:#191C21;
+    --off-line:#2E333A;
+    --off-text:#C3C8D0;
+    --danger:#FF7A6E;
+
+    /* Escala tipografica: 5 pasos, cada uno con un trabajo, sin medios pixeles. */
+    --fs-label:11px;   /* etiquetas en mayusculas: th, labels de campo, grupos del nav */
+    --fs-meta:12px;    /* metadatos: contadores, pistas, rol, pie, acciones chicas */
+    --fs-body:14px;    /* cuerpo: tabla, controles, nav, inputs */
+    --fs-head:16px;    /* encabezados de bloque, marca */
+    --fs-title:20px;   /* titulo de pagina */
+
+    /* Radios: 3 valores y nada en el medio. */
+    --radius-control:4px;
+    --radius-panel:10px;
+    --radius-pill:999px;
+
+    /* Escala de espaciado: base 4, elegida por trabajo y nunca por numero.
+       Ningun valor fuera de esta escala entra en las reglas del artboard. */
+    --space-unit:4px;
+    --space-tight:calc(var(--space-unit) * 1);   /* 4  inline: chip/badge padding, icon+label gap, dense lists */
+    --space-inset:calc(var(--space-unit) * 2);   /* 8  control and table-cell padding-inline/block */
+    --space-stack:calc(var(--space-unit) * 3);   /* 12 siblings inside one group, card padding */
+    --space-group:calc(var(--space-unit) * 4);   /* 16 blocks inside one panel, panel padding */
+    --space-section:calc(var(--space-unit) * 6); /* 24 screen sections, page gutters */
+    --space-page:calc(var(--space-unit) * 8);    /* 32 */
+    --space-hero:calc(var(--space-unit) * 12);   /* 48 */
+
+    --font-display:"Playfair Display",Georgia,"Times New Roman",serif;
+    --font-ui:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --font-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,"Liberation Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{background:var(--bg)}
+  body{
+    margin:0;
+    color:var(--text);
+    background:var(--bg);
+    font-family:var(--font-ui);
+    font-size:var(--fs-body);
+    line-height:1.45;
+  }
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  button:disabled{cursor:not-allowed}
+  .btn{
+    display:inline-flex;align-items:center;gap:var(--space-tight);
+    /* El alto del control lo sostiene min-height (ver :not(.btn-sm) abajo), no el
+       padding: así el eje vertical también cae en la escala y el botón mide 36 px. */
+    padding:var(--space-tight) var(--space-inset);border-radius:var(--radius-control);font-weight:600;font-size:var(--fs-body);
+    border:1px solid transparent;transition:background .12s ease,border-color .12s ease;
+    white-space:nowrap;
+  }
+  .btn-primary{background:var(--accent);color:var(--accent-ink)}
+  .btn-primary:hover:not(:disabled){background:var(--accent-hover)}
+  .btn-ghost{border-color:var(--line-strong);color:var(--text)}
+  .btn-ghost:hover:not(:disabled){background:var(--panel-2)}
+  .btn:not(.btn-sm){min-height:36px}
+
+  /* --- Ingreso: no reusa el shell. Antes de autenticar no hay sidebar ni topbar. --- */
+  .auth{
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    padding:var(--space-page) var(--space-section);
+  }
+  .auth-inner{width:100%;max-width:864px;display:flex;flex-direction:column;align-items:center}
+
+  /* Marca: el mismo tratamiento del artboard (Playfair 700 y bloque invertido). */
+  .brand{
+    display:flex;align-items:center;justify-content:center;gap:var(--space-stack);
+    margin:0;font-family:var(--font-display);font-size:var(--fs-title);font-weight:700;color:var(--text);
+  }
+  .brand svg{background:var(--surface-invert);color:var(--accent-ink);border-radius:var(--radius-control);padding:var(--space-tight);flex:none}
+  .brand-line{margin:var(--space-inset) 0 0;font-size:var(--fs-meta);color:var(--muted);text-align:center}
+
+  .board{
+    width:100%;margin:var(--space-page) 0 0;
+    display:grid;grid-template-columns:repeat(2,minmax(0,420px));gap:var(--space-section);
+    justify-content:center;align-items:start;
+  }
+  .state{min-width:0}
+  .caption{
+    margin:0 0 var(--space-inset);font-size:var(--fs-label);font-weight:600;
+    text-transform:uppercase;letter-spacing:.08em;color:var(--muted);
+  }
+
+  /* Tarjeta: el panel del sistema, sin sombras. */
+  .card{
+    display:grid;gap:var(--space-group);
+    padding:var(--space-section);
+    background:var(--panel);
+    border:1px solid var(--line-strong);
+    border-radius:var(--radius-panel);
+  }
+  .card-title{margin:0;font-family:var(--font-display);font-size:var(--fs-head);font-weight:700;color:var(--text);letter-spacing:-.01em}
+  .card-sub{margin:var(--space-tight) 0 0;font-size:var(--fs-meta);color:var(--muted)}
+
+  /* Campos: la misma regla del input del artboard (panel, line-strong, 36px). */
+  .field > label{
+    display:block;margin-bottom:var(--space-tight);
+    font-size:var(--fs-label);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);
+  }
+  .field input{
+    width:100%;min-height:36px;padding:var(--space-inset) var(--space-stack);font:inherit;font-size:var(--fs-body);line-height:16px;
+    background:var(--panel);border:1px solid var(--line-strong);border-radius:var(--radius-control);color:var(--text);
+  }
+  .field input::placeholder{color:var(--faint)}
+  .passwrap{position:relative;display:flex}
+  .passwrap input{padding-right:calc(var(--space-hero) + var(--space-page) + var(--space-tight))}
+  /* "Mostrar" es un control quieto dentro del campo: texto secundario, sin relleno. */
+  .reveal{
+    position:absolute;right:6px;top:50%;transform:translateY(-50%);
+    min-height:32px;padding:var(--space-tight) var(--space-inset);border-radius:var(--radius-control);
+    font-size:var(--fs-meta);font-weight:600;color:var(--text-2);
+    transition:color .12s ease;
+  }
+  .reveal:hover{color:var(--text)}
+  .reveal[aria-pressed="true"]{color:var(--accent)}
+
+  /* Error: el borde va en el campo de contraseña, el mensaje es uno solo y no
+     nombra cuál de los dos datos falló. */
+  .field.error input{border-color:var(--danger)}
+  .errline{
+    display:flex;align-items:flex-start;gap:var(--space-inset);margin:0;
+    font-size:var(--fs-meta);color:var(--danger);
+  }
+  .errline svg{flex:none;margin-top:1px}
+
+  .btn-block{width:100%;justify-content:center;min-height:36px}
+  .help{margin:0;font-size:var(--fs-meta);color:var(--muted);line-height:1.5}
+
+  .footline{margin:var(--space-page) 0 0;font-size:var(--fs-meta);color:var(--muted);text-align:center}
+
+  @media (max-width: 900px){
+    .board{grid-template-columns:minmax(0,420px)}
+    .auth{padding:var(--space-section) var(--space-group)}
+    .brand-line{margin-top:var(--space-inset)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;animation:none !important}
+  }
+</style>
+</head>
+<body>
+
+<div class="auth">
+  <div class="auth-inner">
+
+    <header>
+      <p class="brand">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6.5 6.5v11M17.5 6.5v11M3 9v6M21 9v6M9 12h6"/></svg>
+        LocalGym
+      </p>
+      <p class="brand-line">Sistema de gestión · funciona sin internet</p>
+    </header>
+
+    <main class="board">
+
+      <!-- Estado 1: el formulario vacío, como lo encuentra el staff. -->
+      <section class="state" aria-labelledby="cap-inicial">
+        <p class="caption" id="cap-inicial">Estado inicial</p>
+        <form class="card" aria-labelledby="titulo-inicial">
+          <div>
+            <h1 class="card-title" id="titulo-inicial">Entrá a tu cuenta</h1>
+            <p class="card-sub">Solo el personal del gimnasio tiene acceso.</p>
+          </div>
+
+          <div class="field">
+            <label for="correo-inicial">Correo del personal</label>
+            <input type="email" id="correo-inicial" name="correo-inicial"
+                   placeholder="nombre@localgym.co" autocomplete="username" spellcheck="false">
+          </div>
+
+          <div class="field">
+            <label for="clave-inicial">Contraseña</label>
+            <div class="passwrap">
+              <input type="password" id="clave-inicial" name="clave-inicial" autocomplete="current-password">
+              <button type="button" class="reveal" aria-pressed="false"
+                      aria-controls="clave-inicial" aria-label="Mostrar contraseña">Mostrar</button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+
+          <p class="help">Las cuentas las crea el administrador del gimnasio. Si no podés entrar, pedile que te restablezca la contraseña.</p>
+        </form>
+      </section>
+
+      <!-- Estado 2: el mismo formulario con el error de credenciales. -->
+      <section class="state" aria-labelledby="cap-error">
+        <p class="caption" id="cap-error">Con error</p>
+        <form class="card" aria-labelledby="titulo-error">
+          <div>
+            <h2 class="card-title" id="titulo-error">Entrá a tu cuenta</h2>
+            <p class="card-sub">Solo el personal del gimnasio tiene acceso.</p>
+          </div>
+
+          <div class="field">
+            <label for="correo-error">Correo del personal</label>
+            <input type="email" id="correo-error" name="correo-error" value="marcela@localgym.co"
+                   autocomplete="username" spellcheck="false">
+          </div>
+
+          <div class="field error">
+            <label for="clave-error">Contraseña</label>
+            <div class="passwrap">
+              <input type="password" id="clave-error" name="clave-error" value="gimnasio2026"
+                     autocomplete="current-password" aria-invalid="true" aria-describedby="error-credenciales">
+              <button type="button" class="reveal" aria-pressed="false"
+                      aria-controls="clave-error" aria-label="Mostrar contraseña">Mostrar</button>
+            </div>
+          </div>
+
+          <p class="errline" id="error-credenciales" role="alert">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5"/><path d="M12 16.5h.01"/></svg>
+            Usuario o contraseña incorrectos. Verificá los datos e intentá de nuevo.
+          </p>
+
+          <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+
+          <p class="help">Las cuentas las crea el administrador del gimnasio. Si no podés entrar, pedile que te restablezca la contraseña.</p>
+        </form>
+      </section>
+
+    </main>
+
+    <footer>
+      <p class="footline">LocalGym · los datos quedan en este equipo</p>
+    </footer>
+
+  </div>
+</div>
+
+</body>
+</html>
