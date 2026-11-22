@@ -167,7 +167,7 @@ Reglas heredadas del artboard; cualquier implementación nueva las respeta.
   El nombre va `--text` peso 600 y el email como segunda línea en `--text-2` (nunca
   `--muted`: el email es un dato). En móvil la fila se vuelve tarjeta con etiqueta encima
   del valor, salvo el estado, que queda etiqueta a la izquierda y chip a la derecha.
-- **Ítem del nav** — alto de línea con padding `8px 10px`, `--radius-control`; hover
+- **Ítem del nav** — alto de línea con padding `var(--space-inset)` (8 px uniforme), `--radius-control`; hover
   `--panel` (un escalón, no un blanco translúcido); ítem activo sobre `--surface-invert`
   con tinta `--accent-ink`.
 - **Estado vacío** — panel `--radius-panel` con borde `1px dashed --line-strong`, icono en

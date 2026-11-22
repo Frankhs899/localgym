@@ -7,13 +7,13 @@ export default function Section({ section }) {
   const readOnly = section.path === '/socios' && user.role === 'profesor'
   return (
     <PageShell title={section.label}>
-      <div className="rounded-lg border border-slate-200 bg-white p-6">
-        <p className="text-slate-600">
+      <div className="rounded-panel border border-line-strong bg-panel p-group">
+        <p className="text-text-2">
           Las pantallas de {section.label.toLowerCase()} estarán disponibles
           próximamente.
         </p>
         {readOnly && (
-          <p className="mt-3 text-sm text-slate-500">
+          <p className="mt-stack text-meta text-muted">
             Tu rol tiene acceso de solo lectura a esta sección.
           </p>
         )}

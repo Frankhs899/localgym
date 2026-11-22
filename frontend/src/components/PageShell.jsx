@@ -1,8 +1,11 @@
 export default function PageShell({ title, children }) {
   return (
-    <section className="mx-auto max-w-3xl">
-      <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>
-      <div className="mt-4">{children}</div>
+    // Page title: display face at --text-title/700, as the artboard's pagehead.
+    <section className="mx-auto w-full max-w-3xl">
+      <h1 className="font-display text-title font-bold tracking-[-0.01em] text-text">
+        {title}
+      </h1>
+      <div className="mt-group">{children}</div>
     </section>
   )
 }
