@@ -11,6 +11,24 @@
 //
 // Defaults to 1440 px. Set CHROME=/path/to/chrome if auto-detection fails.
 //
+// Exit codes, so a caller can tell failure modes apart:
+//   0  measurement printed
+//   1  the artboard or the injected probe is broken: no </body>, no probe output,
+//      or the page reported a fatal error while measuring
+//   2  the environment or the invocation is wrong: no Chrome, no argument, or a
+//      pre-existing ._probe_ file we refuse to touch
+//   3  Chrome itself failed: non-zero exit, signal, or the timeout below
+//
+// Timing knobs and what each one buys (reverse-engineering them is how you get
+// measurements that drift between runs):
+//   --virtual-time-budget=9000  page time Chrome simulates before dumping the DOM;
+//                               must cover load, both timers below and fonts.ready
+//   300 ms before act()         lets the artboard's own boot script render the shell
+//   300 ms after act()          lets the re-render triggered by the search input and
+//                               the segment click finish before anything is measured
+//   TIMEOUT_MS                  hard wall-clock cap: a hung browser is a failure,
+//                               never an infinite wait with a leaked temp file
+//
 // Notes that cost a session to learn:
 // - The temporary copy must live NEXT TO the original, because the artboards load their
 //   fonts and read local files through relative URLs; a copy in the OS temp dir renders
@@ -36,7 +54,9 @@ const CHROME_CANDIDATES = [
 
 const chrome = CHROME_CANDIDATES.find((p) => existsSync(p));
 if (!chrome) {
-  console.error("No Chrome found. Set CHROME=/path/to/chrome and retry.");
+  console.error("No Chrome found. Tried:");
+  for (const candidate of CHROME_CANDIDATES) console.error("  - " + candidate);
+  console.error("Set CHROME=/path/to/chrome and retry.");
   process.exit(2);
 }
 
@@ -116,9 +136,17 @@ if (at < 0) {
 }
 
 const outFile = join(dirname(resolve(html)), "._probe_" + basename(html));
+// Never overwrite, and never delete, a file we did not create: a silent overwrite
+// here would destroy a real artboard that happens to share the probe's name.
+if (existsSync(outFile)) {
+  console.error("Refusing to touch an existing file: " + outFile);
+  process.exit(2);
+}
 writeFileSync(outFile, src.slice(0, at) + PROBE + src.slice(at), "utf8");
 
+const TIMEOUT_MS = 60000;
 let dom;
+let chromeFailure = null;
 try {
   dom = execFileSync(
     chrome,
@@ -131,15 +159,44 @@ try {
       "--dump-dom",
       pathToFileURL(resolve(outFile)).href,
     ],
-    { encoding: "utf8", maxBuffer: 96 * 1024 * 1024, stdio: ["ignore", "pipe", "ignore"] },
+    {
+      encoding: "utf8",
+      maxBuffer: 96 * 1024 * 1024,
+      stdio: ["ignore", "pipe", "pipe"],
+      timeout: TIMEOUT_MS,
+    },
   );
+} catch (error) {
+  chromeFailure = error;
 } finally {
   try { unlinkSync(outFile); } catch {}
+}
+
+if (chromeFailure) {
+  // A browser that does not finish, or finishes badly, must look like a browser
+  // failure and never like "the artboard has no rows".
+  const detail = (chromeFailure.stderr || "").toString().trim();
+  if (chromeFailure.code === "ETIMEDOUT" || chromeFailure.signal) {
+    console.error("Chrome did not finish within " + TIMEOUT_MS + " ms.");
+  } else {
+    console.error("Chrome exited with status " + chromeFailure.status + ".");
+  }
+  if (detail) {
+    console.error("Chrome stderr:");
+    for (const line of detail.split("\n").slice(0, 5)) console.error("  " + line);
+  }
+  process.exit(3);
 }
 
 const match = dom.match(/<pre id="probeout">([\s\S]*?)<\/pre>/);
 if (!match) {
   console.error("Probe produced no output for " + html);
+  process.exit(1);
+}
+if (match[1].startsWith("fatal|")) {
+  // The page measured itself and failed: printing that as a measurement would hand
+  // the caller a sentinel string dressed up as numbers.
+  console.error("The probe failed inside the page: " + match[1]);
   process.exit(1);
 }
 console.log("### " + basename(html) + " @ " + width);
