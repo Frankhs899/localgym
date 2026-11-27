@@ -30,5 +30,9 @@ Thumbs.db
 # Playwright CLI output (may contain credentials)
 .playwright-cli/
 
+# Playwright Test artifacts (frontend/tests)
+test-results/
+playwright-report/
+
 # Canvas screenshots (local review only)
 design/**/.screenshots/
