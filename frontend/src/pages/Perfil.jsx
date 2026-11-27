@@ -1,19 +1,11 @@
 import { useState } from 'react'
 import PageShell from '../components/PageShell.jsx'
 import { useAuth } from '../auth-context.js'
+import { Field } from '../components/field.jsx'
 
-// Field control copied from `pages/Login.jsx` (T7 slice 3): panel surface, one
-// hairline below it, 36 px held by `min-height` so the control height lands on
-// the base-4 scale, and the text tier stated here instead of inherited (the base
-// layer deliberately sets no colour on `body`, L34). `leading-4` is the
-// artboard's `line-height:16px` on the control: without it the inherited 1.45
-// makes the field 38.3 px and the `min-height` never binds. No `outline-none`:
-// the accent focus ring comes from the Shell subtree, and suppressing the
-// outline is what left this screen's inputs with no visible ring (A4, L38).
-const fieldClass =
-  'min-h-[36px] w-full rounded-control border bg-panel px-stack py-inset text-body leading-4 text-text'
-
-const fieldBorder = (invalid) => (invalid ? 'border-danger' : 'border-line-strong')
+// The field control itself lives in `components/field.jsx` (S2): this screen used
+// to carry a byte-identical copy, so a change to either could drift silently.
+// Only the definition rows and the role chip below are this screen's own.
 
 // Definition row, the artboard's `.defrow`: label in a fixed 150px column at
 // desktop, stacked above the value on phone (artboard rule at 700px).
@@ -39,6 +31,9 @@ export default function Perfil() {
   const { user, changePassword } = useAuth()
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
+  // One reveal state per field, so the control toggles only its own field (S5).
+  const [showCurrent, setShowCurrent] = useState(false)
+  const [showNew, setShowNew] = useState(false)
   const [fieldErrors, setFieldErrors] = useState(null)
   const [error, setError] = useState('')
   const [updated, setUpdated] = useState(false)
@@ -118,55 +113,33 @@ export default function Perfil() {
           Cambiar contraseña
         </h2>
 
-        <div>
-          <label
-            htmlFor="perfil-current"
-            className="mb-tight block text-label uppercase tracking-[0.06em] text-muted"
-          >
-            Contraseña actual
-          </label>
-          <input
-            id="perfil-current"
-            type="password"
-            value={currentPassword}
-            onChange={(event) => setCurrentPassword(event.target.value)}
-            autoComplete="current-password"
-            required
-            aria-invalid={currentInvalid || undefined}
-            aria-describedby={currentInvalid ? 'perfil-current-error' : undefined}
-            className={`${fieldClass} ${fieldBorder(currentInvalid)}`}
-          />
-          {currentInvalid && (
-            <p id="perfil-current-error" className="mt-tight text-meta text-danger">
-              {fieldErrors.current_password[0]}
-            </p>
-          )}
-        </div>
+        <Field
+          id="perfil-current"
+          label="Contraseña actual"
+          value={currentPassword}
+          onChange={(event) => setCurrentPassword(event.target.value)}
+          autoComplete="current-password"
+          required
+          invalid={currentInvalid}
+          errorId="perfil-current-error"
+          error={fieldErrors?.current_password}
+          revealed={showCurrent}
+          onToggleReveal={() => setShowCurrent((shown) => !shown)}
+        />
 
-        <div>
-          <label
-            htmlFor="perfil-new"
-            className="mb-tight block text-label uppercase tracking-[0.06em] text-muted"
-          >
-            Nueva contraseña
-          </label>
-          <input
-            id="perfil-new"
-            type="password"
-            value={newPassword}
-            onChange={(event) => setNewPassword(event.target.value)}
-            autoComplete="new-password"
-            required
-            aria-invalid={newInvalid || undefined}
-            aria-describedby={newInvalid ? 'perfil-new-error' : undefined}
-            className={`${fieldClass} ${fieldBorder(newInvalid)}`}
-          />
-          {newInvalid && (
-            <p id="perfil-new-error" className="mt-tight text-meta text-danger">
-              {fieldErrors.new_password.join(' ')}
-            </p>
-          )}
-        </div>
+        <Field
+          id="perfil-new"
+          label="Nueva contraseña"
+          value={newPassword}
+          onChange={(event) => setNewPassword(event.target.value)}
+          autoComplete="new-password"
+          required
+          invalid={newInvalid}
+          errorId="perfil-new-error"
+          error={fieldErrors?.new_password}
+          revealed={showNew}
+          onToggleReveal={() => setShowNew((shown) => !shown)}
+        />
 
         {error && (
           <p role="alert" className="text-meta text-danger">
