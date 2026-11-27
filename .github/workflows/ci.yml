@@ -84,5 +84,11 @@ jobs:
       - name: Build
         run: pnpm run build
 
+      # R3-001: the three design-contract probes (field height, painted focus
+      # ring, typed-text contrast). They run `channel: 'chrome'`, so this uses
+      # the Chrome the ubuntu runner already ships and downloads no browser.
+      - name: Design contract tests
+        run: pnpm test
+
       - name: Lint
         run: pnpm run lint
