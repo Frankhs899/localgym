@@ -1,5 +1,14 @@
 # React + Vite
 
+## Design contract tests
+
+`pnpm test` builds the SPA and runs `tests/` in a real Chrome: `playwright.config.js`
+uses `channel: 'chrome'`, so the suite reuses the installed browser instead of
+downloading one. The three probes in `tests/design-contract.spec.js` measure the
+compiled CSS — field height, the painted accent focus ring, and typed-text
+contrast — on Login and Mi perfil, and each one fails if its T7 regression
+returns. They need no backend: `/api/me/` is stubbed per test.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

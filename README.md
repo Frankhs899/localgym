@@ -58,8 +58,8 @@ de datos y los respaldos deben sobrevivir a actualizaciones de la aplicación.
 | `issue/N-slug` | Una rama por issue, creada desde `dev` (ej: `issue/1-monorepo-structure`). |
 
 - El CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) corre en pushes y
-  PRs a `dev` y a `main`: tests del backend (Python 3.14.8) y build + lint del
-  frontend (Node 24.21.0, pnpm).
+  PRs a `dev` y a `main`: tests del backend (Python 3.14.8) y build + tests de
+  contrato de diseño + lint del frontend (Node 24.21.0, pnpm).
 - `main` exige los status checks del CI (`backend` y `frontend`) como requisito
   de merge.
 - Sin flujo formal de hotfixes por ahora (MVP): los fixes salen de `dev`.
@@ -114,7 +114,13 @@ con la variable de entorno `LOCALGYM_DATA_DIR`.
 cd frontend
 pnpm install
 pnpm dev
+pnpm test    # build + las tres sondas de contrato de diseño en Chrome
 ```
+
+`pnpm test` compila la SPA y mide el resultado en un Chrome real (`playwright`
+con `channel: 'chrome'`, sin descargar navegadores): alto del campo, anillo de
+foco del teclado y contraste del texto tipeado. Son las tres regresiones que
+T7 encontró midiendo, y cada sonda falla si su regresión vuelve.
 
 ## Fases
 
