@@ -112,6 +112,103 @@ function borderOf(locator) {
   )
 }
 
+// The reveal control's four readings, as the browser exposes them. It used to
+// carry a static "Mostrar" in both states (R3-001/L39): the label promised to
+// show a password that was already shown, while `aria-pressed` disagreed with
+// it. `type` is read as the attribute the module renders, so "password" and
+// "text" are what the field actually is.
+const REVEAL_HIDDEN = {
+  text: 'Mostrar',
+  label: 'Mostrar contraseña',
+  pressed: 'false',
+  type: 'password',
+}
+const REVEAL_SHOWN = {
+  text: 'Ocultar',
+  label: 'Ocultar contraseña',
+  pressed: 'true',
+  type: 'text',
+}
+
+// `aria-controls` is the contract that ties one control to one field, and it is
+// also how each of the three password fields finds its own control (Login's and
+// Mi perfil's two).
+function revealControl(page, fieldId) {
+  return page.locator(`button[aria-controls="${fieldId}"]`)
+}
+
+async function revealStateOf(page, fieldId) {
+  const control = revealControl(page, fieldId)
+  return {
+    text: (await control.textContent()).trim(),
+    label: await control.getAttribute('aria-label'),
+    pressed: await control.getAttribute('aria-pressed'),
+    type: await page.locator(`#${fieldId}`).getAttribute('type'),
+  }
+}
+
+// Pressing the control flips all four readings together, and pressing it again
+// returns them all to where they started — never a half-revealed control whose
+// label, state attribute and field type disagree.
+async function checkRevealSwap(page, fieldId) {
+  const control = revealControl(page, fieldId)
+  await expect(control).toBeVisible()
+  expect(await revealStateOf(page, fieldId), `${fieldId} before the click`).toEqual(
+    REVEAL_HIDDEN,
+  )
+  await control.click()
+  expect(await revealStateOf(page, fieldId), `${fieldId} after the click`).toEqual(
+    REVEAL_SHOWN,
+  )
+  await control.click()
+  expect(
+    await revealStateOf(page, fieldId),
+    `${fieldId} after the second click`,
+  ).toEqual(REVEAL_HIDDEN)
+}
+
+// The band the field must keep clear is token-derived, so the probe resolves the
+// token through CSS itself: the declared value is a `calc()` over
+// `--spacing-unit`, and parsing that algebra here would let the probe and the
+// stylesheet drift apart. An element asked to paint the token reports pixels.
+function tightPixels(page) {
+  return page.evaluate(() => {
+    const probe = document.createElement('div')
+    probe.style.paddingRight = 'var(--spacing-tight)'
+    document.body.append(probe)
+    const pixels = Number.parseFloat(getComputedStyle(probe).paddingRight)
+    probe.remove()
+    return pixels
+  })
+}
+
+// Painted geometry, not declarations: the field's right padding and the reveal
+// control's own width, both as the browser laid them out.
+function reserveOf(page, fieldId) {
+  return page.evaluate((id) => {
+    const field = document.getElementById(id)
+    const control = document.querySelector(`button[aria-controls="${id}"]`)
+    return {
+      paddingRight: Number.parseFloat(getComputedStyle(field).paddingRight),
+      controlWidth: control.getBoundingClientRect().width,
+    }
+  }, fieldId)
+}
+
+// The reservation clears the control plus one `--spacing-tight` gap in the label
+// state it is measured in. Shrinking the reservation under the control's own
+// width is exactly the failure this asserts against (R2-magic-pr-padding/L39).
+async function checkReservation(page, fieldId, stateName, tight) {
+  const { paddingRight, controlWidth } = await reserveOf(page, fieldId)
+  expect(controlWidth, `${fieldId} (${stateName}) control width`).toBeGreaterThan(
+    0,
+  )
+  expect(
+    paddingRight,
+    `${fieldId} (${stateName}) right padding`,
+  ).toBeGreaterThanOrEqual(controlWidth + tight)
+}
+
 const TOKEN_TEXT = 'rgb(243, 245, 247)' // --color-text #f3f5f7
 const TOKEN_ACCENT = 'rgb(239, 255, 0)' // --color-accent #efff00
 const TOKEN_DANGER = 'rgb(255, 122, 110)' // --color-danger #ff7a6e
@@ -324,4 +421,54 @@ test('P4 · typing in a field clears that field’s error and nothing else', asy
   })
   await expect(newError).toHaveCount(0)
   await expect(page.getByRole('alert')).toHaveCount(0)
+})
+
+test('P5 · the reveal label follows the state on all three password fields', async ({
+  page,
+}) => {
+  // S11 probe (a)/S5. The label is the control's promise: while the password is
+  // hidden it offers to show it, and while it is shown it offers to hide it, with
+  // `aria-label` following the visible text and `aria-pressed` kept as the state
+  // (the owner's chosen pattern, not the toggle-only one where the name never
+  // changes). All three fields are checked because the control has one
+  // implementation in `components/field.jsx` and two screens render it.
+
+  await boot(page, { authed: false })
+  await page.goto('/login')
+  await expect(page.locator('#login-password')).toBeVisible()
+  await checkRevealSwap(page, 'login-password')
+
+  await boot(page, { authed: true })
+  await page.goto('/perfil')
+  await expect(page.locator('#perfil-current')).toBeVisible()
+  await checkRevealSwap(page, 'perfil-current')
+  await checkRevealSwap(page, 'perfil-new')
+})
+
+test('P6 · the field reserves room for the reveal control in both label states', async ({
+  page,
+}) => {
+  // S11 probe (c)/S6. The password field carries a token-derived `calc()` on its
+  // right padding so typed text cannot run under the reveal control. The label
+  // now changes width with its state, so the reservation is measured in both —
+  // "Ocultar" is not "Mostrar" and a reservation sized for one of them would
+  // let typed text slide under the other (R2-magic-pr-padding/L39).
+
+  await boot(page, { authed: false })
+  await page.goto('/login')
+  await expect(page.locator('#login-password')).toBeVisible()
+  const tight = await tightPixels(page)
+  expect(tight).toBeGreaterThan(0)
+  await checkReservation(page, 'login-password', 'Mostrar', tight)
+  await revealControl(page, 'login-password').click()
+  await checkReservation(page, 'login-password', 'Ocultar', tight)
+
+  await boot(page, { authed: true })
+  await page.goto('/perfil')
+  await expect(page.locator('#perfil-current')).toBeVisible()
+  for (const fieldId of ['perfil-current', 'perfil-new']) {
+    await checkReservation(page, fieldId, 'Mostrar', tight)
+    await revealControl(page, fieldId).click()
+    await checkReservation(page, fieldId, 'Ocultar', tight)
+  }
 })
