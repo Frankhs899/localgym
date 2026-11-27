@@ -158,8 +158,23 @@ Reglas heredadas del artboard; cualquier implementación nueva las respeta.
   `--panel-2`.
 - **Chip de estado** — `--radius-pill`, borde y fondo semánticos (`--ok-*` / `--off-*`),
   texto siempre `--fs-meta` con peso 600. Nunca relleno de lima: el estado no es una acción.
-- **Input** — fondo `--panel`, borde `--line-strong`, `--radius-control`, alto mínimo 36px,
-  texto `--fs-body`, placeholder `--faint`. Foco: anillo `--accent` de 2px.
+- **Input** — fondo `--panel`, borde `--line-strong`, `--radius-control`, texto `--fs-body`,
+  placeholder `--faint`. Foco: anillo `--accent` de 2px. El alto mínimo es `36px` **con**
+  `line-height:16px` (`leading-4`): el mínimo solo liga con ese interlineado, porque el `1.45`
+  heredado deja el campo en 38.3px y el número deja de ser el del sistema. El control **no**
+  lleva `outline-none`: suprimir el outline es lo que dejaba el anillo invisible mientras el
+  `outline-color` medido seguía leyéndose `--accent`. Estado inválido: borde `--danger`,
+  `aria-invalid` en el control y `aria-describedby` apuntando al nodo `role="alert"` de ese
+  campo; los tres cambian juntos o el estado miente.
+- **Control de revelar** — botón quieto dentro del campo de contraseña, anclado a la derecha
+  (`right:6px`, la excepción de geometría ya registrada), texto `--fs-meta` peso 600: `--text-2`
+  mientras la contraseña está oculta y `--accent` mientras está visible. La etiqueta **es la
+  acción**: "Mostrar" pasa a "Ocultar" y vuelve, el `aria-label` la sigue ("Mostrar
+  contraseña" / "Ocultar contraseña") y `aria-pressed` se conserva como el estado. El campo
+  reserva el ancho del control con un `calc()` de tokens en su padding derecho —84px hoy— para
+  que el texto tipeado nunca pase por debajo; como ese ancho depende de la etiqueta (61.5px en
+  "Mostrar" y 58.8px en "Ocultar" a `--fs-meta`), la reserva se **re-mide** cuando cambian la
+  etiqueta, la tipografía o el control.
 - **Segmentado** — contenedor `--radius-control` con borde `--line-strong`; el botón
   presionado usa `--accent-soft` + texto `--accent`; el foco interno se ancla con
   `outline-offset:-2px` y conserva el radio derivado.
@@ -203,9 +218,8 @@ Reglas heredadas del artboard; cualquier implementación nueva las respeta.
   ningún request externo. Lo que sigue abierto no es la decisión sino el peso: el subset
   latin cubre lo que el producto escribe (español), no otros alfabetos.
 - **Tema claro:** no existe ni se prevé. El sistema es oscuro único (S7).
-- **Estados no documentados:** error de validación por campo, carga/skeleton, deshabilitado
-  más allá de `opacity:.45`, y el modal de baja (backdrop e `inert`) no están extraídos acá.
-  El artboard no los muestra.
+- **Estados no documentados:** carga/skeleton, deshabilitado más allá de `opacity:.45`, y el
+  modal de baja (backdrop e `inert`) no están extraídos acá. El artboard no los muestra.
 - **Densidad:** medidas a 1440 (fila 52.8px) y tablet (57.09px); no se midió a 1920 ni en
   pantalla de recepción real.
 - **Drawer del nav fuera de pantalla pero vivo:** en tablet y móvil el sidebar se esconde con

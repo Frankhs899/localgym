@@ -1,4 +1,4 @@
-// design/system.md § Formularios — the artboard's field (`03-login.html`): panel
+// design/system.md § Componentes — the artboard's field (`03-login.html`): panel
 // surface, one hairline below it, 36 px tall so the control height lands on the
 // base-4 scale instead of on the padding, and the text tier stated here instead
 // of inherited (the base layer deliberately sets no colour on `body`, L34).
