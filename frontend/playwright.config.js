@@ -33,7 +33,12 @@ export default defineConfig({
     // only (measured), and Playwright polls `127.0.0.1`.
     command: `pnpm exec vite preview --host 127.0.0.1 --port ${PORT} --strictPort`,
     url: BASE_URL,
-    reuseExistingServer: !process.env.CI,
+    // Never reuse: the suite must only ever measure the build it just compiled,
+    // so a stray `vite preview` (e.g. from a verifier's scratch copy) sitting on
+    // `127.0.0.1:4173` has to fail the run loudly instead of being measured.
+    // Playwright's pre-flight check answers first; `--strictPort` is the second
+    // line of defence, making `vite preview` itself exit non-zero on a taken port.
+    reuseExistingServer: false,
     timeout: 60_000,
   },
 })
