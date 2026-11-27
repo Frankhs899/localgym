@@ -97,8 +97,25 @@ function textContrastOf(locator) {
   })
 }
 
+// The invalid wiring, read as the browser sees it: `null` is the attribute being
+// absent, which is what "stops asserting invalidity" means in markup.
+function ariaStateOf(locator) {
+  return locator.evaluate((element) => ({
+    invalid: element.getAttribute('aria-invalid'),
+    describedBy: element.getAttribute('aria-describedby'),
+  }))
+}
+
+function borderOf(locator) {
+  return locator.evaluate(
+    (element) => getComputedStyle(element).borderTopColor,
+  )
+}
+
 const TOKEN_TEXT = 'rgb(243, 245, 247)' // --color-text #f3f5f7
 const TOKEN_ACCENT = 'rgb(239, 255, 0)' // --color-accent #efff00
+const TOKEN_DANGER = 'rgb(255, 122, 110)' // --color-danger #ff7a6e
+const TOKEN_LINE_STRONG = 'rgb(46, 51, 58)' // --color-line-strong #2e333a
 
 test('P1 · the field is 36 px tall, so `min-height` binds on the base-4 scale', async ({
   page,
@@ -187,4 +204,124 @@ test('P3 · typed text resolves to the text token and stays legible on the field
   const perfil = await textContrastOf(perfilField)
   expect(perfil.foreground).toBe(TOKEN_TEXT)
   expect(perfil.ratio).toBeGreaterThanOrEqual(4.5)
+})
+
+test('P4 · typing in a field clears that field’s error and nothing else', async ({
+  page,
+}) => {
+  // The invalid state used to outlive the value that produced it: after a failed
+  // submit the danger border, `aria-invalid` and the message stayed on both fields
+  // while the person was already correcting one of them (R3-002/L41). The rule is
+  // per field — the corrected field stops asserting invalidity in all three places
+  // and the other field keeps all three, because only that field is still wrong.
+
+  // Login: one server message marks both fields invalid (S3), so this screen is
+  // the one where clearing must not take the shared statement with it.
+  await boot(page, { authed: false })
+  await page.route('**/api/auth/login/', (route) =>
+    route.fulfill({
+      status: 400,
+      contentType: 'application/json',
+      body: JSON.stringify({ detail: 'Usuario o contraseña incorrectos.' }),
+    }),
+  )
+  await page.goto('/login')
+  const loginUser = page.locator('#login-username')
+  const loginPass = page.locator('#login-password')
+  const loginError = page.locator('#login-error')
+  await loginUser.fill('ana')
+  await loginPass.fill('mala')
+  await page.getByRole('button', { name: 'Entrar' }).click()
+
+  // The failed submit marks both fields and paints the one shared node.
+  await expect(loginError).toBeVisible()
+  await expect(loginError).toHaveText('Usuario o contraseña incorrectos.')
+  expect(await borderOf(loginUser)).toBe(TOKEN_DANGER)
+  expect(await borderOf(loginPass)).toBe(TOKEN_DANGER)
+  expect(await ariaStateOf(loginUser)).toEqual({
+    invalid: 'true',
+    describedBy: 'login-error',
+  })
+  expect(await ariaStateOf(loginPass)).toEqual({
+    invalid: 'true',
+    describedBy: 'login-error',
+  })
+
+  // One typed character in the first field clears that field only.
+  await loginUser.press('x')
+  expect(await borderOf(loginUser)).toBe(TOKEN_LINE_STRONG)
+  expect(await ariaStateOf(loginUser)).toEqual({
+    invalid: null,
+    describedBy: null,
+  })
+  expect(await borderOf(loginPass)).toBe(TOKEN_DANGER)
+  expect(await ariaStateOf(loginPass)).toEqual({
+    invalid: 'true',
+    describedBy: 'login-error',
+  })
+  await expect(loginError).toBeVisible()
+
+  // Typing in the second field leaves no invalid field, so the node goes too.
+  await loginPass.press('x')
+  expect(await borderOf(loginPass)).toBe(TOKEN_LINE_STRONG)
+  expect(await ariaStateOf(loginPass)).toEqual({
+    invalid: null,
+    describedBy: null,
+  })
+  await expect(loginError).toHaveCount(0)
+
+  // Mi perfil: one node per field (S4), and the form-level node belongs to a
+  // whole-request failure — it is not painted on this per-field path, so the
+  // alert count below is the check that nothing extra appears as one clears.
+  await boot(page, { authed: true })
+  await page.route('**/api/me/password/', (route) =>
+    route.fulfill({
+      status: 400,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        current_password: ['La contraseña actual no es correcta.'],
+        new_password: ['Muy corta.', 'Usá al menos 8 caracteres.'],
+      }),
+    }),
+  )
+  await page.goto('/perfil')
+  const perfilCurrent = page.locator('#perfil-current')
+  const perfilNew = page.locator('#perfil-new')
+  const currentError = page.locator('#perfil-current-error')
+  const newError = page.locator('#perfil-new-error')
+  await perfilCurrent.fill('vieja')
+  await perfilNew.fill('1234')
+  await page.getByRole('button', { name: 'Guardar cambios' }).click()
+
+  await expect(currentError).toHaveText('La contraseña actual no es correcta.')
+  await expect(newError).toHaveText('Muy corta. Usá al menos 8 caracteres.')
+  await expect(page.getByRole('alert')).toHaveCount(2)
+  expect(await borderOf(perfilCurrent)).toBe(TOKEN_DANGER)
+  expect(await borderOf(perfilNew)).toBe(TOKEN_DANGER)
+
+  // One typed character clears the current-password field only: its key leaves
+  // `fieldErrors`, which drops its border, its wiring and its node together.
+  await perfilCurrent.press('x')
+  expect(await borderOf(perfilCurrent)).toBe(TOKEN_LINE_STRONG)
+  expect(await ariaStateOf(perfilCurrent)).toEqual({
+    invalid: null,
+    describedBy: null,
+  })
+  await expect(currentError).toHaveCount(0)
+  expect(await borderOf(perfilNew)).toBe(TOKEN_DANGER)
+  expect(await ariaStateOf(perfilNew)).toEqual({
+    invalid: 'true',
+    describedBy: 'perfil-new-error',
+  })
+  await expect(newError).toBeVisible()
+  await expect(page.getByRole('alert')).toHaveCount(1)
+
+  await perfilNew.press('x')
+  expect(await borderOf(perfilNew)).toBe(TOKEN_LINE_STRONG)
+  expect(await ariaStateOf(perfilNew)).toEqual({
+    invalid: null,
+    describedBy: null,
+  })
+  await expect(newError).toHaveCount(0)
+  await expect(page.getByRole('alert')).toHaveCount(0)
 })
