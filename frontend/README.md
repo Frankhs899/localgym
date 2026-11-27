@@ -4,7 +4,7 @@
 
 `pnpm test` builds the SPA and runs `tests/` in a real Chrome: `playwright.config.js`
 uses `channel: 'chrome'`, so the suite reuses the installed browser instead of
-downloading one. The six probes in `tests/design-contract.spec.js` measure the
+downloading one. The eight probes in `tests/design-contract.spec.js` measure the
 compiled CSS and the painted behaviour on Login and Mi perfil, and each one fails
 if its regression returns: P1 the field height (36 px, so `min-height` binds on
 the base-4 scale), P2 the painted accent focus ring, P3 typed-text contrast (the
@@ -12,9 +12,14 @@ text token at 4.5:1 or better on the field), P4 that typing in a field clears
 that field's error — danger border, `aria-invalid`, `aria-describedby` and the
 message — while the other field keeps all four and the form-level node stays,
 P5 that the reveal label swaps Mostrar/Ocultar with `aria-label` following it and
-`aria-pressed` kept, on all three password fields, and P6 that the field's
-reserved right padding clears the control's width in both label states. They
-need no backend: `/api/me/` is stubbed per test.
+`aria-pressed` kept, on all three password fields, P6 that the field's reserved
+right padding clears the control's width in both label states, P7 that Login
+keeps one error node for both fields — a single `[role="alert"]` with the id
+`#login-error`, which both fields point at with `aria-describedby` — and P8 that
+Mi perfil gives every backend message its own field: one `role="alert"` node per
+invalid field, each rendering all of its messages joined by one space, none of
+them crossing into the other node. They need no backend: `/api/me/` and the
+failing submit endpoints are stubbed per test.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
