@@ -42,6 +42,30 @@ export default function Perfil() {
   const currentInvalid = Boolean(fieldErrors?.current_password)
   const newInvalid = Boolean(fieldErrors?.new_password)
 
+  // The clearing rule, in one place for this screen (S7): a change removes that
+  // field's key from `fieldErrors` as the value changes, so its border, its
+  // `aria-invalid`/`aria-describedby` wiring and its node all go together — they
+  // are three readings of one key — while the other field keeps its own. The
+  // form-level `error` node and the success line are different state and are not
+  // touched here. It lives on the screen and not in `components/field.jsx`
+  // because the keyed state is this screen's: the module renders from a flag (S2).
+  function edit(field, setValue) {
+    return (event) => {
+      setValue(event.target.value)
+      setFieldErrors((errors) => {
+        if (!errors || !errors[field]) {
+          return errors
+        }
+        const rest = Object.fromEntries(
+          Object.entries(errors).filter(([key]) => key !== field),
+        )
+        // `null` stays the one representation of "no field errors" (the submit
+        // reset above sets it), so an empty object never leaks into that slot.
+        return Object.keys(rest).length > 0 ? rest : null
+      })
+    }
+  }
+
   async function handleSubmit(event) {
     event.preventDefault()
     setBusy(true)
@@ -117,7 +141,7 @@ export default function Perfil() {
           id="perfil-current"
           label="Contraseña actual"
           value={currentPassword}
-          onChange={(event) => setCurrentPassword(event.target.value)}
+          onChange={edit('current_password', setCurrentPassword)}
           autoComplete="current-password"
           required
           invalid={currentInvalid}
@@ -131,7 +155,7 @@ export default function Perfil() {
           id="perfil-new"
           label="Nueva contraseña"
           value={newPassword}
-          onChange={(event) => setNewPassword(event.target.value)}
+          onChange={edit('new_password', setNewPassword)}
           autoComplete="new-password"
           required
           invalid={newInvalid}

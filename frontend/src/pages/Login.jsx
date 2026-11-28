@@ -10,11 +10,19 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  // S7: one flag per field. The shared message below is a single statement about
+  // the credentials as a pair, so it stays one node (S3); only the per-field
+  // invalidity splits, because clearing it is per field.
+  const [invalidFields, setInvalidFields] = useState({
+    username: false,
+    password: false,
+  })
   const [busy, setBusy] = useState(false)
 
   async function handleSubmit(event) {
     event.preventDefault()
     setError('')
+    setInvalidFields({ username: false, password: false })
     setBusy(true)
     try {
       await login(username.trim(), password)
@@ -22,15 +30,34 @@ export default function Login() {
     } catch (apiError) {
       // S8: Spanish, visible; the backend never says which part failed.
       setError(apiError.message)
+      // The artboard marks one field red, but the backend never says which
+      // credential was wrong (`apps/accounts/views.py`), so both fields are marked
+      // invalid and the single message carries the whole statement. Each flag then
+      // clears on its own field's next change (S7).
+      setInvalidFields({ username: true, password: true })
     } finally {
       setBusy(false)
     }
   }
 
-  // The artboard marks one field red, but the backend never says which credential
-  // was wrong (`apps/accounts/views.py`), so both fields are marked invalid and the
-  // single message carries the whole statement.
-  const invalid = Boolean(error)
+  // The clearing rule, in one place for this screen (S7): a change clears that
+  // field's flag as the value changes and touches nothing else, so the other
+  // field keeps its border, its wiring and the shared message while it is still
+  // invalid. It lives here and not in `components/field.jsx` because the state it
+  // clears is this screen's — the module only renders the three consequences of a
+  // flag it is given (S2).
+  function edit(field, setValue) {
+    return (event) => {
+      setValue(event.target.value)
+      setInvalidFields((fields) =>
+        fields[field] ? { ...fields, [field]: false } : fields,
+      )
+    }
+  }
+
+  // The one shared node below stays while either field is still marked invalid,
+  // which is what keeps the statement from vanishing with the first keystroke (S7).
+  const anyInvalid = invalidFields.username || invalidFields.password
 
   return (
     // The screen owns the dark text tier and the accent focus ring: the base layer
@@ -79,12 +106,12 @@ export default function Login() {
             id="login-username"
             label="Usuario"
             value={username}
-            onChange={(event) => setUsername(event.target.value)}
+            onChange={edit('username', setUsername)}
             autoComplete="username"
             autoCapitalize="none"
             spellCheck="false"
             required
-            invalid={invalid}
+            invalid={invalidFields.username}
             errorId="login-error"
           />
 
@@ -92,16 +119,16 @@ export default function Login() {
             id="login-password"
             label="Contraseña"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={edit('password', setPassword)}
             autoComplete="current-password"
             required
-            invalid={invalid}
+            invalid={invalidFields.password}
             errorId="login-error"
             revealed={showPassword}
             onToggleReveal={() => setShowPassword((shown) => !shown)}
           />
 
-          {invalid && <FieldError id="login-error" messages={error} />}
+          {anyInvalid && <FieldError id="login-error" messages={error} />}
 
           <button
             type="submit"

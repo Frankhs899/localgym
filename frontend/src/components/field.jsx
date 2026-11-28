@@ -20,6 +20,18 @@ const fieldBorder = (invalid) =>
 const labelClass =
   'mb-tight block text-label tracking-[0.06em] text-muted uppercase'
 
+// The reveal control's right-padding reservation (S6/R2-magic-pr-padding). It
+// reserves the band the reveal control paints inside the field: the control's own
+// width (its label plus `px-inset` on each side) plus its 6 px inset from the
+// field's right edge plus one `--spacing-tight` of clearance, so typed text can
+// never slide under it. It therefore tracks the control's width and must be
+// re-measured whenever the label, the font or the control changes: measured at
+// `--text-meta` the control is 61.5 px as "Mostrar" and 58.8 px as "Ocultar", so
+// this 84 px clears both label states, and P6 of `tests/design-contract.spec.js`
+// is what fails if someone shrinks the reservation below the control's width.
+const revealPadding =
+  'pr-[calc(var(--spacing-hero)+var(--spacing-page)+var(--spacing-tight))]'
+
 // The control, its label and — on a revealable field — the reveal button and the
 // right padding that keeps typed text out from under it. `invalid` is per field:
 // it drives the danger border, `aria-invalid` and the `aria-describedby` pointer
@@ -52,11 +64,7 @@ export function Field({
       type={reveal ? (revealed ? 'text' : 'password') : type}
       aria-invalid={invalid || undefined}
       aria-describedby={describedBy}
-      className={`${fieldClass} ${
-        reveal
-          ? 'pr-[calc(var(--spacing-hero)+var(--spacing-page)+var(--spacing-tight))] '
-          : ''
-      }${fieldBorder(invalid)}`}
+      className={`${fieldClass} ${reveal ? `${revealPadding} ` : ''}${fieldBorder(invalid)}`}
     />
   )
 
@@ -68,18 +76,24 @@ export function Field({
       {reveal ? (
         <div className="relative flex">
           {control}
-          {/* "Mostrar" is a quiet control inside the field: secondary text, no fill. */}
+          {/* The label is the action, not a static name: "Mostrar" while the
+              password is hidden and "Ocultar" while it is shown, with `aria-label`
+              following the visible text so the accessible name never contradicts
+              the state (S5). `aria-pressed` stays as the state itself — the owner
+              chose this pattern, not the toggle-only one where the name never
+              changes. It is a quiet control inside the field: secondary text, no
+              fill. */}
           <button
             type="button"
             onClick={onToggleReveal}
             aria-pressed={revealed}
             aria-controls={id}
-            aria-label="Mostrar contraseña"
+            aria-label={revealed ? 'Ocultar contraseña' : 'Mostrar contraseña'}
             className={`absolute top-1/2 right-1.5 min-h-8 -translate-y-1/2 rounded-control px-inset py-tight text-meta font-semibold transition-colors hover:text-text ${
               revealed ? 'text-accent' : 'text-text-2'
             }`}
           >
-            Mostrar
+            {revealed ? 'Ocultar' : 'Mostrar'}
           </button>
         </div>
       ) : (
