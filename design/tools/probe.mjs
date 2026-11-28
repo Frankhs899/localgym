@@ -16,7 +16,7 @@
 //   1  the artboard or the injected probe is broken: no </body>, no probe output,
 //      or the page reported a fatal error while measuring
 //   2  the environment or the invocation is wrong: no Chrome, no argument, or a
-//      ._probe_ file that is NOT ours and is therefore refused
+//      ._probe_ file that is NOT provably ours and is therefore refused
 //   3  Chrome itself failed: non-zero exit, signal, or the timeout below
 //
 // Timing knobs and what each one buys (reverse-engineering them is how you get
@@ -36,8 +36,12 @@
 // - The socios listing renders ZERO rows on load: issue #5 forbids a listing on an empty
 //   query, so the probe types into the search field before measuring. Measuring without
 //   that step reports a table that is not there.
+// - The copy is written next to the original under a temporary name and renamed into
+//   place, so a kill during the write cannot leave a half-written copy behind for the
+//   guard to refuse forever.
 
-import { readFileSync, writeFileSync, unlinkSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, unlinkSync, existsSync, renameSync, readdirSync } from "node:fs";
+import { createHash, randomBytes } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { pathToFileURL } from "node:url";
 import { basename, dirname, join, resolve } from "node:path";
@@ -70,6 +74,31 @@ const width = widthArg || "1440";
 // Stamped into every copy the tool writes, so a leftover from a killed run can be
 // recognised as ours instead of being mistaken for someone's real file.
 const PROBE_MARKER = "gentle-design-probe-copy";
+
+// Ownership proof, because the marker on its own proves nothing: an artboard that
+// documents this tool contains that word in its own prose. Every copy we write ends with
+// one ownership line carrying the SHA-256 of everything in front of it, so the file has
+// to vouch for itself — the marker word is necessary but never sufficient, the checksum
+// has to match the bytes it claims to describe. Nothing but this tool writes that tail by
+// accident, and a foreign file cannot carry a checksum of bytes we never hashed. The tail
+// deliberately does not name the injected probe's text: a leftover from a killed run has
+// to validate and be overwritten even after the probe itself is edited, or a commit that
+// touches PROBE would turn every old leftover into a file the guard refuses forever.
+const STAMP_TAIL = /\n<!-- gentle-design-probe-copy v1 sha256=([0-9a-f]{64}) -->\n$/;
+
+function sha256(text) {
+  return createHash("sha256").update(text, "utf8").digest("hex");
+}
+
+function stampedCopy(body) {
+  return body + "\n<!-- " + PROBE_MARKER + " v1 sha256=" + sha256(body) + " -->\n";
+}
+
+function isOurCopy(text) {
+  const stamp = STAMP_TAIL.exec(text);
+  if (!stamp) return false;
+  return sha256(text.slice(0, stamp.index)) === stamp[1];
+}
 
 const PROBE = `<script>
 /* ${PROBE_MARKER} */
@@ -140,19 +169,43 @@ if (at < 0) {
   process.exit(1);
 }
 
-const outFile = join(dirname(resolve(html)), "._probe_" + basename(html));
+const outDir = dirname(resolve(html));
+const outFile = join(outDir, "._probe_" + basename(html));
+const tmpPrefix = "._probe_" + basename(html) + ".tmp-";
 // Two properties must hold at once: a silent overwrite would destroy a real artboard
 // that happens to share the probe's name, and a hard refusal would leave the tool
-// unusable forever after a killed run. The marker separates the cases: our own
-// leftover gets overwritten, anything else is refused untouched.
+// unusable forever after a killed run. isOurCopy() separates the cases with the
+// ownership proof above, not with the marker word: our own leftover gets overwritten,
+// anything else is refused with its bytes untouched.
 if (existsSync(outFile)) {
   const existing = readFileSync(outFile, "utf8");
-  if (!existing.includes(PROBE_MARKER)) {
+  if (!isOurCopy(existing)) {
     console.error("Refusing to touch an existing file that is not a probe copy: " + outFile);
     process.exit(2);
   }
 }
-writeFileSync(outFile, src.slice(0, at) + PROBE + src.slice(at), "utf8");
+
+// A run killed between its write and its cleanup can leave one of these behind. They
+// are ours by name and this destination's by prefix, so the next run removes them
+// instead of leaving a human to hunt for a file the tool invented.
+const staleTemp = new RegExp("^" + tmpPrefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\d+-[0-9a-f]{12}$");
+for (const entry of readdirSync(outDir)) {
+  if (staleTemp.test(entry)) {
+    try { unlinkSync(join(outDir, entry)); } catch {}
+  }
+}
+
+// Atomic write: a temporary file in the same directory, then a rename over the
+// destination, which is what keeps a kill during the write from ever landing half a
+// copy on the destination itself. Chrome never sees the temporary name.
+const tmpFile = join(outDir, tmpPrefix + process.pid + "-" + randomBytes(6).toString("hex"));
+try {
+  writeFileSync(tmpFile, stampedCopy(src.slice(0, at) + PROBE + src.slice(at)), "utf8");
+  renameSync(tmpFile, outFile);
+} catch (error) {
+  try { unlinkSync(tmpFile); } catch {}
+  throw error;
+}
 
 const TIMEOUT_MS = 60000;
 let dom;
