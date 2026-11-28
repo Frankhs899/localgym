@@ -1,21 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useAuth } from '../auth-context.js'
-
-// design/system.md § Formularios — the artboard's field (`03-login.html`): panel
-// surface, one hairline below it, 36 px tall so the control height lands on the
-// base-4 scale instead of on the padding, and the text tier stated here instead
-// of inherited (the base layer deliberately sets no colour on `body`, L34).
-// No `outline-none` here: the artboard's focus ring comes from `:focus-visible`,
-// and suppressing the outline is what made the ring invisible while the measured
-// `outline-color` still read `--color-accent`. `leading-4` is the artboard's own
-// `line-height:16px` on the control: without it the inherited 1.45 makes the field
-// 38.3 px and the `min-height` never binds.
-const fieldClass =
-  'min-h-[36px] w-full rounded-control border bg-panel px-stack py-inset text-body leading-4 text-text'
-
-const fieldBorder = (invalid) =>
-  invalid ? 'border-danger' : 'border-line-strong'
+import { Field, FieldError } from '../components/field.jsx'
 
 export default function Login() {
   const { login } = useAuth()
@@ -24,11 +10,19 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  // S7: one flag per field. The shared message below is a single statement about
+  // the credentials as a pair, so it stays one node (S3); only the per-field
+  // invalidity splits, because clearing it is per field.
+  const [invalidFields, setInvalidFields] = useState({
+    username: false,
+    password: false,
+  })
   const [busy, setBusy] = useState(false)
 
   async function handleSubmit(event) {
     event.preventDefault()
     setError('')
+    setInvalidFields({ username: false, password: false })
     setBusy(true)
     try {
       await login(username.trim(), password)
@@ -36,15 +30,34 @@ export default function Login() {
     } catch (apiError) {
       // S8: Spanish, visible; the backend never says which part failed.
       setError(apiError.message)
+      // The artboard marks one field red, but the backend never says which
+      // credential was wrong (`apps/accounts/views.py`), so both fields are marked
+      // invalid and the single message carries the whole statement. Each flag then
+      // clears on its own field's next change (S7).
+      setInvalidFields({ username: true, password: true })
     } finally {
       setBusy(false)
     }
   }
 
-  // The artboard marks one field red, but the backend never says which credential
-  // was wrong (`apps/accounts/views.py`), so both fields are marked invalid and the
-  // single message carries the whole statement.
-  const invalid = Boolean(error)
+  // The clearing rule, in one place for this screen (S7): a change clears that
+  // field's flag as the value changes and touches nothing else, so the other
+  // field keeps its border, its wiring and the shared message while it is still
+  // invalid. It lives here and not in `components/field.jsx` because the state it
+  // clears is this screen's — the module only renders the three consequences of a
+  // flag it is given (S2).
+  function edit(field, setValue) {
+    return (event) => {
+      setValue(event.target.value)
+      setInvalidFields((fields) =>
+        fields[field] ? { ...fields, [field]: false } : fields,
+      )
+    }
+  }
+
+  // The one shared node below stays while either field is still marked invalid,
+  // which is what keeps the statement from vanishing with the first keystroke (S7).
+  const anyInvalid = invalidFields.username || invalidFields.password
 
   return (
     // The screen owns the dark text tier and the accent focus ring: the base layer
@@ -89,86 +102,33 @@ export default function Login() {
             </p>
           </div>
 
-          <div>
-            <label
-              htmlFor="login-username"
-              className="mb-tight block text-label tracking-[0.06em] text-muted uppercase"
-            >
-              Usuario
-            </label>
-            <input
-              id="login-username"
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              autoComplete="username"
-              autoCapitalize="none"
-              spellCheck="false"
-              required
-              aria-invalid={invalid || undefined}
-              aria-describedby={invalid ? 'login-error' : undefined}
-              className={`${fieldClass} ${fieldBorder(invalid)}`}
-            />
-          </div>
+          <Field
+            id="login-username"
+            label="Usuario"
+            value={username}
+            onChange={edit('username', setUsername)}
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck="false"
+            required
+            invalid={invalidFields.username}
+            errorId="login-error"
+          />
 
-          <div>
-            <label
-              htmlFor="login-password"
-              className="mb-tight block text-label tracking-[0.06em] text-muted uppercase"
-            >
-              Contraseña
-            </label>
-            <div className="relative flex">
-              <input
-                id="login-password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                autoComplete="current-password"
-                required
-                aria-invalid={invalid || undefined}
-                aria-describedby={invalid ? 'login-error' : undefined}
-                className={`${fieldClass} pr-[calc(var(--spacing-hero)+var(--spacing-page)+var(--spacing-tight))] ${fieldBorder(invalid)}`}
-              />
-              {/* "Mostrar" is a quiet control inside the field: secondary text, no fill. */}
-              <button
-                type="button"
-                onClick={() => setShowPassword((shown) => !shown)}
-                aria-pressed={showPassword}
-                aria-controls="login-password"
-                aria-label="Mostrar contraseña"
-                className={`absolute top-1/2 right-1.5 min-h-8 -translate-y-1/2 rounded-control px-inset py-tight text-meta font-semibold transition-colors hover:text-text ${
-                  showPassword ? 'text-accent' : 'text-text-2'
-                }`}
-              >
-                Mostrar
-              </button>
-            </div>
-          </div>
+          <Field
+            id="login-password"
+            label="Contraseña"
+            value={password}
+            onChange={edit('password', setPassword)}
+            autoComplete="current-password"
+            required
+            invalid={invalidFields.password}
+            errorId="login-error"
+            revealed={showPassword}
+            onToggleReveal={() => setShowPassword((shown) => !shown)}
+          />
 
-          {invalid && (
-            <p
-              id="login-error"
-              role="alert"
-              className="flex items-start gap-inset text-meta text-danger"
-            >
-              <svg
-                aria-hidden="true"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                className="mt-px flex-none"
-              >
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 7.5v5.5" />
-                <path d="M12 16.5h.01" />
-              </svg>
-              {error}
-            </p>
-          )}
+          {anyInvalid && <FieldError id="login-error" messages={error} />}
 
           <button
             type="submit"
