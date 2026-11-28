@@ -472,3 +472,113 @@ test('P6 · the field reserves room for the reveal control in both label states'
     await checkReservation(page, fieldId, 'Ocultar', tight)
   }
 })
+
+// P7 pins the shape S3 deliberately keeps (R3-002/L39): the backend never says
+// which credential was wrong (`apps/accounts/views.py`), so one server message
+// marks both fields invalid and one node carries the whole statement. It is a
+// pin, not a RED/GREEN cycle — the behaviour is already correct on this tree and
+// the probe exists so it cannot drift unnoticed. Both readings that would let it
+// drift are asserted: a second alert node appearing anywhere on the screen, and
+// either field describing something other than that one node.
+//
+// The stub answers in the backend's own shape: `api.js` builds the message from
+// `data.detail`, so a `message` key would render the generic fallback text and
+// the probe would pin the wrong sentence.
+test('P7 · Login keeps one error node for both fields', async ({ page }) => {
+  await boot(page, { authed: false })
+  await page.route('**/api/auth/login/', (route) =>
+    route.fulfill({
+      status: 400,
+      contentType: 'application/json',
+      body: JSON.stringify({ detail: 'Usuario o contraseña incorrectos.' }),
+    }),
+  )
+  await page.goto('/login')
+  const loginUser = page.locator('#login-username')
+  const loginPass = page.locator('#login-password')
+  await expect(loginUser).toBeVisible()
+  await loginUser.fill('ana')
+  await loginPass.fill('mala')
+  await page.getByRole('button', { name: 'Entrar' }).click()
+
+  // One node for the pair — not one per field, and not the plus the screen would
+  // need if each field carried its own copy of the same sentence (S3).
+  const alerts = page.getByRole('alert')
+  await expect(alerts).toHaveCount(1)
+  await expect(alerts.first()).toHaveAttribute('id', 'login-error')
+  await expect(alerts.first()).toHaveText('Usuario o contraseña incorrectos.')
+
+  // Both fields point at that one node, so neither can claim an error node of
+  // its own while the statement stays shared.
+  expect(await ariaStateOf(loginUser)).toEqual({
+    invalid: 'true',
+    describedBy: 'login-error',
+  })
+  expect(await ariaStateOf(loginPass)).toEqual({
+    invalid: 'true',
+    describedBy: 'login-error',
+  })
+})
+
+// P8 pins S4: Mi perfil renders one node per field, each `role="alert"` and each
+// carrying **every** message the backend sent for that field joined with one
+// space. The current-password field used to render only the first message while
+// the new-password field joined them (`Perfil.jsx:141`/`:166` before T2), so a
+// `[0]` anywhere in the chain is what this probe makes visible. The exact text of
+// both nodes is the leak check: a message that crossed over, or one that went
+// missing, changes one of the two strings as well as the alert count.
+test('P8 · Mi perfil gives every backend message its own field', async ({
+  page,
+}) => {
+  const CURRENT_MESSAGES = [
+    'La contraseña actual es incorrecta.',
+    'Volvé a escribirla.',
+  ]
+  const NEW_MESSAGES = [
+    'Muy corta.',
+    'Usá al menos 8 caracteres.',
+    'No puede ser igual a la anterior.',
+  ]
+
+  await boot(page, { authed: true })
+  await page.route('**/api/me/password/', (route) =>
+    route.fulfill({
+      status: 400,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        current_password: CURRENT_MESSAGES,
+        new_password: NEW_MESSAGES,
+      }),
+    }),
+  )
+  await page.goto('/perfil')
+  const perfilCurrent = page.locator('#perfil-current')
+  const perfilNew = page.locator('#perfil-new')
+  await expect(perfilCurrent).toBeVisible()
+  await perfilCurrent.fill('vieja')
+  await perfilNew.fill('1234')
+  await page.getByRole('button', { name: 'Guardar cambios' }).click()
+
+  // Two nodes — one per invalid field — and the form-level node stays out of
+  // this path, because a per-field 400 is not a whole-request failure.
+  const alerts = page.getByRole('alert')
+  await expect(alerts).toHaveCount(2)
+
+  const currentError = page.locator('#perfil-current-error')
+  const newError = page.locator('#perfil-new-error')
+  await expect(currentError).toHaveAttribute('role', 'alert')
+  await expect(newError).toHaveAttribute('role', 'alert')
+  await expect(currentError).toHaveText(CURRENT_MESSAGES.join(' '))
+  await expect(newError).toHaveText(NEW_MESSAGES.join(' '))
+
+  // Each field describes its own node and nothing else, which is what keeps the
+  // two statements from reading as one shared message on this screen.
+  expect(await ariaStateOf(perfilCurrent)).toEqual({
+    invalid: 'true',
+    describedBy: 'perfil-current-error',
+  })
+  expect(await ariaStateOf(perfilNew)).toEqual({
+    invalid: 'true',
+    describedBy: 'perfil-new-error',
+  })
+})

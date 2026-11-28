@@ -84,8 +84,10 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      # R3-001: the three design-contract probes (field height, painted focus
-      # ring, typed-text contrast). They run `channel: 'chrome'`, so this uses
+      # R3-001: the eight design-contract probes P1-P8 (field height, painted
+      # focus ring, typed-text contrast, clear-on-typing, reveal label swap,
+      # reserved padding, Login's single error node, Mi perfil's per-field
+      # messages). They run `channel: 'chrome'`, so this uses
       # the Chrome the ubuntu runner already ships and downloads no browser.
       # No build here on purpose: `Build` above already compiled the SPA once
       # and would have failed the job first, and the probes must only ever
